@@ -9,8 +9,19 @@ from operator import mul
 import numpy as np
 import pandas as pd
 from collections import OrderedDict
+import httplib2
+from bs4 import BeautifulSoup
 
-BASE_URL = "http://json-stat.org/samples/oecd-canada.json"
+#BASE_URL = "http://json-stat.org/samples/oecd-canada.json"
+# TODO: handle dataset with no values
+# BASE_URL = "http://json-stat.org/samples/hierarchy.json" 
+#BASE_URL = "http://json-stat.org/samples/us-gsp.json"
+#BASE_URL = "http://json-stat.org/samples/us-labor.json"
+#BASE_URL = "http://json-stat.org/samples/us-unr.json"
+#BASE_URL = "http://json-stat.org/samples/order.json"
+#BASE_URL = "http://data.ssb.no/api/v0/dataset/26940.json?lang=en"
+#BASE_URL = "http://data.ssb.no/api/v0/dataset/62495.json?lang=en"
+BASE_URL = "http://data.ssb.no/api/v0/dataset/26944.json?lang=en"
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -110,7 +121,7 @@ def from_JSON_stat(x, naming='label'):
         
    
    
-        for i in range(1,numDims):
+        for i in range(0,numDims):
             output.ix[:,i] = list(dimensions[i][output.ix[:,i]])
    
         print "output " 
@@ -118,32 +129,49 @@ def from_JSON_stat(x, naming='label'):
         
     
 def main():
-    request = urllib2.Request(BASE_URL,
-                              headers={"Accept": "application/json"})
-    try:
-        f = urllib2.urlopen(request)
-    except urllib2.HTTPError, e:
-        logger.error((inspect.stack()[0][3]) +
-                      ': HTTPError = ' + str(e.code) +
-                      ' ' + str(e.reason) +
-                      ' ' + str(e.geturl()))
-        raise
-    except urllib2.URLError, e:
-        logger.error('URLError = ' + str(e.reason) +
-                     ' ' + str(e.geturl()))
-        raise
-    except httplib.HTTPException, e:
-        logger.error('HTTPException')
-        raise
-    except Exception:
-        import traceback
-        logger.error('Generic exception: ' + traceback.format_exc())
-        raise
-    else:
-        response = json.loads(f.read(), object_pairs_hook=OrderedDict)
-        f.close()
-
-    from_JSON_stat(response)    
+    
+   
+    uri_list = urllib2.urlopen("http://data.ssb.no/api/v0/dataset/list.json?lang=en")
+    ds_list = json.loads(uri_list.read(), object_pairs_hook=OrderedDict)
+    uri_list.close()
+    test_links = []
+    for element in ds_list['datasets']:
+        test_links.append(element['jsonURI'])
+    
+    print "Testing " + str(len(test_links)) + " links"
+     
+    for link in test_links:  
+        print "Testing link: " + str(link)
+        request = urllib2.Request(link,
+                                  headers={"Accept": "application/json"})
+        try:
+            f = urllib2.urlopen(request)
+        except urllib2.HTTPError, e:
+            logger.error((inspect.stack()[0][3]) +
+                          ': HTTPError = ' + str(e.code) +
+                          ' ' + str(e.reason) +
+                          ' ' + str(e.geturl()))
+            raise
+        except urllib2.URLError, e:
+            logger.error('URLError = ' + str(e.reason) +
+                         ' ' + str(e.geturl()))
+            raise
+        except httplib.HTTPException, e:
+            logger.error('HTTPException')
+            raise
+        except Exception:
+            import traceback
+            logger.error('Generic exception: ' + traceback.format_exc())
+            raise
+        else:
+            response = json.loads(f.read(), object_pairs_hook=OrderedDict)
+            f.close()
+    
+        from_JSON_stat(response)
+    
+   
+  
+    
     
 if __name__ == '__main__':
     main()
