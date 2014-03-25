@@ -6,11 +6,9 @@ import inspect
 import json
 import math
 from operator import mul
-import numpy as np
 import pandas as pd
 from collections import OrderedDict
-import httplib2
-from bs4 import BeautifulSoup
+
 
 #BASE_URL = "http://json-stat.org/samples/oecd-canada.json"
 # TODO: handle dataset with no values
@@ -22,107 +20,156 @@ from bs4 import BeautifulSoup
 #BASE_URL = "http://data.ssb.no/api/v0/dataset/26940.json?lang=en"
 #BASE_URL = "http://data.ssb.no/api/v0/dataset/62495.json?lang=en"
 BASE_URL = "http://data.ssb.no/api/v0/dataset/26944.json?lang=en"
+BASE_TEST_URL = "http://data.ssb.no/api/v0/dataset/list.json?lang=en"
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 def check_input(naming):
+    
+    """Checks and validates input params.
+
+    Args:
+      naming (string): a string containing the naming type (label or index)
+     
+    Returns:
+      Nothing
+
+    Raises:
+      ValueError: if the parameter is not in the allowed list.
+
+    """
+    
     if naming not in ['label','id']:
         raise ValueError('naming must be "label" or "id"')
 
-def get_dim_label(jsList, thisDim):
+def get_dim_label(js_dict, dim):
+    
+    """Gets label from a given dimension.
+
+    Args:
+      js_dict (dict): dictionary containing dataset data and metadata.
+      dim (string): dimension name obtained from JSON file.
+    Returns:
+      dim_label(pandas.DataFrame): DataFrame with label-based dimension data.
+
+    """
     
     try:
-        thisDimLabel = jsList['dimension'][thisDim]['category']['label']    
+        dim_label = js_dict['dimension'][dim]['category']['label']    
     except KeyError:
-        thisDimIndex = get_dim_index(jsList, thisDim)
-        thisDimLabel = pd.concat([thisDimIndex['id'], thisDimIndex['id']], axis=1)
-        thisDimLabel.columns = ['id', 'label']   
+        dim_index = get_dim_index(js_dict, dim)
+        dim_label = pd.concat([dim_index['id'],
+                               dim_index['id']],
+                              axis = 1)
+        dim_label.columns = ['id', 'label']   
     else:
-        thisDimLabel = pd.DataFrame(zip(thisDimLabel.keys(),
-                                        thisDimLabel.values()),
-                                        index = thisDimLabel.keys(),
-                                        columns=['id','label'])
-    return thisDimLabel
+        dim_label = pd.DataFrame(zip(dim_label.keys(),
+                                     dim_label.values()),
+                                 index = dim_label.keys(),
+                                 columns=['id', 'label'])
+    return dim_label
 
-def get_dim_index(jsList, thisDim):
+def get_dim_index(js_dict, dim):
+
+    """Gets index from a given dimension.
+
+    Args:
+      js_dict (dict): dictionary containing dataset data and metadata.
+      dim (string): dimension name obtained from JSON file.
+    Returns:
+      dim_index(pandas.DataFrame): DataFrame with index-based dimension data.
+
+    """
+    
     try:
-        thisDimIndex = jsList['dimension'][thisDim]['category']['index']
+        dim_index = js_dict['dimension'][dim]['category']['index']
     except KeyError:
-        thisDimLabel = get_dim_label(jsList, thisDim)
-        thisDimIndex = pd.DataFrame(zip([thisDimLabel['id'][0]],[0]), 
-                                    index=[1],
-                                    columns=['id','index'])
+        dim_label = get_dim_label(js_dict, dim)
+        dim_index = pd.DataFrame(zip([dim_label['id'][0]], [0]), 
+                                 index=[1],
+                                 columns=['id', 'index'])
     else:
-        if type(thisDimIndex) is list:
-            thisDimIndex = pd.DataFrame(zip(thisDimIndex,
-                                            range(0,len(thisDimIndex))),
-                                        index = thisDimIndex,
-                                        columns=['id','index'])
+        if type(dim_index) is list:
+            dim_index = pd.DataFrame(zip(dim_index,
+                                         range(0, len(dim_index))),
+                                     index = dim_index,
+                                     columns=['id', 'index'])
         else:
-            thisDimIndex = pd.DataFrame(zip(thisDimIndex.keys(),
-                                            thisDimIndex.values()),
-                                        index = thisDimIndex.keys(),
-                                        columns = ['id','index'])
-    return thisDimIndex                                                              
+            dim_index = pd.DataFrame(zip(dim_index.keys(),
+                                         dim_index.values()),
+                                     index = dim_index.keys(),
+                                     columns = ['id', 'index'])
+    return dim_index
 
-def from_JSON_stat(x, naming='label'):
+def from_json_stat(data, naming='label'):
+    
+    """Converts JSON-stat format into pandas.DataFrame object
+
+    Args:
+      data(string): data in JSON-stat format to convert.
+      naming(string): dimension naming. Possible values: 'label' or 'index'
+    Returns:
+      output(pandas.DataFrame): DataFrame with imported data.
+
+    """
+    
     check_input(naming)
-    for element in x:
-        jsList = x[element]
-        dimSizes = jsList['dimension']['size']
+    for element in data:
+        js_dict = data[element]
+        dim_sizes = js_dict['dimension']['size']
         dimensions = []
-        dimNames = []
-        numDims = len(dimSizes)
-        
-        baseSys = []
-        for i in range(0,numDims+1):
-            baseSys.append(reduce(mul, dimSizes[i:numDims+1],1))
-        for i in range(0,numDims):
-            thisDim = jsList['dimension']['id'][i]
+        dim_names = []
+        dim_num = len(dim_sizes) 
+        base_sys = []
+        for i in range(0, dim_num):
+            base_sys.append(reduce(mul, dim_sizes[i:dim_num], 1))
+        #for i in range(0, dim_num):
+            dim = js_dict['dimension']['id'][i]
            
-            thisDimName = jsList['dimension'][thisDim]['label']
+            dim_name = js_dict['dimension'][dim]['label']
             
-            if not thisDimName:
-                thisDimName = thisDim
-            thisDimSize = jsList['dimension']['size'][i]
-            thisDimIndex = get_dim_index(jsList, thisDim)
-            thisDimLabel = get_dim_label(jsList, thisDim)
-            thisDimAll = pd.merge(thisDimIndex, thisDimLabel)     
-           
-            #print thisDimIndex                        
-            #print thisDimAll
+            if not dim_name:
+                dim_name = dim
+            #dim_size = js_list['dimension']['size'][i]
+            dim_index = get_dim_index(js_dict, dim)
+            dim_label = get_dim_label(js_dict, dim)
+            dim_all = pd.merge(dim_index, dim_label)     
+         
             if (naming == 'label'):
-                dimensions.append(thisDimAll['label'])
-                dimNames.append(thisDimName)
+                dimensions.append(dim_all['label'])
+                dim_names.append(dim_name)
             else:
-                dimensions.append(thisDimAll['id'])
-                dimNames = thisDim
+                dimensions.append(dim_all['id'])
+                dim_names = dim
            
-        thisN = len(jsList['value'])
-        output = pd.DataFrame(columns=dimNames + [unicode("value", "utf-8")], index=range(1,thisN)) 
-        theseVals = jsList['value']
-        if type(theseVals) is dict: #see json-stat docs
-            maxVal = max(theseVals.keys(), key=int)
+        total_n = len(js_dict['value'])
+        output = pd.DataFrame(columns=dim_names + [unicode('value', 'utf-8')], 
+                              index=range(1, total_n)) 
+        values = js_dict['value']
+        if type(values) is dict: #see json-stat docs
+            max_val = max(values.keys(), key = int)
             vals = []
-            for element in theseVals:
-                for i in range (0,maxVal):
+            for element in values:
+                for i in range (0, max_val):
                     if element.key == i:
                         vals.append(element.value)
                     else:
                         vals.append(None)
-            theseVals = vals
-        indices = range(0,len(theseVals))
+            values = vals
+        indices = range(0, len(values))
   
-        for i in range(0,thisN):
-            value = theseVals[i]
+        for i in range(0, total_n):
+            value = values[i]
             index = indices[i]
-            output.loc[i+1] = [math.floor((index)/baseSys[j+1])%dimSizes[j] for j in range(0,numDims)] + [value]
+            output.loc[i + 1] = [math.floor((index) / base_sys[j])\
+                                 % dim_sizes[j] for j in range(0, dim_num)] +\
+                                [value]
        
         
    
    
-        for i in range(0,numDims):
-            output.ix[:,i] = list(dimensions[i][output.ix[:,i]])
+        for i in range(0, dim_num):
+            output.ix[:, i] = list(dimensions[i][output.ix[:, i]])
    
         print "output " 
         print str(output) 
@@ -130,8 +177,8 @@ def from_JSON_stat(x, naming='label'):
     
 def main():
     
-   
-    uri_list = urllib2.urlopen("http://data.ssb.no/api/v0/dataset/list.json?lang=en")
+    
+    uri_list = urllib2.urlopen(BASE_TEST_URL)
     ds_list = json.loads(uri_list.read(), object_pairs_hook=OrderedDict)
     uri_list.close()
     test_links = []
@@ -145,33 +192,30 @@ def main():
         request = urllib2.Request(link,
                                   headers={"Accept": "application/json"})
         try:
-            f = urllib2.urlopen(request)
-        except urllib2.HTTPError, e:
-            logger.error((inspect.stack()[0][3]) +
-                          ': HTTPError = ' + str(e.code) +
-                          ' ' + str(e.reason) +
-                          ' ' + str(e.geturl()))
+            requested_data = urllib2.urlopen(request)
+        except urllib2.HTTPError, ex:
+            LOGGER.error((inspect.stack()[0][3]) +
+                          ': HTTPError = ' + str(ex.code) +
+                          ' ' + str(ex.reason) +
+                          ' ' + str(ex.geturl()))
             raise
-        except urllib2.URLError, e:
-            logger.error('URLError = ' + str(e.reason) +
-                         ' ' + str(e.geturl()))
+        except urllib2.URLError, ex:
+            LOGGER.error('URLError = ' + str(ex.reason) +
+                         ' ' + str(ex.geturl()))
             raise
-        except httplib.HTTPException, e:
-            logger.error('HTTPException')
+        except httplib.HTTPException, ex:
+            LOGGER.error('HTTPException')
             raise
         except Exception:
             import traceback
-            logger.error('Generic exception: ' + traceback.format_exc())
+            LOGGER.error('Generic exception: ' + traceback.format_exc())
             raise
         else:
-            response = json.loads(f.read(), object_pairs_hook=OrderedDict)
-            f.close()
+            response = json.loads(requested_data.read(),
+                                  object_pairs_hook=OrderedDict)
+            requested_data.close()
     
-        from_JSON_stat(response)
-    
-   
-  
-    
-    
+        from_json_stat(response)
+
 if __name__ == '__main__':
     main()
