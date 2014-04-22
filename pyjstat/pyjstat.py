@@ -5,6 +5,7 @@ import httplib
 import inspect
 import json
 import math
+import itertools
 from operator import mul
 import pandas as pd
 from collections import OrderedDict
@@ -101,7 +102,27 @@ def get_dim_index(js_dict, dim):
                                      columns = ['id', 'index'])
     return dim_index
 
-def from_json_stat(data, naming='label'):
+def get_df_row(dimensions,i=0, record=[]):
+     
+     for x in dimensions[i]['label']:
+       
+        record.append(x)
+        if len(record) == len(dimensions):
+            yield record        
+        if i+1<len(dimensions):
+            for row in get_df_row(dimensions,i+1, record):
+                yield row
+           
+        if len(record) == i+1:
+            record.pop() 
+            
+'''http://www.peterbe.com/plog/uniqifiers-benchmark'''
+def uniquify(seq):
+    seen = set()
+    seen_add = seen.add
+    return [ x for x in seq if x not in seen and not seen_add(x)]      
+
+def from_json_stat(datasets, naming='label'):
     
     """Converts JSON-stat format into pandas.DataFrame object
 
@@ -114,37 +135,26 @@ def from_json_stat(data, naming='label'):
     """
     
     check_input(naming)
-    for element in data:
-        js_dict = data[element]
-        dim_sizes = js_dict['dimension']['size']
+    results = []
+    for dataset in datasets:
         dimensions = []
         dim_names = []
-        dim_num = len(dim_sizes) 
-        base_sys = []
-        for i in range(0, dim_num):
-            base_sys.append(reduce(mul, dim_sizes[i:dim_num], 1))
-        #for i in range(0, dim_num):
-            dim = js_dict['dimension']['id'][i]
-           
-            dim_name = js_dict['dimension'][dim]['label']
-            
+        values = []
+        js_dict = datasets[dataset] 
+        for dim in js_dict['dimension']['id']:
+            dim_name = js_dict['dimension'][dim]['label'] 
             if not dim_name:
-                dim_name = dim
-            #dim_size = js_list['dimension']['size'][i]
-            dim_index = get_dim_index(js_dict, dim)
-            dim_label = get_dim_label(js_dict, dim)
-            dim_all = pd.merge(dim_index, dim_label)     
-         
+                dim_name = dim  
             if (naming == 'label'):
-                dimensions.append(dim_all['label'])
+                dim_label = get_dim_label(js_dict, dim)
+                dimensions.append(dim_label)
                 dim_names.append(dim_name)
             else:
-                dimensions.append(dim_all['id'])
-                dim_names = dim
-           
-        total_n = len(js_dict['value'])
+                dim_index = get_dim_index(js_dict, dim)
+                dimensions.append(dim_index)
+                dim_names = dim      
         output = pd.DataFrame(columns=dim_names + [unicode('value', 'utf-8')], 
-                              index=range(1, total_n)) 
+                              index=range(1, len(js_dict['value'])))
         values = js_dict['value']
         if type(values) is dict: #see json-stat docs
             max_val = max(values.keys(), key = int)
@@ -156,37 +166,63 @@ def from_json_stat(data, naming='label'):
                     else:
                         vals.append(None)
             values = vals
-        indices = range(0, len(values))
-  
-        for i in range(0, total_n):
-            value = values[i]
-            index = indices[i]
-            output.loc[i + 1] = [math.floor((index) / base_sys[j])\
-                                 % dim_sizes[j] for j in range(0, dim_num)] +\
-                                [value]
-       
+        categories = get_df_row(dimensions)
+        #for id, (value, category) in enumerate(itertools.izip(
+                                               #values, categories)):
+        #This only works for one element in the original list of datasets. 
+        #I don't know why the 2nd dataset messes with the 1st by itertools.izip
+        #Fortunately, it seems there is an alternative solution
+        for id, category in enumerate(categories):
+            output.loc[id+1] = category + [values.pop(0)]
+        results.append(output)
+    return(results)
+            
         
-   
-   
-        for i in range(0, dim_num):
-            output.ix[:, i] = list(dimensions[i][output.ix[:, i]])
-   
-        print "output " 
-        print str(output) 
-        
+def to_json_stat(df, value="value"):
+    print(df.head(100))
+    if isinstance(df, pd.DataFrame):
+        data = []
+        data.append(df)         
+    result = []
     
+    for k,df in enumerate(data):
+        print(data[k].columns.values)
+        dims = data[k].filter([item for item in data[k].columns.values if item not in value])
+        print dims     
+        if len(dims.columns.values) != len(set(dims.columns.values)):
+        # non-value columns must constitute a unique ID
+            print "non-value columns must constitute a unique ID - handle this"        
+            break
+        dim_names = list(dims)
+      
+        categories =  [{i:{"label":i, "category":{"index":OrderedDict([(k,k) for k,j in 
+               enumerate(uniquify(dims[i]), start = 1)]), "label":OrderedDict([(k,j) for k,j in 
+               enumerate(uniquify(dims[i]), start = 1)])}}}
+               for i in dims.columns.values]
+        dataset = {"dataset":{"dimension":{"id":dim_names, "size": \
+                      [len(dims[i].unique()) for i in dims.columns.values]}, 
+                       "value":list(df['value'])}}
+        for category in categories:
+            dataset["dataset"]["dimension"].update(category)
+        result.append(dataset)
+      
+        #result['dataset']['dimension']['id'] = dims
+        print json.dumps(result)
+        
 def main():
     
     
-    uri_list = urllib2.urlopen(BASE_TEST_URL)
-    ds_list = json.loads(uri_list.read(), object_pairs_hook=OrderedDict)
-    uri_list.close()
-    test_links = []
-    for element in ds_list['datasets']:
-        test_links.append(element['jsonURI'])
+    #uri_list = urllib2.urlopen(BASE_TEST_URL)
+    #ds_list = json.loads(uri_list.read(), object_pairs_hook=OrderedDict)
+    #uri_list.close()
+    #test_links = []
+    #for element in ds_list['datasets']:
+    #    test_links.append(element['jsonURI'])
     
-    print "Testing " + str(len(test_links)) + " links"
-     
+    #print "Testing " + str(len(test_links)) + " links"
+    test_links = []
+    test_links.append(BASE_URL)
+    
     for link in test_links:  
         print "Testing link: " + str(link)
         request = urllib2.Request(link,
@@ -215,7 +251,10 @@ def main():
                                   object_pairs_hook=OrderedDict)
             requested_data.close()
     
-        from_json_stat(response)
+        results = from_json_stat(response)
+        #print results        
+        for result in results:
+            to_json_stat(result)
 
 if __name__ == '__main__':
     main()
