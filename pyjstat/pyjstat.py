@@ -4,14 +4,11 @@ import logging
 import httplib
 import inspect
 import json
-import math
-import itertools
-from operator import mul
 import pandas as pd
 from collections import OrderedDict
 
 
-#BASE_URL = "http://json-stat.org/samples/oecd-canada.json"
+BASE_URL = "http://json-stat.org/samples/oecd-canada.json"
 # TODO: handle dataset with no values
 # BASE_URL = "http://json-stat.org/samples/hierarchy.json" 
 #BASE_URL = "http://json-stat.org/samples/us-gsp.json"
@@ -20,7 +17,7 @@ from collections import OrderedDict
 #BASE_URL = "http://json-stat.org/samples/order.json"
 #BASE_URL = "http://data.ssb.no/api/v0/dataset/26940.json?lang=en"
 #BASE_URL = "http://data.ssb.no/api/v0/dataset/62495.json?lang=en"
-BASE_URL = "http://data.ssb.no/api/v0/dataset/26944.json?lang=en"
+#BASE_URL = "http://data.ssb.no/api/v0/dataset/26944.json?lang=en"
 BASE_TEST_URL = "http://data.ssb.no/api/v0/dataset/list.json?lang=en"
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
@@ -179,35 +176,45 @@ def from_json_stat(datasets, naming='label'):
             
         
 def to_json_stat(df, value="value"):
-    print(df.head(100))
+   
+    data = []
     if isinstance(df, pd.DataFrame):
-        data = []
         data.append(df)         
+    else: 
+        data = df
     result = []
     
-    for k,df in enumerate(data):
-        print(data[k].columns.values)
-        dims = data[k].filter([item for item in data[k].columns.values if item not in value])
-        print dims     
+    for n,df in enumerate(data):
+        dims = data[n].filter([item for item in data[n].columns.values \
+                               if item not in value])
+       
         if len(dims.columns.values) != len(set(dims.columns.values)):
-        # non-value columns must constitute a unique ID
+        # TODO: handle  - non-value columns must constitute a unique ID
             print "non-value columns must constitute a unique ID - handle this"        
             break
         dim_names = list(dims)
       
-        categories =  [{i:{"label":i, "category":{"index":OrderedDict([(k,k) for k,j in 
-               enumerate(uniquify(dims[i]), start = 1)]), "label":OrderedDict([(k,j) for k,j in 
-               enumerate(uniquify(dims[i]), start = 1)])}}}
-               for i in dims.columns.values]
-        dataset = {"dataset":{"dimension":{"id":dim_names, "size": \
-                      [len(dims[i].unique()) for i in dims.columns.values]}, 
-                       "value":list(df['value'])}}
+        categories =  [{i:{"label":i, "category":{"index":OrderedDict([(j,k) \
+                        for k,j in enumerate(uniquify(dims[i]))]), \
+                        "label":OrderedDict([(k,j) for k,j in \
+                        enumerate(uniquify(dims[i]))])}}} \
+                        for i in dims.columns.values]
+        
+        dataset = {"dataset"+str(n+1):{"dimension":OrderedDict(), \
+                   "value":list(df['value'])}}
+                   
         for category in categories:
-            dataset["dataset"]["dimension"].update(category)
+           dataset["dataset"+str(n+1)]["dimension"].update(category)
+           
+        dataset["dataset"+str(n+1)]["dimension"].update({"id":dim_names})
+        dataset["dataset"+str(n+1)]["dimension"].update({"size": \
+                      [len(dims[i].unique()) for i in dims.columns.values]})
+     
+        for category in categories:
+            dataset["dataset"+str(n+1)]["dimension"].update(category)
         result.append(dataset)
       
-        #result['dataset']['dimension']['id'] = dims
-        print json.dumps(result)
+    return json.dumps(result)
         
 def main():
     
@@ -253,8 +260,7 @@ def main():
     
         results = from_json_stat(response)
         #print results        
-        for result in results:
-            to_json_stat(result)
+        print to_json_stat(results)
 
 if __name__ == '__main__':
     main()
