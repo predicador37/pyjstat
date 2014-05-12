@@ -276,20 +276,28 @@ class TestPyjstat(unittest.TestCase):
         output_list = [1, 4, 5, 3]
         self.assertTrue(set(input_list) == set(output_list))                    
 
-'''    
     def test_from_json_stat(self):
-        self.assertTrue(metadata.Class.find_all('en').classes[1].name 
-                        == 'DataSet')
-
-        
+        results = pyjstat.from_json_stat(self.datasets)
+        print results
+        line_thirty = ['Unemployment rate', 'Belgium', 2009, 7.891892855]
+        dimensions = pyjstat.get_dimensions(self.datasets['oecd'], 'label')
+        self.assertTrue(len(results) == 2)
+        self.assertTrue(set(results[0].columns.values[:-1]) == \
+                        set(dimensions[1]))
+        self.assertTrue(set(results[0].iloc[30].values) == \
+                        set(line_thirty))
+           
     def test_to_json_stat(self):
-
-        self.assertRaises(ValueError,
-                          metadata.DataProvider,
-                          'not a json object')
-        self.assertTrue(metadata.DataProvider(
-                        metadata.request('data-provider/1')).title
-                        == 'Instituto Nacional de Estadística')
-'''
+        results = pyjstat.from_json_stat(self.datasets)
+        json_data = json.loads(pyjstat.to_json_stat(results),
+                                  object_pairs_hook=OrderedDict)
+        self.assertTrue(json_data[0]["dataset1"]["dimension"] \
+                        ["Selected indicator"]["label"] == \
+                        "Selected indicator")                        
+        self.assertTrue(json_data[0]["dataset1"]["dimension"]["size"][1] == 36)
+        self.assertTrue(json_data[1]["dataset2"]["dimension"]["id"][2] == \
+                        "Age group")
+        print json.dumps(json_data)
+        
 if __name__ == '__main__':
     unittest.main()

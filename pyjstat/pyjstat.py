@@ -174,17 +174,18 @@ def get_df_row(dimensions,i=0, record=[]):
 
     """
     
-     for x in dimensions[i]['label']:
-       
+     if (i == 0):
+         record = []
+     for x in dimensions[i]['label']:      
         record.append(x)
         if len(record) == len(dimensions):
-            yield record        
+            yield record
+            
         if i+1<len(dimensions):
             for row in get_df_row(dimensions,i+1, record):
                 yield row
-           
         if len(record) == i+1:
-            record.pop() 
+            record.pop()
             
 def uniquify(seq):
     
@@ -226,14 +227,15 @@ def from_json_stat(datasets, naming='label'):
         dimensions, dim_names = get_dimensions(js_dict, naming)
         values = get_values(js_dict)
         output = pd.DataFrame(columns=dim_names + [unicode('value', 'utf-8')], 
-                              index=range(1, len(values)))
+                              index=range(0, len(values)))
         #for id, (value, category) in enumerate(itertools.izip(
                                                #values, categories)):
         #This only works for one element in the original list of datasets. 
         #I don't know why the 2nd dataset messes with the 1st by itertools.izip
         #Fortunately, it seems there is an alternative solution
         for id, category in enumerate(get_df_row(dimensions)):
-            output.loc[id+1] = category + [values.pop(0)]
+            output.loc[id] = category + [values.pop(0)]
+        output = output.convert_objects(convert_numeric=True)
         results.append(output)
     return(results)
 
@@ -334,7 +336,9 @@ def main():
             requested_data.close()
     
         results = from_json_stat(response)
-        print results        
+        print results
+        for result in results:
+            print result.dtypes
         print to_json_stat(results)
 
 if __name__ == '__main__':
