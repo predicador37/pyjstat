@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
-import urllib2
-import logging
-import httplib
-import inspect
+"""Example Google style docstrings.
+
+This module allows reading and writing JSON-stat format with python, using data
+frame structures provided by the widely accepted pandas library. The JSON-stat 
+format is a simple lightweight JSON format for data dissemination.
+Pyjstat is inspired in rjstat, a library to read and write JSON-stat with R,
+by ajschumacher.
+
+It is written and maintained by Miguel Expósito Martín (@predicador37).
+
+See:
+    
+http://pandas.pydata.org for Python Data Analysis Library (pandas) information.
+https://github.com/ajschumacher/rjstat for rjstat library information.
+http://json-stat.org/ for JSON-stat information.
+
+"""
+
 import json
 import pandas as pd
 from collections import OrderedDict
-
-
-BASE_URL = "http://json-stat.org/samples/oecd-canada.json"
-# TODO: handle dataset with no values
-# BASE_URL = "http://json-stat.org/samples/hierarchy.json" 
-#BASE_URL = "http://json-stat.org/samples/us-gsp.json"
-#BASE_URL = "http://json-stat.org/samples/us-labor.json"
-#BASE_URL = "http://json-stat.org/samples/us-unr.json"
-#BASE_URL = "http://json-stat.org/samples/order.json"
-#BASE_URL = "http://data.ssb.no/api/v0/dataset/26940.json?lang=en"
-#BASE_URL = "http://data.ssb.no/api/v0/dataset/62495.json?lang=en"
-#BASE_URL = "http://data.ssb.no/api/v0/dataset/26944.json?lang=en"
-BASE_TEST_URL = "http://data.ssb.no/api/v0/dataset/list.json?lang=en"
-logging.basicConfig(level=logging.INFO)
-LOGGER = logging.getLogger(__name__)
 
 def check_input(naming):
     
@@ -57,17 +56,17 @@ def get_dimensions(js_dict, naming):
     dimensions = []
     dim_names = []
     for dim in js_dict['dimension']['id']:
-            dim_name = js_dict['dimension'][dim]['label']
-            if not dim_name:
-                dim_name = dim  
-            if (naming == 'label'):
-                dim_label = get_dim_label(js_dict, dim)
-                dimensions.append(dim_label)
-                dim_names.append(dim_name)
-            else:
-                dim_index = get_dim_index(js_dict, dim)
-                dimensions.append(dim_index)
-                dim_names.append(dim)
+        dim_name = js_dict['dimension'][dim]['label']
+        if not dim_name:
+            dim_name = dim  
+        if (naming == 'label'):
+            dim_label = get_dim_label(js_dict, dim)
+            dimensions.append(dim_label)
+            dim_names.append(dim_name)
+        else:
+            dim_index = get_dim_index(js_dict, dim)
+            dimensions.append(dim_index)
+            dim_names.append(dim)
     return dimensions, dim_names            
 
 def get_dim_label(js_dict, dim):
@@ -145,20 +144,20 @@ def get_values(js_dict):
     
     values = js_dict['value']
     if type(values) is dict: #see json-stat docs
-            max_val = max(values.keys(), key = int)
-            vals = []
-            for element in values:
-                for i in range (0, max_val):
-                    if element.key == i:
-                        vals.append(element.value)
-                    else:
-                        vals.append(None)
-            values = vals
+        max_val = max(values.keys(), key = int)
+        vals = []
+        for element in values:
+            for i in range (0, max_val):
+                if element.key == i:
+                    vals.append(element.value)
+                else:
+                    vals.append(None)
+        values = vals
     return values
 
-def get_df_row(dimensions,i=0, record=[]):
+def get_df_row(dimensions, i=0, record=[]):
      
-     """Generate row dimension values for a pandas dataframe.
+    """Generate row dimension values for a pandas dataframe.
 
     Args:
       dimensions (list): list of pandas dataframes with dimension labels \
@@ -174,15 +173,15 @@ def get_df_row(dimensions,i=0, record=[]):
 
     """
     
-     if (i == 0):
-         record = []
-     for x in dimensions[i]['label']:      
-        record.append(x)
+    if (i == 0):
+        record = []
+    for dimension in dimensions[i]['label']:      
+        record.append(dimension)
         if len(record) == len(dimensions):
             yield record
             
-        if i+1<len(dimensions):
-            for row in get_df_row(dimensions,i+1, record):
+        if i+1 < len(dimensions):
+            for row in get_df_row(dimensions, i+1, record):
                 yield row
         if len(record) == i+1:
             record.pop()
@@ -233,14 +232,14 @@ def from_json_stat(datasets, naming='label'):
         #This only works for one element in the original list of datasets. 
         #I don't know why the 2nd dataset messes with the 1st by itertools.izip
         #Fortunately, it seems there is an alternative solution
-        for id, category in enumerate(get_df_row(dimensions)):
-            output.loc[id] = category + [values.pop(0)]
+        for i, category in enumerate(get_df_row(dimensions)):
+            output.loc[i] = category + [values.pop(0)]
         output = output.convert_objects(convert_numeric=True)
         results.append(output)
     return(results)
 
 
-def to_json_stat(df, value="value"):
+def to_json_stat(input_df, value="value"):
     
     """Encode pandas.DataFrame object into JSON-stat format 
 
@@ -255,91 +254,37 @@ def to_json_stat(df, value="value"):
     """
    
     data = []
-    if isinstance(df, pd.DataFrame):
-        data.append(df)         
+    if isinstance(input_df, pd.DataFrame):
+        data.append(input_df)         
     else: 
-        data = df
-    result = []
-    
-    for n,df in enumerate(data):
-        dims = data[n].filter([item for item in data[n].columns.values \
+        data = input_df
+    result = [] 
+    for row, dataframe in enumerate(data):
+        dims = data[row].filter([item for item in data[row].columns.values \
                                if item not in value])
        
         if len(dims.columns.values) != len(set(dims.columns.values)):
         # TODO: handle  - non-value columns must constitute a unique ID
-            print "non-value columns must constitute a unique ID - handle this"        
+            print "non-value columns must constitute a unique ID - handle this"
             break
         dim_names = list(dims)
-      
-        categories =  [{i:{"label":i, "category":{"index":OrderedDict([(j,k) \
-                        for k,j in enumerate(uniquify(dims[i]))]), \
-                        "label":OrderedDict([(k,j) for k,j in \
+        categories =  [{i:{"label":i, "category":{"index":OrderedDict([(j, k) \
+                        for k, j in enumerate(uniquify(dims[i]))]), \
+                        "label":OrderedDict([(k,j) for k, j in \
                         enumerate(uniquify(dims[i]))])}}} \
                         for i in dims.columns.values]
         
-        dataset = {"dataset"+str(n+1):{"dimension":OrderedDict(), \
-                   "value":list(df['value'])}}
+        dataset = {"dataset" + str(row + 1):{"dimension":OrderedDict(), \
+                   "value":list(dataframe['value'])}}
                    
         for category in categories:
-           dataset["dataset"+str(n+1)]["dimension"].update(category)
+            dataset["dataset" + str(row + 1)]["dimension"].update(category)
            
-        dataset["dataset"+str(n+1)]["dimension"].update({"id":dim_names})
-        dataset["dataset"+str(n+1)]["dimension"].update({"size": \
+        dataset["dataset" + str(row + 1)]["dimension"].update({"id":dim_names})
+        dataset["dataset" + str(row + 1)]["dimension"].update({"size": \
                       [len(dims[i].unique()) for i in dims.columns.values]})
      
         for category in categories:
-            dataset["dataset"+str(n+1)]["dimension"].update(category)
+            dataset["dataset" + str(row + 1)]["dimension"].update(category)
         result.append(dataset)
-      
     return json.dumps(result)
-        
-def main():
-    
-    
-    #uri_list = urllib2.urlopen(BASE_TEST_URL)
-    #ds_list = json.loads(uri_list.read(), object_pairs_hook=OrderedDict)
-    #uri_list.close()
-    #test_links = []
-    #for element in ds_list['datasets']:
-    #    test_links.append(element['jsonURI'])
-    
-    #print "Testing " + str(len(test_links)) + " links"
-    test_links = []
-    test_links.append(BASE_URL)
-    
-    for link in test_links:  
-        print "Testing link: " + str(link)
-        request = urllib2.Request(link,
-                                  headers={"Accept": "application/json"})
-        try:
-            requested_data = urllib2.urlopen(request)
-        except urllib2.HTTPError, ex:
-            LOGGER.error((inspect.stack()[0][3]) +
-                          ': HTTPError = ' + str(ex.code) +
-                          ' ' + str(ex.reason) +
-                          ' ' + str(ex.geturl()))
-            raise
-        except urllib2.URLError, ex:
-            LOGGER.error('URLError = ' + str(ex.reason) +
-                         ' ' + str(ex.geturl()))
-            raise
-        except httplib.HTTPException, ex:
-            LOGGER.error('HTTPException')
-            raise
-        except Exception:
-            import traceback
-            LOGGER.error('Generic exception: ' + traceback.format_exc())
-            raise
-        else:
-            response = json.loads(requested_data.read(),
-                                  object_pairs_hook=OrderedDict)
-            requested_data.close()
-    
-        results = from_json_stat(response)
-        print results
-        for result in results:
-            print result.dtypes
-        print to_json_stat(results)
-
-if __name__ == '__main__':
-    main()

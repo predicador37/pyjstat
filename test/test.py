@@ -1,24 +1,15 @@
 # -*- coding: utf-8 -*-
-
-# -*- coding: utf-8 -*-
 import sys
 sys.path.append('../pyjstat')
-import unittest
 import pyjstat
-import logging
+import unittest
 import json
 from collections import OrderedDict
-import urllib2
-import pandas as pd
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 
 class TestPyjstat(unittest.TestCase):
 
     def setUp(self):
-        self.oecd_data = ('{"oecd":{"label":"Unemployment rate in OECD countries'
+        self.oecd_data = ('{"oecd":{"label":"Unemployment rate OECD countries'
                     '2003-2014","source":"Economic Outlook No 92 - December '
                     '2012 - OECD Annual Projections","updated":"2012-11-27",'
                     '"value":[5.943826289,5.39663128,5.044790587,4.789362794,'
@@ -212,7 +203,8 @@ class TestPyjstat(unittest.TestCase):
                     '"85 to 89","older":"90 and older"}}},"sex":{'
                     '"label":"Sex","category":{"index":["T","M","F"],"label":'
                     '{"T":"Total","M":"Male","F":"Female"}}}}}}')
-        self.datasets = json.loads(self.oecd_data, object_pairs_hook=OrderedDict)
+        self.datasets = json.loads(self.oecd_data,
+                                   object_pairs_hook=OrderedDict)
         pass
     
     def test_check_input(self):
@@ -266,8 +258,8 @@ class TestPyjstat(unittest.TestCase):
     
     def test_get_values(self):
         values = pyjstat.get_values(self.datasets['oecd'])
-        first_four_values = [5.943826289,5.39663128,5.044790587,4.789362794]
-        last_four_values = [7.953121271,7.970392182,8.15379125,8.004598637]
+        first_four_values = [5.943826289, 5.39663128, 5.044790587, 4.789362794]
+        last_four_values = [7.953121271, 7.970392182, 8.15379125, 8.004598637]
         self.assertTrue(set(first_four_values) == set(values[:4]))
         self.assertTrue(set(last_four_values) == set(values[-4:])) 
         
@@ -278,7 +270,6 @@ class TestPyjstat(unittest.TestCase):
 
     def test_from_json_stat(self):
         results = pyjstat.from_json_stat(self.datasets)
-        print results
         line_thirty = ['Unemployment rate', 'Belgium', 2009, 7.891892855]
         dimensions = pyjstat.get_dimensions(self.datasets['oecd'], 'label')
         self.assertTrue(len(results) == 2)
@@ -297,7 +288,8 @@ class TestPyjstat(unittest.TestCase):
         self.assertTrue(json_data[0]["dataset1"]["dimension"]["size"][1] == 36)
         self.assertTrue(json_data[1]["dataset2"]["dimension"]["id"][2] == \
                         "Age group")
-        print json.dumps(json_data)
+        self.assertTrue(json_data[0]["dataset1"]["value"][-1], 
+                        results[0][-1:]['value'])
         
 if __name__ == '__main__':
     unittest.main()
