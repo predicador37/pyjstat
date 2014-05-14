@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Example Google style docstrings.
+"""pyjstat is a python module for JSON-stat formatted data manipulation.
 
 This module allows reading and writing JSON-stat format with python, using data
 frame structures provided by the widely accepted pandas library. The JSON-stat 
@@ -7,10 +7,9 @@ format is a simple lightweight JSON format for data dissemination.
 Pyjstat is inspired in rjstat, a library to read and write JSON-stat with R,
 by ajschumacher.
 
-It is written and maintained by Miguel Expósito Martín (@predicador37).
+pyjstat is written and maintained by Miguel Expósito Martín (@predicador37).
 
 See:
-    
 http://pandas.pydata.org for Python Data Analysis Library (pandas) information.
 https://github.com/ajschumacher/rjstat for rjstat library information.
 http://json-stat.org/ for JSON-stat information.
@@ -155,7 +154,7 @@ def get_values(js_dict):
         values = vals
     return values
 
-def get_df_row(dimensions, i=0, record=[]):
+def get_df_row(dimensions, i=0, record=None):
      
     """Generate row dimension values for a pandas dataframe.
 
@@ -173,7 +172,7 @@ def get_df_row(dimensions, i=0, record=[]):
 
     """
     
-    if (i == 0):
+    if (i == 0 or record is None):
         record = []
     for dimension in dimensions[i]['label']:      
         record.append(dimension)
@@ -227,11 +226,6 @@ def from_json_stat(datasets, naming='label'):
         values = get_values(js_dict)
         output = pd.DataFrame(columns=dim_names + [unicode('value', 'utf-8')], 
                               index=range(0, len(values)))
-        #for id, (value, category) in enumerate(itertools.izip(
-                                               #values, categories)):
-        #This only works for one element in the original list of datasets. 
-        #I don't know why the 2nd dataset messes with the 1st by itertools.izip
-        #Fortunately, it seems there is an alternative solution
         for i, category in enumerate(get_df_row(dimensions)):
             output.loc[i] = category + [values.pop(0)]
         output = output.convert_objects(convert_numeric=True)
@@ -262,28 +256,21 @@ def to_json_stat(input_df, value="value"):
     for row, dataframe in enumerate(data):
         dims = data[row].filter([item for item in data[row].columns.values \
                                if item not in value])
-       
         if len(dims.columns.values) != len(set(dims.columns.values)):
-        # TODO: handle  - non-value columns must constitute a unique ID
-            print "non-value columns must constitute a unique ID - handle this"
-            break
+            raise ValueError('Non-value columns must constitute a unique ID')
         dim_names = list(dims)
         categories =  [{i:{"label":i, "category":{"index":OrderedDict([(j, k) \
                         for k, j in enumerate(uniquify(dims[i]))]), \
                         "label":OrderedDict([(k,j) for k, j in \
                         enumerate(uniquify(dims[i]))])}}} \
                         for i in dims.columns.values]
-        
         dataset = {"dataset" + str(row + 1):{"dimension":OrderedDict(), \
                    "value":list(dataframe['value'])}}
-                   
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)
-           
         dataset["dataset" + str(row + 1)]["dimension"].update({"id":dim_names})
         dataset["dataset" + str(row + 1)]["dimension"].update({"size": \
                       [len(dims[i].unique()) for i in dims.columns.values]})
-     
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)
         result.append(dataset)

@@ -284,12 +284,14 @@ class TestPyjstat(unittest.TestCase):
                                   object_pairs_hook=OrderedDict)
         self.assertTrue(json_data[0]["dataset1"]["dimension"] \
                         ["Selected indicator"]["label"] == \
-                        "Selected indicator")                        
+                        "Selected indicator")
         self.assertTrue(json_data[0]["dataset1"]["dimension"]["size"][1] == 36)
         self.assertTrue(json_data[1]["dataset2"]["dimension"]["id"][2] == \
                         "Age group")
         self.assertTrue(json_data[0]["dataset1"]["value"][-1], 
                         results[0][-1:]['value'])
+        results[0].columns = ['a','a','b','value']
+        self.assertRaises(ValueError, pyjstat.to_json_stat, results)                
         
 if __name__ == '__main__':
     unittest.main()
