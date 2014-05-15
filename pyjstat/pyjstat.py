@@ -1,18 +1,31 @@
 # -*- coding: utf-8 -*-
 """pyjstat is a python module for JSON-stat formatted data manipulation.
 
-This module allows reading and writing JSON-stat format with python, using data
-frame structures provided by the widely accepted pandas library. The JSON-stat 
-format is a simple lightweight JSON format for data dissemination.
-Pyjstat is inspired in rjstat, a library to read and write JSON-stat with R,
-by ajschumacher.
+This module allows reading and writing JSON-stat [1]_ format with python, 
+using data frame structures provided by the widely accepted
+pandas library [2]_. The JSON-stat format is a simple lightweight JSON format
+for data dissemination. Pyjstat is inspired in rjstat [3]_, a library to read
+and write JSON-stat with R, by ajschumacher.
 
-pyjstat is written and maintained by Miguel Expósito Martín (@predicador37).
+pyjstat is written and maintained by `Miguel Expósito Martín 
+<https://twitter.com/predicador37>`_ and is distributed under the Apache 2.0
+License (see LICENSE file).
 
-See:
-http://pandas.pydata.org for Python Data Analysis Library (pandas) information.
-https://github.com/ajschumacher/rjstat for rjstat library information.
-http://json-stat.org/ for JSON-stat information.
+.. [1] http://json-stat.org/ for JSON-stat information
+.. [2] http://pandas.pydata.org for Python Data Analysis Library information
+.. [3] https://github.com/ajschumacher/rjstat for rjstat library information
+
+Example:
+  Importing a JSON-stat file into a pandas data frame can be done as follows::
+
+    import urllib2
+    import json
+    import pyjstat    
+    results = pyjstat.from_json_stat(json.load(urllib2.urlopen(
+    'http://json-stat.org/samples/oecd-canada.json')))
+    print results
+
+
 
 """
 
