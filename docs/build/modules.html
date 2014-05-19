@@ -120,16 +120,16 @@ if the parameter is not in the allowed list.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data</strong> (<em>string</em>) &#8211; data in JSON-stat format to convert.</li>
+<li><strong>data</strong> (<em>string</em>) &#8211; data in JSON-stat format to decode.</li>
 <li><strong>naming</strong> (<em>string</em>) &#8211; dimension naming. Possible values: &#8216;label&#8217; or &#8216;index&#8217;</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> &#8211;
-DataFrame with imported data.</p>
+list of pandas.DataFrame with imported data.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
 </td>
 </tr>
 </tbody>
@@ -258,7 +258,8 @@ list of dataset values.</td>
 <dl class="function">
 <dt id="pyjstat.to_json_stat">
 <tt class="descclassname">pyjstat.</tt><tt class="descname">to_json_stat</tt><big>(</big><em>input_df</em>, <em>value='value'</em><big>)</big><a class="headerlink" href="#pyjstat.to_json_stat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encode pandas.DataFrame object into JSON-stat format</p>
+<dd><p>Encode pandas.DataFrame object into JSON-stat format. The DataFrames
+must have exactly one value column.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

@@ -25,8 +25,6 @@ Example:
     'http://json-stat.org/samples/oecd-canada.json')))
     print results
 
-
-
 """
 
 import json
@@ -220,11 +218,11 @@ def from_json_stat(datasets, naming='label'):
     """Decode JSON-stat format into pandas.DataFrame object
 
     Args:
-      data(string): data in JSON-stat format to convert.
+      data(string): data in JSON-stat format to decode.
       naming(string): dimension naming. Possible values: 'label' or 'index'
       
     Returns:
-      output(pandas.DataFrame): DataFrame with imported data.
+      output(list): list of pandas.DataFrame with imported data.
 
     """
     
@@ -248,7 +246,8 @@ def from_json_stat(datasets, naming='label'):
 
 def to_json_stat(input_df, value="value"):
     
-    """Encode pandas.DataFrame object into JSON-stat format 
+    """Encode pandas.DataFrame object into JSON-stat format. The DataFrames 
+       must have exactly one value column.
 
     Args:
       df(pandas.DataFrame): pandas data frame (or list of data frames) to 
@@ -278,7 +277,8 @@ def to_json_stat(input_df, value="value"):
                         enumerate(uniquify(dims[i]))])}}} \
                         for i in dims.columns.values]
         dataset = {"dataset" + str(row + 1):{"dimension":OrderedDict(), \
-                   "value":list(dataframe['value'])}}
+                   "value":list(dataframe['value'].where(pd.notnull(
+                   dataframe['value']), None) )}}
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)
         dataset["dataset" + str(row + 1)]["dimension"].update({"id":dim_names})
