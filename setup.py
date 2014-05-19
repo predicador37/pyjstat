@@ -9,9 +9,9 @@ setup(
     packages=['pyjstat', 'pyjstat.test'],
     #scripts=['bin/example.py'],
     url='http://pypi.python.org/pypi/pyjstat/',
-    license='LICENSE.txt',
+    license='LICENSE',
     description='Module to handle JSON-stat in python pandas.',
-    long_description=open('README.txt').read(),
+    long_description=open('README.rst').read(),
     install_requires=[
        'pandas'
     ],
