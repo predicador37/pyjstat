@@ -10,9 +10,9 @@ dissemination. Pyjstat is inspired in rjstat [3], a library to read and write
 JSON-stat with R, by ajschumacher. Note that, like in the rjstat project,
 not all features are supported (i.e. not all metadata are converted).
 
-|[1] http://json-stat.org/ for JSON-stat information
-|[2] http://pandas.pydata.org for Python Data Analysis Library information
-|[3] https://github.com/ajschumacher/rjstat for rjstat library information
+| [1] http://json-stat.org/ for JSON-stat information  
+| [2] http://pandas.pydata.org for Python Data Analysis Library information  
+| [3] https://github.com/ajschumacher/rjstat for rjstat library information  
 
 Installation
 ============

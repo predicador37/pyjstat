@@ -11,9 +11,9 @@ pyjstat is written and maintained by `Miguel Expósito Martín
 <https://twitter.com/predicador37>`_ and is distributed under the Apache 2.0
 License (see LICENSE file).
 
-.. [1] http://json-stat.org/ for JSON-stat information
-.. [2] http://pandas.pydata.org for Python Data Analysis Library information
-.. [3] https://github.com/ajschumacher/rjstat for rjstat library information
+| [1] http://json-stat.org/ for JSON-stat information  
+| [2] http://pandas.pydata.org for Python Data Analysis Library information  
+| [3] https://github.com/ajschumacher/rjstat for rjstat library information  
 
 Example:
   Importing a JSON-stat file into a pandas data frame can be done as follows::
