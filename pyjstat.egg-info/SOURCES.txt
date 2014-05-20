@@ -1,0 +1,16 @@
+MANIFEST.in
+README.rst
+setup.py
+docs/build/_sources/index.txt
+docs/build/_sources/modules.txt
+docs/source/index.rst
+docs/source/modules.rst
+pyjstat/__init__.py
+pyjstat/pyjstat.py
+pyjstat.egg-info/PKG-INFO
+pyjstat.egg-info/SOURCES.txt
+pyjstat.egg-info/dependency_links.txt
+pyjstat.egg-info/requires.txt
+pyjstat.egg-info/top_level.txt
+pyjstat/test/__init__.py
+pyjstat/test/test.py
