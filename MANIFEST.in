@@ -1,2 +1,2 @@
-include *.rst
-recursive-include docs *.rst
+include README.rst MANIFEST.in *.txt
+recursive-include bin *.py *.txt *.rst *.bat
