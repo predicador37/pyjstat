@@ -11,9 +11,9 @@ JSON-stat with R, by ajschumacher. Note that, like in the rjstat project,
 not all features are supported (i.e. not all metadata are converted).
 **pyjstat** is provided under the Apache License 2.0.
 
-| [1] http://json-stat.org/ for JSON-stat information  
-| [2] http://pandas.pydata.org for Python Data Analysis Library information  
-| [3] https://github.com/ajschumacher/rjstat for rjstat library information  
+.. [1] http://json-stat.org/ for JSON-stat information  
+.. [2] http://pandas.pydata.org for Python Data Analysis Library information  
+.. [3] https://github.com/ajschumacher/rjstat for rjstat library information  
 
 Installation
 ============
