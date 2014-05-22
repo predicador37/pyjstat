@@ -8,7 +8,7 @@ setup(
     author_email='miguel.exposito@gmail.com',
     packages=['pyjstat', 'pyjstat.test'],
     scripts=['bin/example.py'],
-    url='http://pypi.python.org/pypi/pyjstat/',
+    url='https://github.com/predicador37/pyjstat',
     license='Apache License 2.0',
     description='Library to handle JSON-stat data in python using pandas '
                 'DataFrames.',
