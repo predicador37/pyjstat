@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyjstat &mdash; pyjstat 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pyjstat 1 documentation" href="index.html" />
+    <link rel="prev" title="Welcome to pyjstat’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pyjstat’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pyjstat 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pyjstat">
+<h1>pyjstat<a class="headerlink" href="#pyjstat" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<span class="target" id="module-pyjstat"></span><p>pyjstat is a python module for JSON-stat formatted data manipulation.</p>
+<p>This module allows reading and writing JSON-stat <a class="footnote-reference" href="#id4" id="id1">[1]</a> format with python,
+using data frame structures provided by the widely accepted
+pandas library <a class="footnote-reference" href="#id5" id="id2">[2]</a>. The JSON-stat format is a simple lightweight JSON format
+for data dissemination. Pyjstat is inspired in rjstat <a class="footnote-reference" href="#id6" id="id3">[3]</a>, a library to read
+and write JSON-stat with R, by ajschumacher.</p>
+<p>pyjstat is written and maintained by <a class="reference external" href="https://twitter.com/predicador37">Miguel Expósito Martín</a> and is distributed under the Apache 2.0
+License (see LICENSE file).</p>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="http://json-stat.org/">http://json-stat.org/</a> for JSON-stat information</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="http://pandas.pydata.org">http://pandas.pydata.org</a> for Python Data Analysis Library information</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><a class="reference external" href="https://github.com/ajschumacher/rjstat">https://github.com/ajschumacher/rjstat</a> for rjstat library information</td></tr>
+</tbody>
+</table>
+<p class="rubric">Example</p>
+<p>Importing a JSON-stat file into a pandas data frame can be done as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">urllib2</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pyjstat</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pyjstat</span><span class="o">.</span><span class="n">from_json_stat</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span>
+<span class="s">&#39;http://json-stat.org/samples/oecd-canada.json&#39;</span><span class="p">)))</span>
+<span class="k">print</span> <span class="n">results</span>
+</pre></div>
+</div>
+<dl class="function">
+<dt id="pyjstat.check_input">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">check_input</tt><big>(</big><em>naming</em><big>)</big><a class="headerlink" href="#pyjstat.check_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check and validate input params.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>naming</strong> (<em>string</em>) &#8211; a string containing the naming type (label or index)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Nothing</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">ValueError</span></tt> &#8211; 
+if the parameter is not in the allowed list.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyjstat.from_json_stat">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">from_json_stat</tt><big>(</big><em>datasets</em>, <em>naming='label'</em><big>)</big><a class="headerlink" href="#pyjstat.from_json_stat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode JSON-stat format into pandas.DataFrame object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> (<em>string</em>) &#8211; data in JSON-stat format to decode.</li>
+<li><strong>naming</strong> (<em>string</em>) &#8211; dimension naming. Possible values: &#8216;label&#8217; or &#8216;index&#8217;</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> &#8211;
+list of pandas.DataFrame with imported data.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyjstat.get_df_row">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">get_df_row</tt><big>(</big><em>dimensions</em>, <em>i=0</em>, <em>record=None</em><big>)</big><a class="headerlink" href="#pyjstat.get_df_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate row dimension values for a pandas dataframe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dimensions</strong> (<em>list</em>) &#8211; list of pandas dataframes with dimension labels                          generated by get_dim_label or get_dim_index methods</li>
+<li><strong>i</strong> (<em>int, optional</em>) &#8211; dimension list iteration index. Default is 0, it&#8217;s
+used in the recursive calls to the method.</li>
+<li><strong>record</strong> (<em>list</em>) &#8211; list of values representing a pandas dataframe row,                      except for the value column. Default is empty, it&#8217;s used                      in the recursive calls to the method.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields :</th><td class="field-body"><p class="first last"><em>list</em> &#8211;
+list with pandas dataframe column values except for value column</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyjstat.get_dim_index">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">get_dim_index</tt><big>(</big><em>js_dict</em>, <em>dim</em><big>)</big><a class="headerlink" href="#pyjstat.get_dim_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get index from a given dimension.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>js_dict</strong> (<em>dict</em>) &#8211; dictionary containing dataset data and metadata.</li>
+<li><strong>dim</strong> (<em>string</em>) &#8211; dimension name obtained from JSON file.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dim_index</strong> &#8211;
+DataFrame with index-based dimension data.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyjstat.get_dim_label">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">get_dim_label</tt><big>(</big><em>js_dict</em>, <em>dim</em><big>)</big><a class="headerlink" href="#pyjstat.get_dim_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get label from a given dimension.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>js_dict</strong> (<em>dict</em>) &#8211; dictionary containing dataset data and metadata.</li>
+<li><strong>dim</strong> (<em>string</em>) &#8211; dimension name obtained from JSON file.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dim_label</strong> &#8211;
+DataFrame with label-based dimension data.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyjstat.get_dimensions">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">get_dimensions</tt><big>(</big><em>js_dict</em>, <em>naming</em><big>)</big><a class="headerlink" href="#pyjstat.get_dimensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get dimensions from input data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>js_dict</strong> (<em>dict</em>) &#8211; dictionary containing dataset data and metadata.</li>
+<li><strong>naming</strong> (<em>string</em>) &#8211; a string containing the naming type (label or index).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dimensions</strong> &#8211;
+list of pandas data frames with dimension                          category data.
+dim_names (list): list of strings with dimension names.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyjstat.get_values">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">get_values</tt><big>(</big><em>js_dict</em><big>)</big><a class="headerlink" href="#pyjstat.get_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get values from input data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>js_dict</strong> (<em>dict</em>) &#8211; dictionary containing dataset data and metadata.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>values</strong> &#8211;
+list of dataset values.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyjstat.to_json_stat">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">to_json_stat</tt><big>(</big><em>input_df</em>, <em>value='value'</em><big>)</big><a class="headerlink" href="#pyjstat.to_json_stat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode pandas.DataFrame object into JSON-stat format. The DataFrames
+must have exactly one value column.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; pandas data frame (or list of data frames) to</li>
+<li><strong>value</strong> (<em>string</em>) &#8211; name of value column.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> &#8211;
+String with JSON-stat object.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">string</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyjstat.uniquify">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">uniquify</tt><big>(</big><em>seq</em><big>)</big><a class="headerlink" href="#pyjstat.uniquify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return unique values in a list in the original order. See:          <a class="reference external" href="http://www.peterbe.com/plog/uniqifiers-benchmark">http://www.peterbe.com/plog/uniqifiers-benchmark</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>seq</strong> (<em>list</em>) &#8211; original list.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list without duplicates preserving original order.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to pyjstat&#8217;s documentation!</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/modules.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to pyjstat’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">pyjstat 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Miguel Expósito Martín.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
