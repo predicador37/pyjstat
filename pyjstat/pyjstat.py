@@ -289,7 +289,4 @@ def to_json_stat(input_df, value="value"):
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)
         result.append(dataset)
-        print type(dataset)
-        print dataset
-    print type(result)
     return json.dumps(result)
