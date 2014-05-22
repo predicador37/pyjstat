@@ -271,9 +271,9 @@ def to_json_stat(input_df, value="value"):
             raise ValueError('Non-value columns must constitute a unique ID')
         dim_names = list(dims)
         categories = [{i: {"label": i, "category": {"index":
-                      OrderedDict([(j, k) for k, j in
+                      OrderedDict([(str(j), str(k)) for k, j in
                            enumerate(uniquify(dims[i]))]),
-                      "label":OrderedDict([(k, j) for k, j in
+                      "label":OrderedDict([(str(k), str(j)) for k, j in
                                           enumerate(uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
         dataset = {"dataset" + str(row + 1): {"dimension": OrderedDict(),
@@ -289,4 +289,7 @@ def to_json_stat(input_df, value="value"):
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)
         result.append(dataset)
+        print type(dataset)
+        print dataset
+    print type(result)
     return json.dumps(result)
