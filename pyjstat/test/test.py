@@ -265,7 +265,7 @@ class TestPyjstat(unittest.TestCase):
         self.assertTrue(pyjstat.check_input('id') is None)
 
     def test_get_dim_index_with_index(self):
-        """ Test pyjstat get_dim_index() using index as parameter """
+        """ Test pyjstat get_dim_index() using id as parameter """
 
         dim = self.datasets['oecd']['dimension']['id'][2]
         dims_df = pyjstat.get_dim_index(self.datasets['oecd'], dim)
@@ -289,7 +289,7 @@ class TestPyjstat(unittest.TestCase):
         self.assertTrue(dims_df.iloc[-1]['label'] == 'Unemployment rate')
 
     def test_get_dim_label_with_index(self):
-        """ Test pyjstat get_dim_label() using index as parameter """
+        """ Test pyjstat get_dim_label() using id as parameter """
 
         dim = self.datasets['oecd']['dimension']['id'][2]
         dims_df = pyjstat.get_dim_label(self.datasets['oecd'], dim)
@@ -305,7 +305,7 @@ class TestPyjstat(unittest.TestCase):
         self.assertTrue(dimensions[0].iloc[0]['label'] == 'Unemployment rate')
 
     def test_get_dimensions_by_index(self):
-        """ Test pyjstat get_dimensions() using index as parameter """
+        """ Test pyjstat get_dimensions() using id as parameter """
 
         dimensions, dim_names = pyjstat.get_dimensions(self.datasets['oecd'],
                                                        'index')
@@ -336,12 +336,24 @@ class TestPyjstat(unittest.TestCase):
         output_list = [1, 4, 5, 3]
         self.assertTrue(set(input_list) == set(output_list))
 
-    def test_from_json_stat(self):
-        """ Test pyjstat from_json_stat() """
+    def test_from_json_stat_with_label(self):
+        """ Test pyjstat from_json_stat() using label as parameter """
 
         results = pyjstat.from_json_stat(self.datasets)
         line_thirty = ['Unemployment rate', 'Belgium', 2009, 7.891892855]
         dimensions = pyjstat.get_dimensions(self.datasets['oecd'], 'label')
+        self.assertTrue(len(results) == 2)
+        self.assertTrue(set(results[0].columns.values[:-1]) ==
+                        set(dimensions[1]))
+        self.assertTrue(set(results[0].iloc[30].values) ==
+                        set(line_thirty))
+
+    def test_from_json_stat_with_id(self):
+        """ Test pyjstat from_json_stat() using id as parameter"""
+
+        results = pyjstat.from_json_stat(self.datasets, naming='id')
+        line_thirty = ['UNR', 'BE', 2009, 7.891892855]
+        dimensions = pyjstat.get_dimensions(self.datasets['oecd'], 'id')
         self.assertTrue(len(results) == 2)
         self.assertTrue(set(results[0].columns.values[:-1]) ==
                         set(dimensions[1]))
