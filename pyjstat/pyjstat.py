@@ -222,7 +222,9 @@ def from_json_stat(datasets, naming='label'):
     """Decode JSON-stat format into pandas.DataFrame object
 
     Args:
-      data(string): data in JSON-stat format to decode.
+      datasets(OrderedDict): data in JSON-stat format, previously deserialized
+                             to a python object by json.load() or json.loads(),
+                             for example.
       naming(string, optional): dimension naming. Possible values: 'label'
                                 or 'id.'
 
