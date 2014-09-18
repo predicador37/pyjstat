@@ -11,9 +11,9 @@ pyjstat is written and maintained by `Miguel Expósito Martín
 <https://twitter.com/predicador37>`_ and is distributed under the Apache 2.0
 License (see LICENSE file).
 
-.. [1] http://json-stat.org/ for JSON-stat information  
-.. [2] http://pandas.pydata.org for Python Data Analysis Library information  
-.. [3] https://github.com/ajschumacher/rjstat for rjstat library information  
+.. [1] http://json-stat.org/ for JSON-stat information
+.. [2] http://pandas.pydata.org for Python Data Analysis Library information
+.. [3] https://github.com/ajschumacher/rjstat for rjstat library information
 
 Example:
   Importing a JSON-stat file into a pandas data frame can be done as follows::
@@ -154,16 +154,19 @@ def get_values(js_dict):
     """
 
     values = js_dict['value']
-    if type(values) is dict:  # see json-stat docs
-        max_val = max(values.keys(), key=int)
-        vals = []
-        for element in values:
-            for i in range(0, max_val):
-                if element.key == i:
-                    vals.append(element.value)
-                else:
-                    vals.append(None)
-        values = vals
+    if type(values) is list:
+        if type(values[0]) is not dict or tuple:
+            return values
+    # being not a list of dicts or tuples leaves us with a dict...
+    values = {int(key): value for (key, value) in values.items()}
+    max_val = max(values.keys(), key=int) + 1
+    vals = []
+    for i in range(0, max_val):
+        if values[i]:
+            vals.append(values[i])
+        else:
+            vals.append(None)
+    values = vals
     return values
 
 

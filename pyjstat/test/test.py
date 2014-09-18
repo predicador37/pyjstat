@@ -254,8 +254,211 @@ class TestPyjstat(unittest.TestCase):
                           '"label":"Sex","category":{"index":["T","M","F"],'
                           '"label":'
                           '{"T":"Total","M":"Male","F":"Female"}}}}}}')
-        self.datasets = json.loads(self.oecd_data,
-                                   object_pairs_hook=OrderedDict)
+        self.oecd_datasets = json.loads(self.oecd_data,
+                                        object_pairs_hook=OrderedDict)
+        self.ons_data = ('{"ST1117EWla" : { "value" : { "0" : 195074, '
+                         '"1" : 96699, "2" : 98375, "3" : 1524, "4" : 747, '
+                         '"5" : 777, "6" : 1350, "7" : 676, "8" : 674, '
+                         '"9" : 1158, "10" : 598, "11" : 560, "12" : 1041, '
+                         '"13" : 547, "14" : 494, "15" : 825, "16" : 406, '
+                         '"17" : 419, "18" : 818, "19" : 399, "20" : 419, '
+                         '"21" : 629, "22" : 319, "23" : 310, "24" : 540, '
+                         '"25" : 266, "26" : 274, "27" : 518, "28" : 259, '
+                         '"29" : 259, "30" : 468, "31" : 263, "32" : 205, '
+                         '"33" : 554, "34" : 271, "35" : 283, "36" : 620, '
+                         '"37" : 322, "38" : 298, "39" : 714, "40" : 374, '
+                         '"41" : 340, "42" : 753, "43" : 410, "44" : 343, '
+                         '"45" : 956, "46" : 514, "47" : 442, "48" : 1194, '
+                         '"49" : 578, "50" : 616, "51" : 1815, "52" : 869, '
+                         '"53" : 946, "54" : 2526, "55" : 1187, "56" : 1339, '
+                         '"57" : 4749, "58" : 2129, "59" : 2620, "60" : 7326, '
+                         '"61" : 3226, "62" : 4100, "63" : 12383, '
+                         '"64" : 5174, "65" : 7209, "66" : 16063, '
+                         '"67" : 7278, "68" : 8785, "69" : 17536, '
+                         '"70" : 8253, "71" : 9283, "72" : 17373, '
+                         '"73" : 8070, "74" : 9303, "75" : 13634, '
+                         '"76" : 6829, "77" : 6805, "78" : 11274, '
+                         '"79" : 6050, "80" : 5224, "81" : 9381, "82" : 5070, '
+                         '"83" : 4311, "84" : 7836, "85" : 4375, "86" : 3461, '
+                         '"87" : 6531, "88" : 3674, "89" : 2857, "90" : 5397, '
+                         '"91" : 3058, "92" : 2339, "93" : 4584, "94" : 2664, '
+                         '"95" : 1920, "96" : 3640, "97" : 2128, "98" : 1512, '
+                         '"99" : 3286, "100" : 2027, "101" : 1259, '
+                         '"102" : 2652, "103" : 1618, "104" : 1034, '
+                         '"105" : 2350, "106" : 1437, "107" : 913, '
+                         '"108" : 1980, "109" : 1176, "110" : 804, '
+                         '"111" : 1759, "112" : 973, "113" : 786, '
+                         '"114" : 1500, "115" : 825, "116" : 675, '
+                         '"117" : 1306, "118" : 767, "119" : 539, '
+                         '"120" : 1268, "121" : 750, "122" : 518, '
+                         '"123" : 1093, "124" : 601, "125" : 492, '
+                         '"126" : 1081, "127" : 603, "128" : 478, '
+                         '"129" : 870, "130" : 475, "131" : 395, '
+                         '"132" : 904, "133" : 502, "134" : 402, '
+                         '"135" : 826, "136" : 426, "137" : 400, '
+                         '"138" : 809, "139" : 428, "140" : 381, '
+                         '"141" : 746, "142" : 389, "143" : 357, '
+                         '"144" : 690, "145" : 346, "146" : 344, '
+                         '"147" : 630, "148" : 303, "149" : 327, '
+                         '"150" : 644, "151" : 270, "152" : 374, '
+                         '"153" : 642, "154" : 292, "155" : 350, '
+                         '"156" : 578, "157" : 251, "158" : 327, '
+                         '"159" : 622, "160" : 276, "161" : 346, '
+                         '"162" : 575, "163" : 222, "164" : 353, '
+                         '"165" : 561, "166" : 223, "167" : 338, '
+                         '"168" : 620, "169" : 218, "170" : 402, '
+                         '"171" : 649, "172" : 243, "173" : 406, '
+                         '"174" : 584, "175" : 180, "176" : 404, '
+                         '"177" : 734, "178" : 276, "179" : 458, '
+                         '"180" : 591, "181" : 213, "182" : 378, '
+                         '"183" : 653, "184" : 225, "185" : 428, '
+                         '"186" : 677, "187" : 230, "188" : 447, '
+                         '"189" : 694, "190" : 207, "191" : 487, '
+                         '"192" : 640, "193" : 224, "194" : 416, '
+                         '"195" : 583, "196" : 206, "197" : 377, '
+                         '"198" : 568, "199" : 212, "200" : 356, '
+                         '"201" : 497, "202" : 184, "203" : 313, '
+                         '"204" : 470, "205" : 194, "206" : 276, '
+                         '"207" : 411, "208" : 152, "209" : 259, '
+                         '"210" : 357, "211" : 134, "212" : 223, '
+                         '"213" : 389, "214" : 177, "215" : 212, '
+                         '"216" : 370, "217" : 159, "218" : 211, '
+                         '"219" : 371, "220" : 156, "221" : 215, '
+                         '"222" : 291, "223" : 87, "224" : 204, '
+                         '"225" : 285, "226" : 111, "227" : 174, '
+                         '"228" : 231, "229" : 118, "230" : 113, '
+                         '"231" : 204, "232" : 94, "233" : 110, '
+                         '"234" : 161, "235" : 85, "236" : 76, '
+                         '"237" : 145, "238" : 71, "239" : 74, '
+                         '"240" : 142, "241" : 53, "242" : 89, '
+                         '"243" : 147, "244" : 83, "245" : 64, '
+                         '"246" : 88, "247" : 41, "248" : 47, '
+                         '"249" : 74, "250" : 31, "251" : 43, "252" : 68, '
+                         '"253" : 37, "254" : 31, "255" : 64, "256" : 34, '
+                         '"257" : 30, "258" : 234, "259" : 101, "260" : 133 },'
+                         ' "label" : "Sex by single year of age (non-UK born '
+                         'short-term residents)", "updated" : "08/08/2014 '
+                         '16:39:07", "source" : "Office for National '
+                         'Statistics", "dimension" : { "id" : [ "2011CMLADH", '
+                         '"CL_0000304", "CL_0000035", "Att_000001", '
+                         '"CL_0000137" ], "size" : [ 1, 87, 3, 1, 1 ], '
+                         '"role" : { "time" : [ "CL_0000137" ], '
+                         '"geo" : [ "2011CMLADH" ], '
+                         '"metric" : [ "Att_000001" ] }, '
+                         '"2011CMLADH" : { "category" : { '
+                         '"index" : { "K04000001" : 0 }, '
+                         '"label" : { "K04000001" : "England and Wales" } }, '
+                         '"label" : "2011 Census merged local authority '
+                         'district hierarchy"},"CL_0000304" : { '
+                         '"category" : { "index" : { "CI_0000487" : 82, '
+                         '"CI_0000488" : 81, "CI_0000485" : 10, '
+                         '"CI_0000486" : 83, "CI_0000389" : 48, '
+                         '"CI_0000388" : 42, "CI_0000489" : 1, '
+                         '"CI_0000387" : 43, "CI_0000386" : 44, '
+                         '"CI_0000385" : 40, "CI_0000501" : 17, '
+                         '"CI_0000480" : 6, "CI_0000384" : 38, '
+                         '"CI_0000383" : 39, "CI_0000382" : 31, '
+                         '"CI_0000483" : 8, "CI_0000381" : 36, '
+                         '"CI_0000484" : 84, "CI_0000380" : 34, '
+                         '"CI_0000481" : 7, "CI_0000303" : 85, '
+                         '"CI_0000239" : 49, "CI_0000272" : 29, '
+                         '"CI_0000400" : 67, "CI_0000401" : 68, '
+                         '"CI_0000235" : 41, "CI_0000402" : 65, '
+                         '"CI_0000271" : 25, "CI_0000403" : 66, '
+                         '"CI_0000404" : 63, "CI_0000497" : 18, '
+                         '"CI_0000498" : 19, "CI_0000499" : 16, '
+                         '"CI_0000398" : 60, "CI_0000397" : 58, '
+                         '"CI_0000399" : 70, "CI_0000408" : 79, '
+                         '"CI_0000394" : 54, "CI_0000407" : 78, '
+                         '"CI_0000393" : 55, "CI_0000406" : 62, '
+                         '"CI_0000396" : 59, "CI_0000490" : 2, '
+                         '"CI_0000405" : 64, "CI_0000395" : 56, '
+                         '"CI_0000491" : 3, "CI_0000492" : 4, '
+                         '"CI_0000390" : 47, "CI_0000510" : 12, '
+                         '"CI_0000392" : 50, "CI_0000409" : 80, '
+                         '"CI_0000391" : 46, "CI_0000410" : 74, '
+                         '"CI_0000316" : 71, "CI_0000411" : 75, '
+                         '"CI_0000225" : 53, "CI_0000509" : 15, '
+                         '"CI_0000508" : 14, "CI_0000222" : 57, '
+                         '"CI_0000507" : 11, "CI_0000504" : 20, '
+                         '"CI_0000317" : 73, "CI_0000216" : 51, '
+                         '"CI_0000217" : 52, "CI_0000259" : 37, '
+                         '"CI_0000326" : 69, "CI_0000424" : 9, '
+                         '"CI_0000253" : 33, "CI_0000252" : 32, '
+                         '"CI_0000422" : 5, "CI_0000474" : 72, '
+                         '"CI_0000371" : 24, "CI_0000372" : 23, '
+                         '"CI_0000373" : 22, "CI_0000374" : 21, '
+                         '"CI_0000375" : 30, "CI_0000376" : 28, '
+                         '"CI_0000377" : 26, "CI_0000473" : 76, '
+                         '"CI_0000378" : 27, "CI_0002762" : 0, '
+                         '"CI_0000379" : 35, "CI_0002763" : 86, '
+                         '"CI_0000334" : 61, "CI_0000332" : 77, '
+                         '"CI_0000432" : 13, "CI_0000241" : 45 }, '
+                         '"label" : { "CI_0000487" : "Age 81", '
+                         '"CI_0000488" : "Age 80", "CI_0000485" : "Age 9", '
+                         '"CI_0000486" : "Age 82", "CI_0000389" : "Age 47", '
+                         '"CI_0000388" : "Age 41", '
+                         '"CI_0000489" : "Age under 1", '
+                         '"CI_0000387" : "Age 42", "CI_0000386" : "Age 43", '
+                         '"CI_0000385" : "Age 39", "CI_0000480" : "Age 5", '
+                         '"CI_0000501" : "Age 16", "CI_0000384" : "Age 37", '
+                         '"CI_0000383" : "Age 38", "CI_0000382" : "Age 30", '
+                         '"CI_0000381" : "Age 35", "CI_0000483" : "Age 7", '
+                         '"CI_0000484" : "Age 83", "CI_0000380" : "Age 33", '
+                         '"CI_0000481" : "Age 6", "CI_0000239" : "Age 48", '
+                         '"CI_0000303" : "Age 84", "CI_0000272" : "Age 28", '
+                         '"CI_0000400" : "Age 66", "CI_0000235" : "Age 40", '
+                         '"CI_0000401" : "Age 67", "CI_0000402" : "Age 64", '
+                         '"CI_0000271" : "Age 24", "CI_0000403" : "Age 65", '
+                         '"CI_0000404" : "Age 62", "CI_0000497" : "Age 17", '
+                         '"CI_0000498" : "Age 18", "CI_0000499" : "Age 15", '
+                         '"CI_0000398" : "Age 59", "CI_0000397" : "Age 57", '
+                         '"CI_0000399" : "Age 69", "CI_0000394" : "Age 53", '
+                         '"CI_0000408" : "Age 78", "CI_0000393" : "Age 54", '
+                         '"CI_0000407" : "Age 77", "CI_0000490" : "Age 1", '
+                         '"CI_0000406" : "Age 61", "CI_0000396" : "Age 58", '
+                         '"CI_0000405" : "Age 63", "CI_0000395" : "Age 55", '
+                         '"CI_0000491" : "Age 2", "CI_0000492" : "Age 3", '
+                         '"CI_0000390" : "Age 46", "CI_0000510" : "Age 11", '
+                         '"CI_0000392" : "Age 49", "CI_0000391" : "Age 45", '
+                         '"CI_0000409" : "Age 79", "CI_0000410" : "Age 73", '
+                         '"CI_0000316" : "Age 70", "CI_0000225" : "Age 52", '
+                         '"CI_0000411" : "Age 74", "CI_0000509" : "Age 14", '
+                         '"CI_0000508" : "Age 13", "CI_0000507" : "Age 10", '
+                         '"CI_0000222" : "Age 56", "CI_0000504" : "Age 19", '
+                         '"CI_0000317" : "Age 72", "CI_0000216" : "Age 50", '
+                         '"CI_0000217" : "Age 51", "CI_0000259" : "Age 36", '
+                         '"CI_0000326" : "Age 68", "CI_0000424" : "Age 8", '
+                         '"CI_0000253" : "Age 32", "CI_0000252" : "Age 31", '
+                         '"CI_0000422" : "Age 4", "CI_0000371" : "Age 23", '
+                         '"CI_0000474" : "Age 71", "CI_0000372" : "Age 22", '
+                         '"CI_0000373" : "Age 21", "CI_0000374" : "Age 20", '
+                         '"CI_0000375" : "Age 29", "CI_0000376" : "Age 27", '
+                         '"CI_0000377" : "Age 25", "CI_0000473" : "Age 75", '
+                         '"CI_0000378" : "Age 26", '
+                         '"CI_0002762" : "All categories: Age", '
+                         '"CI_0000379" : "Age 34", '
+                         '"CI_0002763" : "Age 85 and over", '
+                         '"CI_0000334" : "Age 60", "CI_0000332" : "Age 76", '
+                         '"CI_0000432" : "Age 12", '
+                         '"CI_0000241" : "Age 44" } }, '
+                         '"label" : "Age (T087A)"},"CL_0000035" : { '
+                         '"category" : { "index" : { "CI_0000071" : 1, '
+                         '"CI_0000070" : 2, "CI_0000121" : 0 }, "label" : { '
+                         '"CI_0000071" : "Males", "CI_0000070" : "Females", '
+                         '"CI_0000121" : "All categories: Sex" } }, '
+                         '"label" : "Sex (T003A)"},"CL_0000137" : { '
+                         '"category" : { "index" : { "CI_0000001" : 0 }, '
+                         '"label" : { "CI_0000001" : "2011" } }, '
+                         '"label" : "Time"},"Att_000001" : { "category" : { '
+                         '"index" : { "Segment_1" : 0 }, "unit" : { '
+                         '"Segment_1" : { "unit" : "Number", '
+                         '"base" : "Person", '
+                         '"label" : "All non-UK born short-term residents", '
+                         '"type" : "Count", "multiplier" : "Units" } } }, '
+                         '"label" : "Measures"} }}}')
+        self.ons_datasets = json.loads(self.ons_data,
+                                       object_pairs_hook=OrderedDict)
 
     def test_check_input(self):
         """ Test pyjstat check_input() """
@@ -267,55 +470,56 @@ class TestPyjstat(unittest.TestCase):
     def test_get_dim_index_with_index(self):
         """ Test pyjstat get_dim_index() using id as parameter """
 
-        dim = self.datasets['oecd']['dimension']['id'][2]
-        dims_df = pyjstat.get_dim_index(self.datasets['oecd'], dim)
+        dim = self.oecd_datasets['oecd']['dimension']['id'][2]
+        dims_df = pyjstat.get_dim_index(self.oecd_datasets['oecd'], dim)
         self.assertTrue(dims_df.iloc[0]['id'] == '2003')
         self.assertTrue(dims_df.iloc[-1]['index'] == 11)
 
     def test_get_dim_index_with_label(self):
         """ Test pyjstat get_dim_index() using label as parameter """
 
-        dim = self.datasets['oecd']['dimension']['id'][0]
-        dims_df = pyjstat.get_dim_index(self.datasets['oecd'], dim)
+        dim = self.oecd_datasets['oecd']['dimension']['id'][0]
+        dims_df = pyjstat.get_dim_index(self.oecd_datasets['oecd'], dim)
         self.assertTrue(dims_df.iloc[0]['id'] == 'UNR')
         self.assertTrue(dims_df.iloc[-1]['index'] == 0)
 
     def test_get_dim_label_with_label(self):
         """ Test pyjstat get_dim_label() using label as parameter """
 
-        dim = self.datasets['oecd']['dimension']['id'][0]
-        dims_df = pyjstat.get_dim_label(self.datasets['oecd'], dim)
+        dim = self.oecd_datasets['oecd']['dimension']['id'][0]
+        dims_df = pyjstat.get_dim_label(self.oecd_datasets['oecd'], dim)
         self.assertTrue(dims_df.iloc[0]['id'] == 'UNR')
         self.assertTrue(dims_df.iloc[-1]['label'] == 'Unemployment rate')
 
     def test_get_dim_label_with_index(self):
         """ Test pyjstat get_dim_label() using id as parameter """
 
-        dim = self.datasets['oecd']['dimension']['id'][2]
-        dims_df = pyjstat.get_dim_label(self.datasets['oecd'], dim)
+        dim = self.oecd_datasets['oecd']['dimension']['id'][2]
+        dims_df = pyjstat.get_dim_label(self.oecd_datasets['oecd'], dim)
         self.assertTrue(dims_df.iloc[0]['id'] == '2003')
         self.assertTrue(dims_df.iloc[-1]['label'] == '2014')
 
     def test_get_dimensions_by_label(self):
         """ Test pyjstat get_dimensions() using label as parameter """
 
-        dimensions, dim_names = pyjstat.get_dimensions(self.datasets['oecd'],
-                                                       'label')
+        dimensions, dim_names = pyjstat.get_dimensions(
+            self.oecd_datasets['oecd'], 'label')
         self.assertTrue(dim_names[2] == '2003-2014')
         self.assertTrue(dimensions[0].iloc[0]['label'] == 'Unemployment rate')
 
     def test_get_dimensions_by_index(self):
         """ Test pyjstat get_dimensions() using id as parameter """
 
-        dimensions, dim_names = pyjstat.get_dimensions(self.datasets['oecd'],
-                                                       'index')
+        dimensions, dim_names = pyjstat.get_dimensions(
+            self.oecd_datasets['oecd'], 'index')
         self.assertTrue(dim_names[2] == 'year')
         self.assertTrue(dimensions[0].iloc[0]['index'] == 0)
 
     def test_get_df_row(self):
         """ Test pyjstat get_df_row() """
 
-        dimensions = pyjstat.get_dimensions(self.datasets['oecd'], 'label')
+        dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
+                                            'label')
         first_row = ['Unemployment rate', 'Australia', '2003']
         categories = pyjstat.get_df_row(dimensions[0])
         self.assertTrue(set(first_row) == set(next(categories)))
@@ -323,11 +527,17 @@ class TestPyjstat(unittest.TestCase):
     def test_get_values(self):
         """ Test pyjstat get_values() """
 
-        values = pyjstat.get_values(self.datasets['oecd'])
+        values = pyjstat.get_values(self.oecd_datasets['oecd'])
         first_four_values = [5.943826289, 5.39663128, 5.044790587, 4.789362794]
         last_four_values = [7.953121271, 7.970392182, 8.15379125, 8.004598637]
         self.assertTrue(set(first_four_values) == set(values[:4]))
         self.assertTrue(set(last_four_values) == set(values[-4:]))
+
+        ons_values = pyjstat.get_values(self.ons_datasets['ST1117EWla'])
+        first_four_ons_values = [195074, 96699, 98375, 1524]
+        last_four_ons_values = [30, 234, 101, 133]
+        self.assertTrue(set(first_four_ons_values) == set(ons_values[:4]))
+        self.assertTrue(set(last_four_ons_values) == set(ons_values[-4:]))
 
     def test_uniquify(self):
         """ Test pyjstat uniquify() """
@@ -339,9 +549,10 @@ class TestPyjstat(unittest.TestCase):
     def test_from_json_stat_with_label(self):
         """ Test pyjstat from_json_stat() using label as parameter """
 
-        results = pyjstat.from_json_stat(self.datasets)
+        results = pyjstat.from_json_stat(self.oecd_datasets)
         line_thirty = ['Unemployment rate', 'Belgium', 2009, 7.891892855]
-        dimensions = pyjstat.get_dimensions(self.datasets['oecd'], 'label')
+        dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
+                                            'label')
         self.assertTrue(len(results) == 2)
         self.assertTrue(set(results[0].columns.values[:-1]) ==
                         set(dimensions[1]))
@@ -351,9 +562,9 @@ class TestPyjstat(unittest.TestCase):
     def test_from_json_stat_with_id(self):
         """ Test pyjstat from_json_stat() using id as parameter"""
 
-        results = pyjstat.from_json_stat(self.datasets, naming='id')
+        results = pyjstat.from_json_stat(self.oecd_datasets, naming='id')
         line_thirty = ['UNR', 'BE', 2009, 7.891892855]
-        dimensions = pyjstat.get_dimensions(self.datasets['oecd'], 'id')
+        dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'], 'id')
         self.assertTrue(len(results) == 2)
         self.assertTrue(set(results[0].columns.values[:-1]) ==
                         set(dimensions[1]))
@@ -363,7 +574,7 @@ class TestPyjstat(unittest.TestCase):
     def test_to_json_stat(self):
         """ Test pyjstat to_json_stat """
 
-        results = pyjstat.from_json_stat(self.datasets)
+        results = pyjstat.from_json_stat(self.oecd_datasets)
         json_data = json.loads(pyjstat.to_json_stat(results),
                                object_pairs_hook=OrderedDict)
         self.assertTrue(json_data[0]["dataset1"]["dimension"]
