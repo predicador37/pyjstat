@@ -70,7 +70,7 @@ def get_dimensions(js_dict, naming):
         dim_name = js_dict['dimension'][dim]['label']
         if not dim_name:
             dim_name = dim
-        if (naming == 'label'):
+        if naming == 'label':
             dim_label = get_dim_label(js_dict, dim)
             dimensions.append(dim_label)
             dim_names.append(dim_name)
@@ -190,7 +190,7 @@ def get_df_row(dimensions, naming='label', i=0, record=None):
     """
 
     check_input(naming)
-    if (i == 0 or record is None):
+    if i == 0 or record is None:
         record = []
     for dimension in dimensions[i][naming]:
         record.append(dimension)
@@ -221,40 +221,65 @@ def uniquify(seq):
     return [x for x in seq if x not in seen and not seen_add(x)]
 
 
-def from_json_stat(datasets, naming='label'):
-    """Decode JSON-stat format into pandas.DataFrame object
+def generate_df(js_dict, naming):
+    """Decode JSON-stat dict into pandas.DataFrame object. Helper method \
+       that should be called inside from_json_stat().
 
     Args:
-      datasets(OrderedDict): data in JSON-stat format, previously deserialized
-                             to a python object by json.load() or json.loads(),
-                             for example.
+      js_dict(OrderedDict): OrderedDict with data in JSON-stat format, \
+                            previously deserialized into a python object by \
+                            json.load() or json.loads(), for example.
+      naming(string): dimension naming. Possible values: 'label' or 'id.'
+
+    Returns:
+      output(DataFrame): pandas.DataFrame with converted data.
+
+    """
+
+    values = []
+
+    dimensions, dim_names = get_dimensions(js_dict, naming)
+    values = get_values(js_dict)
+    output = pd.DataFrame(columns=dim_names + [unicode('value', 'utf-8')],
+                          index=range(0, len(values)))
+    for i, category in enumerate(get_df_row(dimensions, naming)):
+        output.loc[i] = category + [values.pop(0)]
+    output = output.convert_objects(convert_numeric=True)
+    return output
+
+
+def from_json_stat(datasets, naming='label'):
+    """Decode JSON-stat formatted data into pandas.DataFrame object.
+
+    Args:
+      datasets(OrderedDict, list): data in JSON-stat format, previously \
+                                   deserialized to a python object by \
+                                   json.load() or json.loads(), for example.\
+                                   Both List and OrderedDict are accepted \
+                                   as inputs.
       naming(string, optional): dimension naming. Possible values: 'label'
                                 or 'id.'
 
     Returns:
-      output(list): list of pandas.DataFrame with imported data.
+      results(list): list of pandas.DataFrame with imported data.
 
     """
 
     check_input(naming)
     results = []
-    for dataset in datasets:
-        dimensions = []
-        dim_names = []
-        values = []
-        js_dict = datasets[dataset]
-        dimensions, dim_names = get_dimensions(js_dict, naming)
-        values = get_values(js_dict)
-        output = pd.DataFrame(columns=dim_names + [unicode('value', 'utf-8')],
-                              index=range(0, len(values)))
-        for i, category in enumerate(get_df_row(dimensions, naming)):
-            output.loc[i] = category + [values.pop(0)]
-        output = output.convert_objects(convert_numeric=True)
-        results.append(output)
-    return(results)
+    if type(datasets) is list:
+        for idx, element in enumerate(datasets):
+            for dataset in element:
+                js_dict = datasets[idx][dataset]
+                results.append(generate_df(js_dict, naming))
+    elif isinstance(datasets, OrderedDict) or type(datasets) is dict:
+        for dataset in datasets:
+            js_dict = datasets[dataset]
+            results.append(generate_df(js_dict, naming))
+    return results
 
 
-def to_json_stat(input_df, value="value"):
+def to_json_stat(input_df, value="value", output='list'):
     """Encode pandas.DataFrame object into JSON-stat format. The DataFrames
        must have exactly one value column.
 
@@ -262,6 +287,8 @@ def to_json_stat(input_df, value="value"):
       df(pandas.DataFrame): pandas data frame (or list of data frames) to
       encode.
       value(string): name of value column.
+      output(string): accepts two values: 'list' or 'dict'. Produce list of\
+                      dicts or dict of dicts as output.
 
     Returns:
       output(string): String with JSON-stat object.
@@ -269,11 +296,14 @@ def to_json_stat(input_df, value="value"):
     """
 
     data = []
+    if output == 'list':
+        result = []
+    elif output == 'dict':
+        result = {}
     if isinstance(input_df, pd.DataFrame):
         data.append(input_df)
     else:
         data = input_df
-    result = []
     for row, dataframe in enumerate(data):
         dims = data[row].filter([item for item in data[row].columns.values
                                  if item not in value])
@@ -281,15 +311,24 @@ def to_json_stat(input_df, value="value"):
             raise ValueError('Non-value columns must constitute a unique ID')
         dim_names = list(dims)
         categories = [{i: {"label": i, "category": {"index":
-                      OrderedDict([(str(j), str(k)) for k, j in
-                           enumerate(uniquify(dims[i]))]),
-                      "label":OrderedDict([(str(k), str(j)) for k, j in
-                                          enumerate(uniquify(dims[i]))])}}}
+                                                        OrderedDict(
+                                                            [(str(j), str(k))
+                                                             for k, j in
+                                                             enumerate(
+                                                                 uniquify(dims[
+                                                                     i]))]),
+                                                    "label": OrderedDict(
+                                                        [(str(k), str(j)) for
+                                                         k, j in
+                                                         enumerate(uniquify(
+                                                             dims[i]))])}}}
                       for i in dims.columns.values]
         dataset = {"dataset" + str(row + 1): {"dimension": OrderedDict(),
-                   "value": list(
-                   dataframe['value'].where(
-                       pd.notnull(dataframe['value']), None))}}
+                                              "value": list(
+                                                  dataframe['value'].where(
+                                                      pd.notnull(
+                                                          dataframe['value']),
+                                                      None))}}
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)
         dataset[
@@ -298,5 +337,10 @@ def to_json_stat(input_df, value="value"):
             {"size": [len(dims[i].unique()) for i in dims.columns.values]})
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)
-        result.append(dataset)
+        if output == 'list':
+            result.append(dataset)
+        elif output == 'dict':
+            result.update(dataset)
+        else:
+            result = None
     return json.dumps(result)
