@@ -11,7 +11,6 @@ from collections import OrderedDict
 
 
 class TestPyjstat(unittest.TestCase):
-
     """ Unit tests for pyjstat """
 
     def setUp(self):
@@ -572,7 +571,7 @@ class TestPyjstat(unittest.TestCase):
                         set(line_thirty))
 
     def test_to_json_stat(self):
-        """ Test pyjstat to_json_stat """
+        """ Test pyjstat to_json_stat()"""
 
         results = pyjstat.from_json_stat(self.oecd_datasets)
         json_data = json.loads(pyjstat.to_json_stat(results),
@@ -587,6 +586,85 @@ class TestPyjstat(unittest.TestCase):
                         results[0][-1:]['value'])
         results[0].columns = ['a', 'a', 'b', 'value']
         self.assertRaises(ValueError, pyjstat.to_json_stat, results)
+
+    def test_from_to_json_stat_as_dict(self):
+        """ Test pyjstat nested from-to json_stat using dict of dicts as input
+        """
+
+        results = pyjstat.from_json_stat(self.oecd_datasets)
+        json_data = json.loads(pyjstat.to_json_stat(results, output='dict'),
+                               object_pairs_hook=OrderedDict)
+        data_df = pyjstat.from_json_stat(json.loads(json.dumps(json_data),
+                                                    object_pairs_hook=
+                                                    OrderedDict))
+        line_thirty = ['Unemployment rate', 'Belgium', 2009, 7.891892855]
+        dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
+                                            'label')
+        self.assertTrue(len(data_df) == 2)
+        self.assertTrue(set(data_df[0].columns.values[:-1]) ==
+                        set(dimensions[1]))
+        self.assertTrue(set(data_df[0].iloc[30].values) ==
+                        set(line_thirty))
+
+    def test_from_to_json_stat_as_list(self):
+        """ Test pyjstat nested from-to json_stat using list of dicts as input
+        """
+
+        results = pyjstat.from_json_stat(self.oecd_datasets)
+        json_data = json.loads(pyjstat.to_json_stat(results),
+                               object_pairs_hook=OrderedDict)
+        data_df = pyjstat.from_json_stat(json.loads(json.dumps(json_data),
+                                                    object_pairs_hook=
+                                                    OrderedDict))
+        line_thirty = ['Unemployment rate', 'Belgium', 2009, 7.891892855]
+        dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
+                                            'label')
+        self.assertTrue(len(data_df) == 2)
+        self.assertTrue(set(data_df[0].columns.values[:-1]) ==
+                        set(dimensions[1]))
+        self.assertTrue(set(data_df[0].iloc[30].values) ==
+                        set(line_thirty))
+
+    def test_from_to_json_stat_no_loads(self):
+        """ Test pyjstat nested from-to json_stat using list of dicts as input
+        """
+
+        results = pyjstat.from_json_stat(self.oecd_datasets)
+        json_data = json.loads(pyjstat.to_json_stat(results),
+                               object_pairs_hook=OrderedDict)
+        data_df = pyjstat.from_json_stat(json_data)
+        line_thirty = ['Unemployment rate', 'Belgium', 2009, 7.891892855]
+        dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
+                                            'label')
+        self.assertTrue(len(data_df) == 2)
+        self.assertTrue(set(data_df[0].columns.values[:-1]) ==
+                        set(dimensions[1]))
+        self.assertTrue(set(data_df[0].iloc[30].values) ==
+                        set(line_thirty))
+
+    def test_generate_df_with_label(self):
+        """ Test pyjstat generate_df() using label as parameter"""
+
+        data_df = pyjstat.generate_df(self.oecd_datasets['oecd'], 'label')
+        line_thirty = ['Unemployment rate', 'Belgium', 2009, 7.891892855]
+        dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
+                                            'label')
+        self.assertTrue(set(data_df.columns.values[:-1]) ==
+                        set(dimensions[1]))
+        self.assertTrue(set(data_df.iloc[30].values) ==
+                        set(line_thirty))
+
+    def test_generate_df_with_id(self):
+        """ Test pyjstat generate_df() using id as parameter"""
+
+        data_df = pyjstat.generate_df(self.oecd_datasets['oecd'], 'id')
+        line_thirty = ['UNR', 'BE', 2009, 7.891892855]
+        dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'], 'id')
+        self.assertTrue(set(data_df.columns.values[:-1]) ==
+                        set(dimensions[1]))
+        self.assertTrue(set(data_df.iloc[30].values) ==
+                        set(line_thirty))
+
 
 if __name__ == '__main__':
     unittest.main()
