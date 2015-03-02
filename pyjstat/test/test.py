@@ -459,6 +459,13 @@ class TestPyjstat(unittest.TestCase):
         self.ons_datasets = json.loads(self.ons_data,
                                        object_pairs_hook=OrderedDict)
 
+    def test_to_int(self):
+        """ Test pyjstat to_int() """
+        self.assertTrue(type(pyjstat.to_int("5") is int))
+        self.assertTrue(type(pyjstat.to_int("label") is str))
+        #not an integer...
+        self.assertTrue(type(pyjstat.to_int("5.4") is str))
+
     def test_check_input(self):
         """ Test pyjstat check_input() """
 
@@ -586,6 +593,37 @@ class TestPyjstat(unittest.TestCase):
                         results[0][-1:]['value'])
         results[0].columns = ['a', 'a', 'b', 'value']
         self.assertRaises(ValueError, pyjstat.to_json_stat, results)
+
+    def test_to_json_stat_types(self):
+        """ Test pyjstat to_json_stat() output types"""
+
+        results = pyjstat.from_json_stat(self.oecd_datasets)
+        json_data = json.loads(pyjstat.to_json_stat(results),
+                               object_pairs_hook=OrderedDict)
+        self.assertTrue(json_data[0]["dataset1"]["dimension"]
+                        ["OECD countries,EU15 and total"]["category"]["index"]
+                        ["Spain"] == 28)
+        self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
+                        ["OECD countries,EU15 and total"]["category"]["index"]
+                        ["Spain"]) is int)
+        self.assertTrue(json_data[0]["dataset1"]["dimension"]
+                        ["OECD countries,EU15 and total"]["category"]["label"]
+                        ["France"] == "France")
+        self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
+                        ["OECD countries,EU15 and total"]["category"]["label"]
+                        ["France"]) is unicode)
+        self.assertTrue(json_data[0]["dataset1"]["dimension"]
+                        ["2003-2014"]["category"]["index"]
+                        ["2005"] == 2)
+        self.assertTrue(json_data[0]["dataset1"]["dimension"]
+                        ["2003-2014"]["category"]["label"]
+                        ["2005"] == "2005")
+        self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
+                        ["2003-2014"]["category"]["index"]
+                        ["2005"]) is int)
+        self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
+                        ["2003-2014"]["category"]["label"]
+                        ["2005"]) is unicode)
 
     def test_from_to_json_stat_as_dict(self):
         """ Test pyjstat nested from-to json_stat using dict of dicts as input

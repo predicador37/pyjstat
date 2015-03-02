@@ -32,6 +32,23 @@ import pandas as pd
 from collections import OrderedDict
 
 
+def to_int(variable):
+    """Convert variable to integer or string depending on the case.
+
+    Args:
+      variable (string): a string containing a real string or an integer.
+
+    Returns:
+      variable(int, string): an integer or a string, depending on the content\
+                             of variable.
+
+    """
+    try:
+        return int(variable)
+    except ValueError:
+        return str(variable)
+
+
 def check_input(naming):
     """Check and validate input params.
 
@@ -310,18 +327,17 @@ def to_json_stat(input_df, value="value", output='list'):
         if len(dims.columns.values) != len(set(dims.columns.values)):
             raise ValueError('Non-value columns must constitute a unique ID')
         dim_names = list(dims)
-        categories = [{i: {"label": i, "category": {"index":
-                                                        OrderedDict(
-                                                            [(str(j), str(k))
-                                                             for k, j in
-                                                             enumerate(
-                                                                 uniquify(dims[
-                                                                     i]))]),
-                                                    "label": OrderedDict(
-                                                        [(str(k), str(j)) for
-                                                         k, j in
-                                                         enumerate(uniquify(
-                                                             dims[i]))])}}}
+        categories = [{to_int(i):
+                       {"label": to_int(i),
+                        "category":
+                            {"index":
+                             OrderedDict([(str(j), to_int(k))
+                                          for k, j in enumerate(
+                                              uniquify(dims[i]))]),
+                             "label":
+                                 OrderedDict([(to_int(j), str(j))
+                                              for k, j in enumerate(
+                                                  uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
         dataset = {"dataset" + str(row + 1): {"dimension": OrderedDict(),
                                               "value": list(
