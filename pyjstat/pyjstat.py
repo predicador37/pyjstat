@@ -29,7 +29,6 @@ Example:
 
 import json
 import pandas as pd
-import numpy as np
 from collections import OrderedDict
 
 
@@ -319,10 +318,7 @@ def to_json_stat(input_df, value="value", output='list'):
     elif output == 'dict':
         result = {}
     if isinstance(input_df, pd.DataFrame):
-        input_df = input_df.replace(np.nan, ' ', regex=True)
-        print input_df
         data.append(input_df)
-
     else:
         data = input_df
     for row, dataframe in enumerate(data):
@@ -337,11 +333,11 @@ def to_json_stat(input_df, value="value", output='list'):
                             {"index":
                              OrderedDict([(str(j), to_int(k))
                                           for k, j in enumerate(
-                                              dims[i])]),
+                                              uniquify(dims[i]))]),
                              "label":
-                                 OrderedDict([(str(j), str(j))
+                                 OrderedDict([(to_int(j), str(j))
                                               for k, j in enumerate(
-                                                  dims[i])])}}}
+                                                  uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
         dataset = {"dataset" + str(row + 1): {"dimension": OrderedDict(),
                                               "value": list(
