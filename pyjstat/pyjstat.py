@@ -119,8 +119,8 @@ def get_dim_label(js_dict, dim):
                               axis=1)
         dim_label.columns = ['id', 'label']
     else:
-        dim_label = pd.DataFrame(zip(dim_label.keys(),
-                                     dim_label.values()),
+        dim_label = pd.DataFrame(list(zip(dim_label.keys(),
+                                     dim_label.values())),
                                  index=dim_label.keys(),
                                  columns=['id', 'label'])
     return dim_label
@@ -152,8 +152,8 @@ def get_dim_index(js_dict, dim):
                                      index=dim_index,
                                      columns=['id', 'index'])
         else:
-            dim_index = pd.DataFrame(zip(dim_index.keys(),
-                                         dim_index.values()),
+            dim_index = pd.DataFrame(list(zip(dim_index.keys(),
+                                         dim_index.values())),
                                      index=dim_index.keys(),
                                      columns=['id', 'index'])
     return dim_index
@@ -257,7 +257,7 @@ def generate_df(js_dict, naming):
 
     dimensions, dim_names = get_dimensions(js_dict, naming)
     values = get_values(js_dict)
-    output = pd.DataFrame(columns=dim_names + [unicode('value', 'utf-8')],
+    output = pd.DataFrame(columns=dim_names + ['value'],
                           index=range(0, len(values)))
     for i, category in enumerate(get_df_row(dimensions, naming)):
         output.loc[i] = category + [values.pop(0)]
