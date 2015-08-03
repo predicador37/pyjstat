@@ -45,3 +45,4 @@ docs/_build/
 # pycharm ide
 .idea/
 .spyderfile
+.spyderproject
