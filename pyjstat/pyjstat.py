@@ -159,18 +159,19 @@ def get_dim_index(js_dict, dim):
     return dim_index
 
 
-def get_values(js_dict):
+def get_values(js_dict, value='value'):
     """Get values from input data.
 
     Args:
       js_dict (dict): dictionary containing dataset data and metadata.
+      value (string, optional): name of the value column. Defaults to 'value'.
 
     Returns:
       values (list): list of dataset values.
 
     """
 
-    values = js_dict['value']
+    values = js_dict[value]
     if type(values) is list:
         if type(values[0]) is not dict or tuple:
             return values
@@ -238,7 +239,7 @@ def uniquify(seq):
     return [x for x in seq if x not in seen and not seen_add(x)]
 
 
-def generate_df(js_dict, naming):
+def generate_df(js_dict, naming, value="value"):
     """Decode JSON-stat dict into pandas.DataFrame object. Helper method \
        that should be called inside from_json_stat().
 
@@ -247,6 +248,7 @@ def generate_df(js_dict, naming):
                             previously deserialized into a python object by \
                             json.load() or json.loads(), for example.
       naming(string): dimension naming. Possible values: 'label' or 'id.'
+      value (string, optional): name of the value column. Defaults to 'value'.
 
     Returns:
       output(DataFrame): pandas.DataFrame with converted data.
@@ -256,8 +258,8 @@ def generate_df(js_dict, naming):
     values = []
 
     dimensions, dim_names = get_dimensions(js_dict, naming)
-    values = get_values(js_dict)
-    output = pd.DataFrame(columns=dim_names + ['value'],
+    values = get_values(js_dict, value=value)
+    output = pd.DataFrame(columns=dim_names + [value],
                           index=range(0, len(values)))
     for i, category in enumerate(get_df_row(dimensions, naming)):
         output.loc[i] = category + [values.pop(0)]
@@ -265,7 +267,7 @@ def generate_df(js_dict, naming):
     return output
 
 
-def from_json_stat(datasets, naming='label'):
+def from_json_stat(datasets, naming='label', value='value'):
     """Decode JSON-stat formatted data into pandas.DataFrame object.
 
     Args:
@@ -276,6 +278,7 @@ def from_json_stat(datasets, naming='label'):
                                    as inputs.
       naming(string, optional): dimension naming. Possible values: 'label'
                                 or 'id.'
+      value (string, optional): name of the value column. Defaults to 'value'.
 
     Returns:
       results(list): list of pandas.DataFrame with imported data.
@@ -288,22 +291,22 @@ def from_json_stat(datasets, naming='label'):
         for idx, element in enumerate(datasets):
             for dataset in element:
                 js_dict = datasets[idx][dataset]
-                results.append(generate_df(js_dict, naming))
+                results.append(generate_df(js_dict, naming, value))
     elif isinstance(datasets, OrderedDict) or type(datasets) is dict:
         for dataset in datasets:
             js_dict = datasets[dataset]
-            results.append(generate_df(js_dict, naming))
+            results.append(generate_df(js_dict, naming, value))
     return results
 
 
-def to_json_stat(input_df, value="value", output='list'):
+def to_json_stat(input_df, value='value', output='list'):
     """Encode pandas.DataFrame object into JSON-stat format. The DataFrames
        must have exactly one value column.
 
     Args:
       df(pandas.DataFrame): pandas data frame (or list of data frames) to
       encode.
-      value(string): name of value column.
+       value (string, optional): name of the value column. Defaults to 'value'.
       output(string): accepts two values: 'list' or 'dict'. Produce list of\
                       dicts or dict of dicts as output.
 
@@ -340,10 +343,10 @@ def to_json_stat(input_df, value="value", output='list'):
                                                   uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
         dataset = {"dataset" + str(row + 1): {"dimension": OrderedDict(),
-                                              "value": list(
-                                                  dataframe['value'].where(
+                                              value: list(
+                                                  dataframe[value].where(
                                                       pd.notnull(
-                                                          dataframe['value']),
+                                                          dataframe[value]),
                                                       None))}}
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)

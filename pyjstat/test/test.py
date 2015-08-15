@@ -458,6 +458,15 @@ class TestPyjstat(unittest.TestCase):
                          '"label" : "Measures"} }}}')
         self.ons_datasets = json.loads(self.ons_data,
                                        object_pairs_hook=OrderedDict)
+        self.sample_data = ('{"dataset" : {"label" : "Population in Tuvalu in\
+                              2002. By sex", "measure" : [4729, 4832, 9561],\
+                              "dimension" : {"id" : ["sex"], "size" : [3],\
+                              "sex" : {"label" : "Sex", "category" : \
+                              {"index" : {"M" : 0, "F" : 1, "T" : 2}, \
+                              "label" :{"M" : "Men", "F" : "Women", "T" : \
+                              "Total"}}}}}}')
+        self.sample_dataset = json.loads(self.sample_data,
+                                         object_pairs_hook=OrderedDict)
 
     def test_to_int(self):
         """ Test pyjstat to_int() """
@@ -624,6 +633,14 @@ class TestPyjstat(unittest.TestCase):
         self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
                         ["2003-2014"]["category"]["label"]
                         ["2005"]) is unicode)
+
+    def test_to_json_stat_value(self):
+        """ Test pyjstat to_json_stat() custom value column"""
+
+        results = pyjstat.from_json_stat(self.sample_dataset, value='measure')
+        json_data = json.loads(pyjstat.to_json_stat(results, value='measure'),
+                               object_pairs_hook=OrderedDict)
+        self.assertTrue(json_data[0]["dataset1"]["measure"][0] == 4729)
 
     def test_from_to_json_stat_as_dict(self):
         """ Test pyjstat nested from-to json_stat using dict of dicts as input
