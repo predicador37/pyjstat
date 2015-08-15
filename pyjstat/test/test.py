@@ -472,7 +472,7 @@ class TestPyjstat(unittest.TestCase):
         """ Test pyjstat to_int() """
         self.assertTrue(type(pyjstat.to_int("5") is int))
         self.assertTrue(type(pyjstat.to_int("label") is str))
-        #not an integer...
+        # not an integer...
         self.assertTrue(type(pyjstat.to_int("5.4") is str))
 
     def test_check_input(self):
@@ -613,14 +613,14 @@ class TestPyjstat(unittest.TestCase):
                         ["OECD countries,EU15 and total"]["category"]["index"]
                         ["Spain"] == 28)
         self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
-                        ["OECD countries,EU15 and total"]["category"]["index"]
-                        ["Spain"]) is int)
+                             ["OECD countries,EU15 and total"]["category"]
+                             ["index"]["Spain"]) is int)
         self.assertTrue(json_data[0]["dataset1"]["dimension"]
                         ["OECD countries,EU15 and total"]["category"]["label"]
                         ["France"] == "France")
         self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
-                        ["OECD countries,EU15 and total"]["category"]["label"]
-                        ["France"]) is unicode)
+                             ["OECD countries,EU15 and total"]["category"]
+                             ["label"]["France"]) is unicode)
         self.assertTrue(json_data[0]["dataset1"]["dimension"]
                         ["2003-2014"]["category"]["index"]
                         ["2005"] == 2)
@@ -628,11 +628,11 @@ class TestPyjstat(unittest.TestCase):
                         ["2003-2014"]["category"]["label"]
                         ["2005"] == "2005")
         self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
-                        ["2003-2014"]["category"]["index"]
-                        ["2005"]) is int)
+                             ["2003-2014"]["category"]["index"]["2005"])
+                        is int)
         self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
-                        ["2003-2014"]["category"]["label"]
-                        ["2005"]) is unicode)
+                             ["2003-2014"]["category"]["label"]["2005"])
+                        is unicode)
 
     def test_to_json_stat_value(self):
         """ Test pyjstat to_json_stat() custom value column"""

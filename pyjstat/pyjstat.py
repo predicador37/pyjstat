@@ -120,7 +120,7 @@ def get_dim_label(js_dict, dim):
         dim_label.columns = ['id', 'label']
     else:
         dim_label = pd.DataFrame(list(zip(dim_label.keys(),
-                                     dim_label.values())),
+                                          dim_label.values())),
                                  index=dim_label.keys(),
                                  columns=['id', 'label'])
     return dim_label
@@ -153,7 +153,7 @@ def get_dim_index(js_dict, dim):
                                      columns=['id', 'index'])
         else:
             dim_index = pd.DataFrame(list(zip(dim_index.keys(),
-                                         dim_index.values())),
+                                              dim_index.values())),
                                      index=dim_index.keys(),
                                      columns=['id', 'index'])
     return dim_index
