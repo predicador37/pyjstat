@@ -341,9 +341,9 @@ def to_json_stat(input_df, value="value", output='list'):
                       for i in dims.columns.values]
         dataset = {"dataset" + str(row + 1): {"dimension": OrderedDict(),
                                               "value": list(
-                                                  dataframe['value'].where(
+                                                  dataframe[value].where(
                                                       pd.notnull(
-                                                          dataframe['value']),
+                                                          dataframe[value]),
                                                       None))}}
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)
