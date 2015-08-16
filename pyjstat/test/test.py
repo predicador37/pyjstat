@@ -618,9 +618,9 @@ class TestPyjstat(unittest.TestCase):
         self.assertTrue(json_data[0]["dataset1"]["dimension"]
                         ["OECD countries,EU15 and total"]["category"]["label"]
                         ["France"] == "France")
-        self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
+        self.assertTrue(type(str(json_data[0]["dataset1"]["dimension"]
                              ["OECD countries,EU15 and total"]["category"]
-                             ["label"]["France"]) is unicode)
+                             ["label"]["France"])) is str)
         self.assertTrue(json_data[0]["dataset1"]["dimension"]
                         ["2003-2014"]["category"]["index"]
                         ["2005"] == 2)
@@ -630,9 +630,9 @@ class TestPyjstat(unittest.TestCase):
         self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
                              ["2003-2014"]["category"]["index"]["2005"])
                         is int)
-        self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
-                             ["2003-2014"]["category"]["label"]["2005"])
-                        is unicode)
+        self.assertTrue(type(str(json_data[0]["dataset1"]["dimension"]
+                             ["2003-2014"]["category"]["label"]["2005"]))
+                        is str)
 
     def test_to_json_stat_value(self):
         """ Test pyjstat to_json_stat() custom value column"""

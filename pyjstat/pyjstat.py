@@ -29,6 +29,7 @@ Example:
 
 import json
 import pandas as pd
+import numpy as np
 from collections import OrderedDict
 
 
@@ -142,15 +143,14 @@ def get_dim_index(js_dict, dim):
         dim_index = js_dict['dimension'][dim]['category']['index']
     except KeyError:
         dim_label = get_dim_label(js_dict, dim)
-        dim_index = pd.DataFrame(zip([dim_label['id'][0]], [0]),
+        dim_index = pd.DataFrame(list(zip([dim_label['id'][0]], [0])),
                                  index=[0],
                                  columns=['id', 'index'])
     else:
         if type(dim_index) is list:
-            dim_index = pd.DataFrame(zip(dim_index,
-                                         range(0, len(dim_index))),
-                                     index=dim_index,
-                                     columns=['id', 'index'])
+            dim_index = pd.DataFrame(list(zip(dim_index,
+                                              range(0, len(dim_index)))),
+                                     index=dim_index, columns=['id', 'index'])
         else:
             dim_index = pd.DataFrame(list(zip(dim_index.keys(),
                                               dim_index.values())),
@@ -342,12 +342,11 @@ def to_json_stat(input_df, value='value', output='list'):
                                               for k, j in enumerate(
                                                   uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
-        dataset = {"dataset" + str(row + 1): {"dimension": OrderedDict(),
-                                              value: list(
-                                                  dataframe[value].where(
-                                                      pd.notnull(
-                                                          dataframe[value]),
-                                                      None))}}
+        dataset = {"dataset" + str(row + 1):
+                   {"dimension": OrderedDict(),
+                    value: [np.asscalar(x) for x in
+                            list(dataframe[value].where(
+                                pd.notnull(dataframe[value]), None))]}}
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)
         dataset[

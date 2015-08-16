@@ -3,3 +3,4 @@ v0.1.1, 05-22-2014 -- Moved example.py from bin directory.
 v0.1.2, 05-22-2014 -- fixed TypeError in to_json_stat().
 v0.1.3, 05-22-2014 -- removed bin references from setup.py.
 v0.1.9, 08-15-2015 -- Fixed reported minor bugs and pylint issues. Added value column name as optional parameter in json to dataframe methods.
+v0.2.0, 08-16-2015 -- Changed example to work with requests module instead of urllib2. Also, fixed code and tests to work in Python 3.4 too.

@@ -11,9 +11,12 @@ JSON-stat with R, by ajschumacher. Note that, like in the rjstat project,
 not all features are supported (i.e. not all metadata are converted).
 **pyjstat** is provided under the Apache License 2.0.
 
-.. [1] http://json-stat.org/ for JSON-stat information  
-.. [2] http://pandas.pydata.org for Python Data Analysis Library information  
-.. [3] https://github.com/ajschumacher/rjstat for rjstat library information  
+.. [1] http://json-stat.org/ for JSON-stat information
+.. [2] http://pandas.pydata.org for Python Data Analysis Library information
+.. [3] https://github.com/ajschumacher/rjstat for rjstat library information
+
+This library was first developed to work with Python 2.7. With some fixes
+(thanks to @andrekittredge), now it works with Python 3.4 too.
 
 Installation
 ============
@@ -31,12 +34,12 @@ From JSON-stat to pandas DataFrame
 Typical usage often looks like this::
 
     from pyjstat import pyjstat
-    import urllib2
-    import json
-    
-    results = pyjstat.from_json_stat(json.load(urllib2.urlopen(
-                             'http://json-stat.org/samples/oecd-canada.json')))
-    print results
+    import requests
+    from collections import OrderedDict
+
+    data = requests.get('http://json-stat.org/samples/oecd-canada.json')
+    results = pyjstat.from_json_stat(data.json(object_pairs_hook=OrderedDict))
+    print (results)
 
 From pandas DataFrame to JSON-stat
 ----------------------------------
@@ -47,7 +50,7 @@ loss::
     from pyjstat import pyjstat
     import urllib2
     import json
-    
-    results = pyjstat.from_json_stat(json.load(urllib2.urlopen(
-                             'http://json-stat.org/samples/oecd-canada.json')))
-    print pyjstat.to_json_stat(results)
+
+    data = requests.get('http://json-stat.org/samples/oecd-canada.json')
+    results = pyjstat.from_json_stat(data.json(object_pairs_hook=OrderedDict))
+    print (pyjstat.to_json_stat(results))

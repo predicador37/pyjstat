@@ -1,4 +1,5 @@
 include *.txt
+include .travis.yml
 recursive-include examples *.py
 recursive-include docs *.bat
 recursive-include docs *.buildinfo
