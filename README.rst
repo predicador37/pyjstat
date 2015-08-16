@@ -1,6 +1,9 @@
 =======
-pyjstat
+pyjstat 
 =======
+
+.. image:: https://travis-ci.org/predicador37/pyjstat.svg?branch=master
+    :target: https://travis-ci.org/predicador37/pyjstat
 
 **pyjstat** is a python library for **JSON-stat** formatted data manipulation
 which allows reading and writing JSON-stat [1]_ format with python,using the
