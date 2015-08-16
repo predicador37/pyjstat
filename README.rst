@@ -1,6 +1,9 @@
 =======
-pyjstat
+pyjstat 
 =======
+
+.. image:: https://travis-ci.org/predicador37/pyjstat.svg?branch=master
+    :target: https://travis-ci.org/predicador37/pyjstat
 
 **pyjstat** is a python library for **JSON-stat** formatted data manipulation
 which allows reading and writing JSON-stat [1]_ format with python,using the
@@ -50,7 +53,7 @@ loss::
     from pyjstat import pyjstat
     import urllib2
     import json
-
+    
     data = requests.get('http://json-stat.org/samples/oecd-canada.json')
     results = pyjstat.from_json_stat(data.json(object_pairs_hook=OrderedDict))
     print (pyjstat.to_json_stat(results))
