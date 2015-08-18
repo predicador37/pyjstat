@@ -51,11 +51,20 @@ class NumpyEncoder(json.JSONEncoder):
             return super(NumpyEncoder, self).default(obj)
 
 
-def make_unicode(s):
+def make_unicode(text):
+    """Convert string to unicode depending on python version.
+
+    Args:
+      text (string): a string.
+
+    Returns:
+       text(string): a utf-8 enconded string.
+
+    """
     if sys.version_info < (3,):
-        return unicode(s)
+        return unicode(text)
     else:
-        return str(s, 'utf-8')
+        return str(text)
 
 
 def to_int(variable):
