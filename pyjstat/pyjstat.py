@@ -28,6 +28,7 @@ Example:
 """
 
 import json
+import sys
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
@@ -48,6 +49,13 @@ class NumpyEncoder(json.JSONEncoder):
             return obj.encode('utf-8')
         else:
             return super(NumpyEncoder, self).default(obj)
+
+
+def make_unicode(s):
+    if sys.version_info < (3,):
+        return unicode(s)
+    else:
+        return str(s, 'utf-8')
 
 
 def to_int(variable):
@@ -378,11 +386,11 @@ def to_json_stat(input_df, value='value', output='list'):
                        {"label": to_int(i),
                         "category":
                             {"index":
-                             OrderedDict([(unicode(j), to_int(k))
+                             OrderedDict([(make_unicode(j), to_int(k))
                                           for k, j in enumerate(
                                               uniquify(dims[i]))]),
                              "label":
-                                 OrderedDict([(to_int(j), unicode(j))
+                                 OrderedDict([(to_int(j), make_unicode(j))
                                               for k, j in enumerate(
                                                   uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
