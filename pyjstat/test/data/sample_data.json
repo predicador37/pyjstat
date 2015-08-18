@@ -1,0 +1,1 @@
+{"dataset" : {"label" : "Population in Tuvalu in 2002. By sex", "measure" : [4729, 4832, 9561], "dimension" : {"id" : ["sex"], "size" : [3], "sex" : {"label" : "Sex", "category" : {"index" : {"M" : 0, "F" : 1, "T" : 2}, "label" :{"M" : "Men", "F" : "Women", "T" : "Total"}}}}}}

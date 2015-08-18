@@ -1,5 +1,5 @@
 =======
-pyjstat 
+pyjstat
 =======
 
 .. image:: https://travis-ci.org/predicador37/pyjstat.svg?branch=master
@@ -40,7 +40,9 @@ Typical usage often looks like this::
     import requests
     from collections import OrderedDict
 
-    data = requests.get('http://json-stat.org/samples/oecd-canada.json')
+    EXAMPLE_URL = 'http://json-stat.org/samples/us-labor-ds.json'
+
+    data = requests.get(EXAMPLE_URL)
     results = pyjstat.from_json_stat(data.json(object_pairs_hook=OrderedDict))
     print (results)
 
@@ -51,9 +53,13 @@ The same data can be converted into JSON-stat, with some unavoidable metadata
 loss::
 
     from pyjstat import pyjstat
-    import urllib2
+    import requests
+    from collections import OrderedDict
     import json
-    
-    data = requests.get('http://json-stat.org/samples/oecd-canada.json')
+
+    EXAMPLE_URL = 'http://json-stat.org/samples/us-labor-ds.json'
+
+    data = requests.get(EXAMPLE_URL)
     results = pyjstat.from_json_stat(data.json(object_pairs_hook=OrderedDict))
-    print (pyjstat.to_json_stat(results))
+    print (results)
+    print (json.dumps(json.loads(pyjstat.to_json_stat(results))))

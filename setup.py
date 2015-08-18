@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='pyjstat',
-    version='0.2.0',
+    version='0.2.1',
     author='Miguel Expósito Martín',
     author_email='miguel.exposito@gmail.com',
     packages=['pyjstat', 'pyjstat.test'],

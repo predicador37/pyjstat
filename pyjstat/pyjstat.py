@@ -33,6 +33,23 @@ import numpy as np
 from collections import OrderedDict
 
 
+class NumpyEncoder(json.JSONEncoder):
+    """Custom JSON encoder class for Numpy data types.
+
+    """
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, str):
+            return obj.encode('utf-8')
+        else:
+            return super(NumpyEncoder, self).default(obj)
+
+
 def to_int(variable):
     """Convert variable to integer or string depending on the case.
 
@@ -47,7 +64,29 @@ def to_int(variable):
     try:
         return int(variable)
     except ValueError:
-        return str(variable)
+        return variable.encode('utf-8')
+
+
+def parse_value(value):
+    """Remove trailing zeroes from float values if they can be represented\
+        as integers.
+
+    Args:
+      value (object): a python object (hopefully a number).
+
+    Returns:
+      value(int, object): an integer or the same input object, depending on\
+                          the content of value.
+
+    """
+
+    if isinstance(value, float):
+        if value.is_integer():
+            return int(value)
+        else:
+            return value
+    else:
+        return value
 
 
 def check_input(naming):
@@ -262,7 +301,7 @@ def generate_df(js_dict, naming, value="value"):
     output = pd.DataFrame(columns=dim_names + [value],
                           index=range(0, len(values)))
     for i, category in enumerate(get_df_row(dimensions, naming)):
-        output.loc[i] = category + [values.pop(0)]
+        output.loc[i] = category + [values[i]]
     output = output.convert_objects(convert_numeric=True)
     return output
 
@@ -293,9 +332,14 @@ def from_json_stat(datasets, naming='label', value='value'):
                 js_dict = datasets[idx][dataset]
                 results.append(generate_df(js_dict, naming, value))
     elif isinstance(datasets, OrderedDict) or type(datasets) is dict:
-        for dataset in datasets:
-            js_dict = datasets[dataset]
-            results.append(generate_df(js_dict, naming, value))
+        if 'class' in datasets:
+            if datasets['class'] == 'dataset':
+                js_dict = datasets
+                results.append(generate_df(js_dict, naming, value))
+        else:  # 1.00 bundle type
+            for dataset in datasets:
+                js_dict = datasets[dataset]
+                results.append(generate_df(js_dict, naming, value))
     return results
 
 
@@ -334,19 +378,18 @@ def to_json_stat(input_df, value='value', output='list'):
                        {"label": to_int(i),
                         "category":
                             {"index":
-                             OrderedDict([(str(j), to_int(k))
+                             OrderedDict([(unicode(j), to_int(k))
                                           for k, j in enumerate(
                                               uniquify(dims[i]))]),
                              "label":
-                                 OrderedDict([(to_int(j), str(j))
+                                 OrderedDict([(to_int(j), unicode(j))
                                               for k, j in enumerate(
                                                   uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
         dataset = {"dataset" + str(row + 1):
                    {"dimension": OrderedDict(),
-                    value: [np.asscalar(x) for x in
-                            list(dataframe[value].where(
-                                pd.notnull(dataframe[value]), None))]}}
+                    value: [parse_value(x) for x in dataframe[value].where(
+                        pd.notnull(dataframe[value]), None).values]}}
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)
         dataset[
@@ -361,4 +404,4 @@ def to_json_stat(input_df, value='value', output='list'):
             result.update(dataset)
         else:
             result = None
-    return json.dumps(result)
+    return json.dumps(result, cls=NumpyEncoder)

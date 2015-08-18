@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyjstat &mdash; pyjstat 0 documentation</title>
+    <title>pyjstat &mdash; pyjstat 1 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0',
+        VERSION:     '1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pyjstat 0 documentation" href="index.html" />
+    <link rel="top" title="pyjstat 1 documentation" href="index.html" />
     <link rel="prev" title="Welcome to pyjstat’s documentation!" href="index.html" /> 
   </head>
   <body>
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="index.html" title="Welcome to pyjstat’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">pyjstat 0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">pyjstat 1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -90,6 +90,12 @@ License (see LICENSE file).</p>
 <span class="k">print</span> <span class="n">results</span>
 </pre></div>
 </div>
+<dl class="class">
+<dt id="pyjstat.NumpyEncoder">
+<em class="property">class </em><tt class="descclassname">pyjstat.</tt><tt class="descname">NumpyEncoder</tt><big>(</big><em>skipkeys=False</em>, <em>ensure_ascii=True</em>, <em>check_circular=True</em>, <em>allow_nan=True</em>, <em>sort_keys=False</em>, <em>indent=None</em>, <em>separators=None</em>, <em>encoding='utf-8'</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#pyjstat.NumpyEncoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom JSON encoder class for Numpy data types.</p>
+</dd></dl>
+
 <dl class="function">
 <dt id="pyjstat.check_input">
 <tt class="descclassname">pyjstat.</tt><tt class="descname">check_input</tt><big>(</big><em>naming</em><big>)</big><a class="headerlink" href="#pyjstat.check_input" title="Permalink to this definition">¶</a></dt>
@@ -288,6 +294,25 @@ list of dataset values.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pyjstat.parse_value">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">parse_value</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#pyjstat.parse_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove trailing zeroes from float values if they can be represented        as integers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>object</em>) &#8211; a python object (hopefully a number).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> &#8211;
+an integer or the same input object, depending on                          the content of value.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int, object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pyjstat.to_int">
 <tt class="descclassname">pyjstat.</tt><tt class="descname">to_int</tt><big>(</big><em>variable</em><big>)</big><a class="headerlink" href="#pyjstat.to_int" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert variable to integer or string depending on the case.</p>
@@ -397,7 +422,7 @@ String with JSON-stat object.</p>
         <li class="right" >
           <a href="index.html" title="Welcome to pyjstat’s documentation!"
              >previous</a> |</li>
-        <li><a href="index.html">pyjstat 0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">pyjstat 1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
