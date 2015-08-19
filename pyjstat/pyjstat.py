@@ -422,5 +422,4 @@ def to_json_stat(input_df, value='value', output='list'):
             result.update(dataset)
         else:
             result = None
-        print result
     return json.dumps(result, cls=NumpyEncoder)
