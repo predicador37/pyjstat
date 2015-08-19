@@ -290,7 +290,7 @@ def uniquify(seq):
 
     seen = set()
     seen_add = seen.add
-    return [x for x in seq if x not in seen and not seen_add(x)]
+    return [make_unicode(x) for x in seq if x not in seen and not seen_add(x)]
 
 
 def generate_df(js_dict, naming, value="value"):
@@ -401,18 +401,21 @@ def to_json_stat(input_df, value='value', output='list'):
                                               for k, j in enumerate(
                                                   uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
-        dataset = {"dataset" + str(row + 1):
+        dataset = {"dataset" + make_unicode(row + 1):
                    {"dimension": OrderedDict(),
                     value: [parse_value(x) for x in dataframe[value].where(
                         pd.notnull(dataframe[value]), None).values]}}
         for category in categories:
-            dataset["dataset" + str(row + 1)]["dimension"].update(category)
+            dataset["dataset" + make_unicode(row + 1)]["dimension"].\
+                update(category)
         dataset[
-            "dataset" + str(row + 1)]["dimension"].update({"id": dim_names})
-        dataset["dataset" + str(row + 1)]["dimension"].update(
+            "dataset" + make_unicode(row + 1)]["dimension"].\
+            update({"id": dim_names})
+        dataset["dataset" + make_unicode(row + 1)]["dimension"].update(
             {"size": [len(dims[i].unique()) for i in dims.columns.values]})
         for category in categories:
-            dataset["dataset" + str(row + 1)]["dimension"].update(category)
+            dataset["dataset" + make_unicode(row + 1)]["dimension"].\
+                update(category)
         if output == 'list':
             result.append(dataset)
         elif output == 'dict':
