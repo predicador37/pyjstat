@@ -79,7 +79,7 @@ def to_int(variable):
     try:
         return int(variable)
     except ValueError:
-        return variable.encode('utf-8')
+        return make_unicode(variable)
 
 
 def parse_value(value):
@@ -422,4 +422,5 @@ def to_json_stat(input_df, value='value', output='list'):
             result.update(dataset)
         else:
             result = None
+        print result
     return json.dumps(result, cls=NumpyEncoder)
