@@ -390,31 +390,31 @@ def to_json_stat(input_df, value='value', output='list'):
             raise ValueError('Non-value columns must constitute a unique ID')
         dim_names = list(dims)
         categories = [{to_int(i):
-                       {"label": to_int(i),
-                        "category":
-                            {"index":
+                       {make_unicode("label"): to_int(i),
+                        make_unicode("category"):
+                            {make_unicode("index"):
                              OrderedDict([(make_unicode(j), to_int(k))
                                           for k, j in enumerate(
                                               uniquify(dims[i]))]),
-                             "label":
+                             make_unicode("label"):
                                  OrderedDict([(to_int(j), make_unicode(j))
                                               for k, j in enumerate(
                                                   uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
-        dataset = {"dataset" + make_unicode(row + 1):
-                   {"dimension": OrderedDict(),
+        dataset = {make_unicode("dataset") + make_unicode(row + 1):
+                   {make_unicode("dimension"): OrderedDict(),
                     value: [parse_value(x) for x in dataframe[value].where(
                         pd.notnull(dataframe[value]), None).values]}}
         for category in categories:
-            dataset["dataset" + make_unicode(row + 1)]["dimension"].\
+            dataset[make_unicode("dataset") + make_unicode(row + 1)][make_unicode("dimension")].\
                 update(category)
         dataset[
-            "dataset" + make_unicode(row + 1)]["dimension"].\
-            update({"id": dim_names})
-        dataset["dataset" + make_unicode(row + 1)]["dimension"].update(
-            {"size": [len(dims[i].unique()) for i in dims.columns.values]})
+            make_unicode("dataset") + make_unicode(row + 1)][make_unicode("dimension")].\
+            update({make_unicode("id"): dim_names})
+        dataset[make_unicode("dataset") + make_unicode(row + 1)][make_unicode("dimension")].update(
+            {make_unicode("size"): [len(dims[i].unique()) for i in dims.columns.values]})
         for category in categories:
-            dataset["dataset" + make_unicode(row + 1)]["dimension"].\
+            dataset[make_unicode("dataset") + make_unicode(row + 1)][make_unicode("dimension")].\
                 update(category)
         if output == 'list':
             result.append(dataset)
