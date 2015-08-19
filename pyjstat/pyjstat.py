@@ -373,12 +373,13 @@ def to_json_stat(input_df, value='value', output='list'):
       output(string): String with JSON-stat object.
 
     """
-
+    # TODO: refactor and make a better use of make_unicode()... perhaps using
+    # a factory?
     data = []
     if output == 'list':
         result = []
     elif output == 'dict':
-        result = {}
+        result = OrderedDict({})
     if isinstance(input_df, pd.DataFrame):
         data.append(input_df)
     else:
@@ -406,16 +407,17 @@ def to_json_stat(input_df, value='value', output='list'):
                     value: [parse_value(x) for x in dataframe[value].where(
                         pd.notnull(dataframe[value]), None).values]}}
         for category in categories:
-            dataset[make_unicode("dataset") + make_unicode(row + 1)][make_unicode("dimension")].\
-                update(category)
-        dataset[
-            make_unicode("dataset") + make_unicode(row + 1)][make_unicode("dimension")].\
-            update({make_unicode("id"): dim_names})
-        dataset[make_unicode("dataset") + make_unicode(row + 1)][make_unicode("dimension")].update(
-            {make_unicode("size"): [len(dims[i].unique()) for i in dims.columns.values]})
+            dataset[make_unicode("dataset") + make_unicode(row + 1)][
+                make_unicode("dimension")].update(category)
+        dataset[make_unicode("dataset") + make_unicode(row + 1)][
+            make_unicode("dimension")].update({make_unicode("id"): dim_names})
+        dataset[make_unicode("dataset") + make_unicode(row + 1)][
+            make_unicode("dimension")].update({make_unicode("size"):
+                                               [len(dims[i].unique())
+                                                for i in dims.columns.values]})
         for category in categories:
-            dataset[make_unicode("dataset") + make_unicode(row + 1)][make_unicode("dimension")].\
-                update(category)
+            dataset[make_unicode("dataset") + make_unicode(row + 1)][
+                make_unicode("dimension")].update(category)
         if output == 'list':
             result.append(dataset)
         elif output == 'dict':

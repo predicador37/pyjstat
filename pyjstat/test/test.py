@@ -223,9 +223,8 @@ class TestPyjstat(unittest.TestCase):
         results = pyjstat.from_json_stat(self.oecd_datasets)
         json_data = json.loads(pyjstat.to_json_stat(results, output='dict'),
                                object_pairs_hook=OrderedDict)
-        data_df = pyjstat.from_json_stat(json.loads(json.dumps(json_data),
-                                                    object_pairs_hook=
-                                                    OrderedDict))
+        data_df = pyjstat.from_json_stat(
+            json.loads(json.dumps(json_data), object_pairs_hook=OrderedDict))
         line_thirty = ['unemployment rate', 'Belgium', 2009, 7.891892855]
         dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
                                             'label')
@@ -242,9 +241,8 @@ class TestPyjstat(unittest.TestCase):
         results = pyjstat.from_json_stat(self.oecd_datasets)
         json_data = json.loads(pyjstat.to_json_stat(results),
                                object_pairs_hook=OrderedDict)
-        data_df = pyjstat.from_json_stat(json.loads(json.dumps(json_data),
-                                                    object_pairs_hook=
-                                                    OrderedDict))
+        data_df = pyjstat.from_json_stat(
+            json.loads(json.dumps(json_data), object_pairs_hook=OrderedDict))
         line_thirty = ['unemployment rate', 'Belgium', 2009, 7.891892855]
         dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
                                             'label')

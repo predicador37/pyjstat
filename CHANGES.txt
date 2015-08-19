@@ -1,8 +1,7 @@
-v0.2.1, 08-18-2015 -- Added initial support for JSON-stat 1.03 datasets. Moved sample test data to files. Added more tests, improved examples, minor code improvements.
-v0.2.0, 08-16-2015 -- Changed example to work with requests module instead of urllib2. Also, fixed code and tests to work in Python 3.4 too.
+v0.3.0, 08-20-2015 -- Added initial support for JSON-stat 1.03 datasets. Moved sample test data to files. Added more tests with more real datasets, improved examples, made some minor code improvements and fixes (such as to_json dict order, avoid popping the values list in to_dataframe conversion and unicode issues with Python 3).
+v0.2.0, 08-16-2015 -- Changed example to work with requests module instead of urllib2. Also, fixed code and tests to work in Python 3.4 too. Added Travis CI server synced with Github.
 v0.1.9, 08-15-2015 -- Fixed reported minor bugs and pylint issues. Added value column name as optional parameter in json to dataframe methods.
 v0.1.3, 05-22-2014 -- removed bin references from setup.py.
 v0.1.2, 05-22-2014 -- fixed TypeError in to_json_stat().
 v0.1.1, 05-22-2014 -- Moved example.py from bin directory.
 v0.1.0, 05-22-2014 -- Initial release.
-

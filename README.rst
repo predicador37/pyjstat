@@ -63,3 +63,8 @@ loss::
     results = pyjstat.from_json_stat(data.json(object_pairs_hook=OrderedDict))
     print (results)
     print (json.dumps(json.loads(pyjstat.to_json_stat(results))))
+
+Changes
+-------
+
+For a changes, fixes, improvements and new features reference, see CHANGES.txt.
