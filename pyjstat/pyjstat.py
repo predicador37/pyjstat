@@ -28,7 +28,6 @@ Example:
 """
 
 import json
-import sys
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
@@ -49,22 +48,6 @@ class NumpyEncoder(json.JSONEncoder):
             return super(NumpyEncoder, self).default(obj)
 
 
-def make_unicode(text):
-    """Convert string to unicode depending on python version.
-
-    Args:
-      text (string): a string.
-
-    Returns:
-       text(string): a utf-8 enconded string.
-
-    """
-    if sys.version_info < (3,):
-        return unicode(text)
-    else:
-        return str(text)
-
-
 def to_int(variable):
     """Convert variable to integer or string depending on the case.
 
@@ -79,29 +62,25 @@ def to_int(variable):
     try:
         return int(variable)
     except ValueError:
-        return make_unicode(variable)
+        return variable
 
 
-def parse_value(value):
-    """Remove trailing zeroes from float values if they can be represented\
-        as integers.
+def to_str(variable):
+    """Convert variable to integer or string depending on the case.
 
     Args:
-      value (object): a python object (hopefully a number).
+      variable (string): a string containing a real string or an integer.
 
     Returns:
-      value(int, object): an integer or the same input object, depending on\
-                          the content of value.
+      variable(int, string): an integer or a string, depending on the content\
+                             of variable.
 
     """
-
-    if isinstance(value, float):
-        if value.is_integer():
-            return int(value)
-        else:
-            return value
-    else:
-        return value
+    try:
+        int(variable)
+        return str(variable)
+    except ValueError:
+        return variable
 
 
 def check_input(naming):
@@ -290,7 +269,7 @@ def uniquify(seq):
 
     seen = set()
     seen_add = seen.add
-    return [make_unicode(x) for x in seq if x not in seen and not seen_add(x)]
+    return [x for x in seq if x not in seen and not seen_add(x)]
 
 
 def generate_df(js_dict, naming, value="value"):
@@ -373,8 +352,7 @@ def to_json_stat(input_df, value='value', output='list'):
       output(string): String with JSON-stat object.
 
     """
-    # TODO: refactor and make a better use of make_unicode()... perhaps using
-    # a factory?
+
     data = []
     if output == 'list':
         result = []
@@ -385,39 +363,39 @@ def to_json_stat(input_df, value='value', output='list'):
     else:
         data = input_df
     for row, dataframe in enumerate(data):
+        pd.notnull(dataframe[value])
         dims = data[row].filter([item for item in data[row].columns.values
                                  if item not in value])
         if len(dims.columns.values) != len(set(dims.columns.values)):
             raise ValueError('Non-value columns must constitute a unique ID')
         dim_names = list(dims)
         categories = [{to_int(i):
-                       {make_unicode("label"): to_int(i),
-                        make_unicode("category"):
-                            {make_unicode("index"):
-                             OrderedDict([(make_unicode(j), to_int(k))
+                       {"label": to_str(i),
+                        "category":
+                            {"index":
+                             OrderedDict([(to_str(j), to_int(k))
                                           for k, j in enumerate(
                                               uniquify(dims[i]))]),
-                             make_unicode("label"):
-                                 OrderedDict([(to_int(j), make_unicode(j))
+                             "label":
+                                 OrderedDict([(to_str(j), to_str(j))
                                               for k, j in enumerate(
                                                   uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
-        dataset = {make_unicode("dataset") + make_unicode(row + 1):
-                   {make_unicode("dimension"): OrderedDict(),
-                    value: [parse_value(x) for x in dataframe[value].where(
-                        pd.notnull(dataframe[value]), None).values]}}
+        dataset = {"dataset" + str(row + 1):
+                   {"dimension": OrderedDict(),
+                    value: [x for x in dataframe[value].where(
+                        dataframe[value], None).values]}}
         for category in categories:
-            dataset[make_unicode("dataset") + make_unicode(row + 1)][
-                make_unicode("dimension")].update(category)
-        dataset[make_unicode("dataset") + make_unicode(row + 1)][
-            make_unicode("dimension")].update({make_unicode("id"): dim_names})
-        dataset[make_unicode("dataset") + make_unicode(row + 1)][
-            make_unicode("dimension")].update({make_unicode("size"):
-                                               [len(dims[i].unique())
-                                                for i in dims.columns.values]})
+            dataset["dataset" + str(row + 1)][
+                "dimension"].update(category)
+        dataset["dataset" + str(row + 1)][
+            "dimension"].update({"id": dim_names})
+        dataset["dataset" + str(row + 1)][
+            "dimension"].update({"size": [len(dims[i].unique())
+                                          for i in dims.columns.values]})
         for category in categories:
-            dataset[make_unicode("dataset") + make_unicode(row + 1)][
-                make_unicode("dimension")].update(category)
+            dataset["dataset" + str(row + 1)][
+                "dimension"].update(category)
         if output == 'list':
             result.append(dataset)
         elif output == 'dict':

@@ -195,12 +195,10 @@ class TestPyjstat(unittest.TestCase):
         self.assertTrue(type(str(json_data[0]["dataset1"]["dimension"]
                                  ["OECD countries, EU15 and total"]["category"]
                                  ["label"]["France"])) is str)
-        self.assertTrue(json_data[0]["dataset1"]["dimension"]
-                        ["2003-2014"]["category"]["index"]
-                        ["2005"] == 2)
-        self.assertTrue(json_data[0]["dataset1"]["dimension"]
-                        ["2003-2014"]["category"]["label"]
-                        ["2005"] == "2005")
+        self.assertTrue(json_data[0]["dataset1"]["dimension"]["2003-2014"]
+                        ["category"]["index"]["2005"] == 2)
+        self.assertTrue(json_data[0]["dataset1"]["dimension"]["2003-2014"]
+                        ["category"]["label"]["2005"] == "2005")
         self.assertTrue(type(json_data[0]["dataset1"]["dimension"]
                              ["2003-2014"]["category"]["index"]["2005"])
                         is int)
