@@ -41,6 +41,10 @@ class TestPyjstat(unittest.TestCase):
                                './data/us-labor-ds.json')) as data_file:
             self.uslabor_dataset = json.load(data_file,
                                              object_pairs_hook=OrderedDict)
+        with open(os.path.join(os.path.dirname(__file__),
+                               './data/statswe.json')) as data_file:
+            self.sweden_dataset = json.load(data_file,
+                                            object_pairs_hook=OrderedDict)
 
     def test_to_int(self):
         """ Test pyjstat to_int() """
@@ -139,7 +143,7 @@ class TestPyjstat(unittest.TestCase):
         """ Test pyjstat from_json_stat() using label as parameter """
 
         results = pyjstat.from_json_stat(self.oecd_datasets)
-        line_thirty = ['unemployment rate', 'Belgium', 2009, 7.891892855]
+        line_thirty = ['unemployment rate', 'Belgium', '2009', 7.891892855]
         dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
                                             'label')
         self.assertTrue(len(results) == 2)
@@ -152,7 +156,7 @@ class TestPyjstat(unittest.TestCase):
         """ Test pyjstat from_json_stat() using id as parameter"""
 
         results = pyjstat.from_json_stat(self.oecd_datasets, naming='id')
-        line_thirty = [u'UNR', u'BE', 2009, 7.891892855]
+        line_thirty = [u'UNR', u'BE', u'2009', 7.891892855]
         dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'], 'id')
         self.assertTrue(len(results) == 2)
         self.assertTrue(set(results[0].columns.values[:-1]) ==
@@ -223,7 +227,7 @@ class TestPyjstat(unittest.TestCase):
                                object_pairs_hook=OrderedDict)
         data_df = pyjstat.from_json_stat(
             json.loads(json.dumps(json_data), object_pairs_hook=OrderedDict))
-        line_thirty = ['unemployment rate', 'Belgium', 2009, 7.891892855]
+        line_thirty = ['unemployment rate', 'Belgium', '2009', 7.891892855]
         dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
                                             'label')
         self.assertTrue(len(data_df) == 2)
@@ -241,7 +245,7 @@ class TestPyjstat(unittest.TestCase):
                                object_pairs_hook=OrderedDict)
         data_df = pyjstat.from_json_stat(
             json.loads(json.dumps(json_data), object_pairs_hook=OrderedDict))
-        line_thirty = ['unemployment rate', 'Belgium', 2009, 7.891892855]
+        line_thirty = ['unemployment rate', 'Belgium', '2009', 7.891892855]
         dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
                                             'label')
         self.assertTrue(len(data_df) == 2)
@@ -258,7 +262,7 @@ class TestPyjstat(unittest.TestCase):
         json_data = json.loads(pyjstat.to_json_stat(results),
                                object_pairs_hook=OrderedDict)
         data_df = pyjstat.from_json_stat(json_data)
-        line_thirty = ['unemployment rate', 'Belgium', 2009, 7.891892855]
+        line_thirty = ['unemployment rate', 'Belgium', '2009', 7.891892855]
         dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
                                             'label')
         self.assertTrue(len(data_df) == 2)
@@ -271,7 +275,7 @@ class TestPyjstat(unittest.TestCase):
         """ Test pyjstat generate_df() using label as parameter"""
 
         data_df = pyjstat.generate_df(self.oecd_datasets['oecd'], 'label')
-        line_thirty = ['unemployment rate', 'Belgium', 2009, 7.891892855]
+        line_thirty = ['unemployment rate', 'Belgium', '2009', 7.891892855]
         dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'],
                                             'label')
         self.assertTrue(set(data_df.columns.values[:-1]) ==
@@ -283,7 +287,7 @@ class TestPyjstat(unittest.TestCase):
         """ Test pyjstat generate_df() using id as parameter"""
 
         data_df = pyjstat.generate_df(self.oecd_datasets['oecd'], 'id')
-        line_thirty = ['UNR', 'BE', 2009, 7.891892855]
+        line_thirty = ['UNR', 'BE', '2009', 7.891892855]
         dimensions = pyjstat.get_dimensions(self.oecd_datasets['oecd'], 'id')
         self.assertTrue(set(data_df.columns.values[:-1]) ==
                         set(dimensions[1]))
@@ -334,6 +338,21 @@ class TestPyjstat(unittest.TestCase):
                         json_data['dataset1']['value'][547])
         self.assertTrue(self.uslabor_dataset['value'][-1] ==
                         json_data['dataset1']['value'][-1])
+
+    def test_convert_zeroes_not_null(self):
+        """ Test pyjstat to_json_stat zero conversion"""
+
+        results = pyjstat.from_json_stat(self.sweden_dataset)
+        json_data = json.loads(pyjstat.to_json_stat(results, output='dict'),
+                               object_pairs_hook=OrderedDict)
+        self.assertTrue(self.sweden_dataset['dataset']['value'][0] ==
+                        json_data['dataset1']['value'][0])
+
+    def test_from_json_stat_no_coertion(self):
+        """ Test pyjstat from_json_stat with id naming without coertion"""
+
+        results = pyjstat.from_json_stat(self.sweden_dataset, naming='id')
+        self.assertTrue(results[0]['Alder'][500] == '35-39')
 
 if __name__ == '__main__':
     unittest.main()

@@ -296,7 +296,6 @@ def generate_df(js_dict, naming, value="value"):
                           index=range(0, len(values)))
     for i, category in enumerate(get_df_row(dimensions, naming)):
         output.loc[i] = category + [values[i]]
-    output = output.convert_objects(convert_numeric=True)
     return output
 
 
@@ -383,8 +382,7 @@ def to_json_stat(input_df, value='value', output='list'):
                       for i in dims.columns.values]
         dataset = {"dataset" + str(row + 1):
                    {"dimension": OrderedDict(),
-                    value: [x for x in dataframe[value].where(
-                        dataframe[value], None).values]}}
+                    value: [x for x in dataframe[value].values]}}
         for category in categories:
             dataset["dataset" + str(row + 1)][
                 "dimension"].update(category)
@@ -402,4 +400,4 @@ def to_json_stat(input_df, value='value', output='list'):
             result.update(dataset)
         else:
             result = None
-    return json.dumps(result, cls=NumpyEncoder)
+    return json.dumps(result)
