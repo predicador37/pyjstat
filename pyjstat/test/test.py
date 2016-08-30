@@ -60,6 +60,16 @@ class TestPyjstat(unittest.TestCase):
         self.assertTrue(pyjstat.check_input('label') is None)
         self.assertTrue(pyjstat.check_input('id') is None)
 
+    def test_check_input_label_and_id(self):
+        """ Test pyjstat check_input() with label and id as names parameter"""
+        try:
+            pyjstat.check_input(['id', 'label'])
+            pyjstat.check_input(['label', 'id'])
+        except ValueError:
+            self.assertTrue(False, "check_input should accept both label and id at the same time")
+        self.assertTrue(pyjstat.check_input(['label', 'id']) is None)
+        self.assertTrue(pyjstat.check_input(['id', 'label']) is None)
+
     def test_get_dim_index_with_index(self):
         """ Test pyjstat get_dim_index() using id as parameter """
 
@@ -104,9 +114,18 @@ class TestPyjstat(unittest.TestCase):
         """ Test pyjstat get_dimensions() using id as parameter """
 
         dimensions, dim_names = pyjstat.get_dimensions(
-            self.oecd_datasets['oecd'], 'index')
+            self.oecd_datasets['oecd'], 'id')
         self.assertTrue(dim_names[2] == 'year')
         self.assertTrue(dimensions[0].iloc[0]['index'] == 0)
+
+    def test_get_dimensions_by_index_and_label(self):
+        """ Test pyjstat get_dimensions() using id and label as parameter """
+
+        dimensions, dim_names = pyjstat.get_dimensions(
+            self.oecd_datasets['oecd'], ['id', 'label'])
+        self.assertTrue(dim_names[5] == 'year')
+        self.assertTrue(dim_names[4] == '2003-2014')
+        self.assertTrue(dimensions[0].iloc[0]['label'] == 'unemployment rate')
 
     def test_get_df_row(self):
         """ Test pyjstat get_df_row() """

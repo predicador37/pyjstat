@@ -97,17 +97,17 @@ def check_input(naming):
 
     """
 
-    if naming not in ['label', 'id']:
-        raise ValueError('naming must be "label" or "id"')
+    if naming not in ['label', 'id'] and set(naming) != set(['label', 'id']) :
+        raise ValueError('naming must be "label" or "id" or both as array')
 
 
-def get_dimensions(js_dict, naming):
+def get_dimensions(js_dict, naming='label'):
     """Get dimensions from input data.
 
     Args:
       js_dict (dict): dictionary containing dataset data and metadata.
-      naming (string, optional): dimension naming. Possible values: 'label' \
-                                 or 'id'.
+      naming (string or array, optional): dimension naming. Possible values: \
+                                          'label' or 'id'.
 
     Returns:
       dimensions (list): list of pandas data frames with dimension \
@@ -121,11 +121,11 @@ def get_dimensions(js_dict, naming):
         dim_name = js_dict['dimension'][dim]['label']
         if not dim_name:
             dim_name = dim
-        if naming == 'label':
+        if 'label' in naming:
             dim_label = get_dim_label(js_dict, dim)
             dimensions.append(dim_label)
             dim_names.append(dim_name)
-        else:
+        if 'id' in naming:
             dim_index = get_dim_index(js_dict, dim)
             dimensions.append(dim_index)
             dim_names.append(dim)
@@ -243,6 +243,11 @@ def get_df_row(dimensions, naming='label', i=0, record=None):
     check_input(naming)
     if i == 0 or record is None:
         record = []
+    if 'label' in dimensions[i]:
+        naming = 'label'
+    else:
+        naming = 'id'
+
     for dimension in dimensions[i][naming]:
         record.append(dimension)
         if len(record) == len(dimensions):
@@ -294,7 +299,8 @@ def generate_df(js_dict, naming, value="value"):
     values = get_values(js_dict, value=value)
     output = pd.DataFrame(columns=dim_names + [value],
                           index=range(0, len(values)))
-    for i, category in enumerate(get_df_row(dimensions, naming)):
+    counter = range(len(js_dict[value]))
+    for i, category in zip(counter, get_df_row(dimensions, naming)):
         output.loc[i] = category + [values[i]]
     return output
 
