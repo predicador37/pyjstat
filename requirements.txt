@@ -1,2 +1,1 @@
-cython
-pandas
+pandas==0.18.1
