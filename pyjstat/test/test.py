@@ -45,6 +45,10 @@ class TestPyjstat(unittest.TestCase):
                                './data/statswe.json')) as data_file:
             self.sweden_dataset = json.load(data_file,
                                             object_pairs_hook=OrderedDict)
+        with open(os.path.join(os.path.dirname(__file__),
+                               './data/A02Level.json')) as data_file:
+            self.ons_dataset = json.load(data_file,
+                                         object_pairs_hook=OrderedDict)
 
     def test_to_int(self):
         """ Test pyjstat to_int() """
@@ -353,6 +357,30 @@ class TestPyjstat(unittest.TestCase):
 
         results = pyjstat.from_json_stat(self.sweden_dataset, naming='id')
         self.assertTrue(results[0]['Alder'][500] == '35-39')
+
+    def test_ons_index_sort_bug(self):
+        """ Test pyjstat from_json_stat dimension sorting"""
+        results = pyjstat.from_json_stat(self.ons_dataset)
+        results[0].to_csv('results3.csv')
+        json_data = json.loads(pyjstat.to_json_stat(results, output='dict'),
+                               object_pairs_hook=OrderedDict)
+        self.assertTrue(self.ons_dataset['A02Level']['dimension']['CL_0000667']
+                        ['category']['index']['CI_0018938'] ==
+                        json_data['dataset1']['dimension']['Age']['category']
+                        ['index']['16-17'])
+
+    def test_ons_index_sort_bug_index(self):
+        """ Test pyjstat from_json_stat dimension sorting using indexes
+        instead of labels"""
+        results = pyjstat.from_json_stat(self.ons_dataset, naming='id')
+        results[0].to_csv('results4.csv')
+        json_data = json.loads(pyjstat.to_json_stat(results, output='dict'),
+                               object_pairs_hook=OrderedDict)
+        self.assertTrue(self.ons_dataset['A02Level']['dimension']['CL_0000667']
+                        ['category']['index']['CI_0018938'] ==
+                        json_data['dataset1']['dimension']['CL_0000667']
+                        ['category']['index']['CI_0018938'])
+
 
 if __name__ == '__main__':
     unittest.main()

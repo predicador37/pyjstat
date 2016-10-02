@@ -1,3 +1,4 @@
+v0.3.3, 10-02-2016 -- Fixes #12. Added dimension elements sorting by index when reading json-stat.Added new test case.
 v0.3.2, 11-26-2015 -- Fixes #9. Removed useless code about numeric conversion. Fixed bug making zeroes appear as null in to_json_stat(). Added new test cases.
 v0.3.1, 09-04-2015 -- Solved unicode incompatibilities between Python 2 and 3. Removed zero trailing function in dataframe values and changed labels integer values by strings.
 v0.3.0, 08-20-2015 -- Added initial support for JSON-stat 1.03 datasets. Moved sample test data to files. Added more tests with more real datasets, improved examples, made some minor code improvements and fixes (such as to_json dict order, avoid popping the values list in to_dataframe conversion and unicode issues with Python 3).

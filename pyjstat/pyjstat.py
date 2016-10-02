@@ -146,6 +146,7 @@ def get_dim_label(js_dict, dim):
 
     try:
         dim_label = js_dict['dimension'][dim]['category']['label']
+
     except KeyError:
         dim_index = get_dim_index(js_dict, dim)
         dim_label = pd.concat([dim_index['id'],
@@ -157,6 +158,24 @@ def get_dim_label(js_dict, dim):
                                           dim_label.values())),
                                  index=dim_label.keys(),
                                  columns=['id', 'label'])
+    # index must be added to dim label so that it can be sorted
+    try:
+        dim_index = js_dict['dimension'][dim]['category']['index']
+    except KeyError:
+        dim_index = pd.DataFrame(list(zip([dim_label['id'][0]], [0])),
+                                 index=[0],
+                                 columns=['id', 'index'])
+    else:
+        if type(dim_index) is list:
+            dim_index = pd.DataFrame(list(zip(dim_index,
+                                              range(0, len(dim_index)))),
+                                     index=dim_index, columns=['id', 'index'])
+        else:
+            dim_index = pd.DataFrame(list(zip(dim_index.keys(),
+                                              dim_index.values())),
+                                     index=dim_index.keys(),
+                                     columns=['id', 'index'])
+    dim_label = pd.merge(dim_label, dim_index, on='id').sort('index')
     return dim_label
 
 
@@ -189,6 +208,7 @@ def get_dim_index(js_dict, dim):
                                               dim_index.values())),
                                      index=dim_index.keys(),
                                      columns=['id', 'index'])
+    dim_index = dim_index.sort('index')
     return dim_index
 
 
@@ -309,7 +329,7 @@ def from_json_stat(datasets, naming='label', value='value'):
                                    Both List and OrderedDict are accepted \
                                    as inputs.
       naming(string, optional): dimension naming. Possible values: 'label'
-                                or 'id.'
+                                or 'id'.Defaults to 'label'.
       value (string, optional): name of the value column. Defaults to 'value'.
 
     Returns:
