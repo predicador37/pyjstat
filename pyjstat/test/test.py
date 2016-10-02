@@ -361,7 +361,6 @@ class TestPyjstat(unittest.TestCase):
     def test_ons_index_sort_bug(self):
         """ Test pyjstat from_json_stat dimension sorting"""
         results = pyjstat.from_json_stat(self.ons_dataset)
-        results[0].to_csv('results3.csv')
         json_data = json.loads(pyjstat.to_json_stat(results, output='dict'),
                                object_pairs_hook=OrderedDict)
         self.assertTrue(self.ons_dataset['A02Level']['dimension']['CL_0000667']
@@ -373,7 +372,6 @@ class TestPyjstat(unittest.TestCase):
         """ Test pyjstat from_json_stat dimension sorting using indexes
         instead of labels"""
         results = pyjstat.from_json_stat(self.ons_dataset, naming='id')
-        results[0].to_csv('results4.csv')
         json_data = json.loads(pyjstat.to_json_stat(results, output='dict'),
                                object_pairs_hook=OrderedDict)
         self.assertTrue(self.ons_dataset['A02Level']['dimension']['CL_0000667']
