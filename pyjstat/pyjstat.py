@@ -233,9 +233,10 @@ def get_values(js_dict, value='value'):
     max_val = max(values.keys(), key=int) + 1
     vals = []
     for i in range(0, max_val):
-        if values[i]:
+        try:
+          if values[i]:
             vals.append(values[i])
-        else:
+        except KeyError:
             vals.append(None)
     values = vals
     return values
