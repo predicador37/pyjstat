@@ -236,6 +236,8 @@ def get_values(js_dict, value='value'):
         try:
           if values[i]:
             vals.append(values[i])
+          else:
+            vals.append(None)
         except KeyError:
             vals.append(None)
     values = vals
