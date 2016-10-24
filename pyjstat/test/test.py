@@ -49,6 +49,10 @@ class TestPyjstat(unittest.TestCase):
                                './data/A02Level.json')) as data_file:
             self.ons_dataset = json.load(data_file,
                                          object_pairs_hook=OrderedDict)
+        with open(os.path.join(os.path.dirname(__file__),
+                               './data/CPI15.json')) as data_file:
+            self.ons_cpi_dataset = json.load(data_file,
+                                             object_pairs_hook=OrderedDict)
 
     def test_to_int(self):
         """ Test pyjstat to_int() """
@@ -378,7 +382,6 @@ class TestPyjstat(unittest.TestCase):
                         ['category']['index']['CI_0018938'] ==
                         json_data['dataset1']['dimension']['CL_0000667']
                         ['category']['index']['CI_0018938'])
-
 
 if __name__ == '__main__':
     unittest.main()

@@ -175,7 +175,7 @@ def get_dim_label(js_dict, dim):
                                               dim_index.values())),
                                      index=dim_index.keys(),
                                      columns=['id', 'index'])
-    dim_label = pd.merge(dim_label, dim_index, on='id').sort('index')
+    dim_label = pd.merge(dim_label, dim_index, on='id').sort_values(by='index')
     return dim_label
 
 
@@ -208,7 +208,7 @@ def get_dim_index(js_dict, dim):
                                               dim_index.values())),
                                      index=dim_index.keys(),
                                      columns=['id', 'index'])
-    dim_index = dim_index.sort('index')
+    dim_index = dim_index.sort_values(by='index')
     return dim_index
 
 
@@ -233,10 +233,7 @@ def get_values(js_dict, value='value'):
     max_val = max(values.keys(), key=int) + 1
     vals = []
     for i in range(0, max_val):
-        if values[i]:
-            vals.append(values[i])
-        else:
-            vals.append(None)
+        vals.append(values.get(i))
     values = vals
     return values
 
