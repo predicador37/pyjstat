@@ -1,4 +1,4 @@
-**IMPORTANT NOTE**: update to 0.3.4 version is highly recommended, since previous versions contain an important bug related to dimension sorting. My apologies for any inconveniences.
+**IMPORTANT NOTE**: update to 0.3.5 version is highly recommended, since previous versions contain an important bug related to dimension sorting and missing values. My apologies for any inconveniences.
 
 =======
 pyjstat
