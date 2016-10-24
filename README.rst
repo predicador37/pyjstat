@@ -1,3 +1,5 @@
+**IMPORTANT NOTE**: update to 0.3.4 version is highly recommended, since previous versions contain an important bug related to dimension sorting. My apologies for any inconveniences.
+
 =======
 pyjstat
 =======
