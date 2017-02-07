@@ -83,6 +83,26 @@ def to_str(variable):
         return variable
 
 
+def check_version(dataset, version):
+    """Checks json-stat version for a given dataset.
+
+       Args:
+         dataset (OrderedDict): data in JSON-stat format, previously \
+                                   deserialized to a python object by \
+                                   json.load() or json.loads(),
+
+       Returns:
+         (boolean): True of False.
+
+       """
+
+    if (float(dataset.get('version')) >= float(version)
+        if dataset.get('version') else False):
+        return True
+    else:
+        return False
+
+
 def check_input(naming):
     """Check and validate input params.
 
@@ -117,7 +137,11 @@ def get_dimensions(js_dict, naming):
 
     dimensions = []
     dim_names = []
-    for dim in js_dict['dimension']['id']:
+    if (check_version(js_dict, '2.0')):
+        dimension_dict = js_dict
+    else:
+        dimension_dict = js_dict['dimension']
+    for dim in dimension_dict['id']:
         dim_name = js_dict['dimension'][dim]['label']
         if not dim_name:
             dim_name = dim
@@ -353,16 +377,18 @@ def from_json_stat(datasets, naming='label', value='value'):
     return results
 
 
-def to_json_stat(input_df, value='value', output='list'):
+def to_json_stat(input_df, value='value', output='list', version='2.0'):
     """Encode pandas.DataFrame object into JSON-stat format. The DataFrames
        must have exactly one value column.
 
     Args:
       df(pandas.DataFrame): pandas data frame (or list of data frames) to
       encode.
-       value (string, optional): name of the value column. Defaults to 'value'.
+      value (string, optional): name of the value column. Defaults to 'value'.
       output(string): accepts two values: 'list' or 'dict'. Produce list of\
                       dicts or dict of dicts as output.
+      version(string): desired json-stat version. 2.0 is the default now.\
+                       Apart from this, only older 1.3 format is accepted.
 
     Returns:
       output(string): String with JSON-stat object.
@@ -397,20 +423,23 @@ def to_json_stat(input_df, value='value', output='list'):
                                               for k, j in enumerate(
                                                   uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
-        dataset = {"dataset" + str(row + 1):
-                   {"dimension": OrderedDict(),
-                    value: [x for x in dataframe[value].values]}}
-        for category in categories:
-            dataset["dataset" + str(row + 1)][
-                "dimension"].update(category)
-        dataset["dataset" + str(row + 1)][
-            "dimension"].update({"id": dim_names})
-        dataset["dataset" + str(row + 1)][
-            "dimension"].update({"size": [len(dims[i].unique())
+        dataset =  {"dimension": OrderedDict(),
+                    value: [x for x in dataframe[value].values]}
+        if (float(version) >= 2.0):
+            dataset["version"] = version
+            dataset["class"] = "dataset"
+            for category in categories:
+                dataset["dimension"].update(category)
+            dataset.update({"id": dim_names})
+            dataset.update({"size": [len(dims[i].unique())
+                                                for i in dims.columns.values]})
+        else:
+            dataset["dimension"].update({"id": dim_names})
+            dataset["dimension"].update({"size": [len(dims[i].unique())
                                           for i in dims.columns.values]})
         for category in categories:
-            dataset["dataset" + str(row + 1)][
-                "dimension"].update(category)
+            dataset["dimension"].update(category)
+
         if output == 'list':
             result.append(dataset)
         elif output == 'dict':
