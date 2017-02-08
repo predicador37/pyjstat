@@ -31,6 +31,13 @@ import json
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
+import abc
+import requests
+import logging
+import inspect
+
+logging.basicConfig(level=logging.INFO)
+LOGGER = logging.getLogger(__name__)
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -365,7 +372,7 @@ def from_json_stat(datasets, naming='label', value='value'):
             for dataset in element:
                 js_dict = datasets[idx][dataset]
                 results.append(generate_df(js_dict, naming, value))
-    elif isinstance(datasets, OrderedDict) or type(datasets) is dict:
+    elif isinstance(datasets, OrderedDict) or type(datasets) is dict or isinstance(datasets,Dataset):
         if 'class' in datasets:
             if datasets['class'] == 'dataset':
                 js_dict = datasets
@@ -377,7 +384,7 @@ def from_json_stat(datasets, naming='label', value='value'):
     return results
 
 
-def to_json_stat(input_df, value='value', output='list', version='2.0'):
+def to_json_stat(input_df, value='value', output='list', version='1.3'):
     """Encode pandas.DataFrame object into JSON-stat format. The DataFrames
        must have exactly one value column.
 
@@ -423,9 +430,11 @@ def to_json_stat(input_df, value='value', output='list', version='2.0'):
                                               for k, j in enumerate(
                                                   uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
-        dataset =  {"dimension": OrderedDict(),
-                    value: [x for x in dataframe[value].values]}
         if (float(version) >= 2.0):
+
+            dataset =  {"dimension": OrderedDict(),
+                        value: [x for x in dataframe[value].values]}
+
             dataset["version"] = version
             dataset["class"] = "dataset"
             for category in categories:
@@ -433,12 +442,23 @@ def to_json_stat(input_df, value='value', output='list', version='2.0'):
             dataset.update({"id": dim_names})
             dataset.update({"size": [len(dims[i].unique())
                                                 for i in dims.columns.values]})
+            for category in categories:
+                dataset["dimension"].update(category)
         else:
-            dataset["dimension"].update({"id": dim_names})
-            dataset["dimension"].update({"size": [len(dims[i].unique())
-                                          for i in dims.columns.values]})
-        for category in categories:
-            dataset["dimension"].update(category)
+            dataset = {"dataset" + str(row + 1):
+                           {"dimension": OrderedDict(),
+                            value: [x for x in dataframe[value].values]}}
+            for category in categories:
+                dataset["dataset" + str(row + 1)][
+                    "dimension"].update(category)
+            dataset["dataset" + str(row + 1)][
+                "dimension"].update({"id": dim_names})
+            dataset["dataset" + str(row + 1)][
+                "dimension"].update({"size": [len(dims[i].unique())
+                                              for i in dims.columns.values]})
+            for category in categories:
+                dataset["dataset" + str(row + 1)][
+                    "dimension"].update(category)
 
         if output == 'list':
             result.append(dataset)
@@ -447,3 +467,115 @@ def to_json_stat(input_df, value='value', output='list', version='2.0'):
         else:
             result = None
     return json.dumps(result)
+
+def request(path):
+    """Send a request to a given URL accepting JSON format and return a \
+       deserialized Python object.
+
+    Args:
+      path (str): The URI to be requested.
+
+    Returns:
+      response: Deserialized JSON Python object.
+
+    Raises:
+      HTTPError: the HTTP error returned by the requested server.
+      InvalidURL: an invalid URL has been requested.
+      Exception: generic exception.
+
+    """
+    headers = {'Accept': 'application/json'}
+    try:
+            requested_object = requests.get(path, headers=headers)
+            requested_object.raise_for_status()
+    except requests.exceptions.HTTPError as exception:
+        LOGGER.error((inspect.stack()[0][3]) + ': HTTPError = ' +
+                     str(exception.response.status_code) + ' ' +
+                     str(exception.response.reason) + ' ' + str(path))
+        raise
+    except requests.exceptions.InvalidURL as exception:
+        LOGGER.error('URLError = ' + str(exception.reason) + ' ' + str(path))
+        raise
+    except Exception:
+        import traceback
+        LOGGER.error('Generic exception: ' + traceback.format_exc())
+        raise
+    else:
+        response = requested_object.json(object_pairs_hook=OrderedDict)
+        return response
+
+
+class BaseEntity(dict):
+    """Abstract class to convert deserialized JSON into a Python object. Basic\
+        skeleton for almost all the module classes.
+
+    Attributes:
+      label_ (str): singular label of the converted entity. Ex: "category"
+      plabel_ (str): plural label of the converted entity. Ex: "categories"
+
+    """
+
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self, dict_):
+        """Decode JSON to a Python object.
+           See http://peedlecode.com/posts/python-json/
+
+        Args:
+          dict_ (dict): dictionary that results from deserialized JSON object.
+
+        """
+
+        super(BaseEntity, self).__init__(dict_)
+        for key in self:
+            items = self[key]
+            if isinstance(items, list):
+                for idx, item in enumerate(items):
+                    if isinstance(item, dict):
+                        items[idx] = self.__class__(item)
+            elif isinstance(items, dict):
+                self[key] = self.__class__(items)
+
+
+    def __getattr__(self, key):
+        """Get dictionary key as attribute. Overriden method.
+
+        Args:
+          key (string): key of the dictionary.
+
+        Returns:
+          self[key](string): key associated value.
+
+        """
+
+        return self[key]
+
+class Dataset(BaseEntity):
+    """Class mapping """
+
+    @classmethod
+    def create(cls, uri):
+        if (isinstance(uri, OrderedDict)):
+            return cls(uri)
+        else:
+            return cls(request(uri))
+
+    def to_frame(self):
+        """Convert Json-stat data into pandas.DataFrame object.
+
+            Returns:
+            Python Pandas Dataframe.
+        """
+
+        return from_json_stat(self)[0]
+
+class DataFrame():
+
+    def __init__(self, dataframe):
+        if (isinstance(dataframe, Dataset)):
+            self.df = dataframe.to_frame()
+        else:
+            raise TypeError
+
+    def to_json_stat(self):
+        return json.loads(to_json_stat(self.df, output='dict', version='2.0'),object_pairs_hook=OrderedDict)

@@ -328,9 +328,10 @@ class TestPyjstat(unittest.TestCase):
     def test_galicia_2_dataset(self):
         """ Test pyjstat using class dataset from v1.02"""
 
-        results = pyjstat.from_json_stat(self.galicia_2_dataset)
-        json_data = json.loads(pyjstat.to_json_stat(results, output='dict'),
-                               object_pairs_hook=OrderedDict)
+        results = pyjstat.Dataset.create(self.galicia_2_dataset)
+        df = pyjstat.DataFrame(results)
+        json_data = df.to_json_stat()
+        print(json.dumps(json_data))
         self.assertTrue(json_data['class'] == 'dataset')
         self.assertTrue(json_data['version'] == '2.0')
         self.assertTrue(json_data['id'][3] == 'year')
