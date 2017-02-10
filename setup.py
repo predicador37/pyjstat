@@ -13,7 +13,7 @@ setup(
                 'DataFrames.',
     long_description=open('README.rst').read(),
     install_requires=[
-       'pandas'
+       'pandas', 'requests'
     ],
     test_suite='pyjstat.test',
     keywords=['json-stat', 'json', 'statistics', 'dataframe', 'converter'],
