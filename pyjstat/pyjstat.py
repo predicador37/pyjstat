@@ -566,7 +566,7 @@ class Dataset(BaseEntity):
             return cls(json.loads(to_json_stat(data, output='dict', version='2.0'),object_pairs_hook=OrderedDict))
         elif (isinstance(data, OrderedDict)):
             return cls(data)
-        elif (data.startswith("http://")):
+        elif (data.startswith(("http://","https://"))):
             return cls(request(data))
         else:
             raise TypeError
@@ -623,3 +623,32 @@ class Dataset(BaseEntity):
         index = self.get_value_index(indices)
         value = self.get_value_by_index(index)
         return value
+
+class Collection(BaseEntity):
+    """Class mapping """
+
+
+
+    @classmethod
+    def read(cls, data):
+        if (isinstance(data, OrderedDict)):
+            return cls(data)
+        elif (data.startswith(("http://", "https://"))):
+            return cls(request(data))
+        else:
+            raise TypeError
+
+    def to_frame_list(self):
+        """Convert Json-stat data into list of pandas.DataFrame object.
+
+            Returns:
+            Python Pandas Dataframe.
+        """
+        df_list = []
+        for item in self['link']['item']:
+            if (item['class'] == 'dataset'):
+                print(item['href'])
+                df_list.append(from_json_stat(Dataset.read(item['href'])))
+
+        return df_list
+

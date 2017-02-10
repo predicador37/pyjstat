@@ -58,6 +58,10 @@ class TestPyjstat(unittest.TestCase):
                                './data/CPI15.json')) as data_file:
             self.ons_cpi_dataset = json.load(data_file,
                                              object_pairs_hook=OrderedDict)
+        with open(os.path.join(os.path.dirname(__file__),
+                               './data/collection.json')) as data_file:
+            self.collection = json.load(data_file,
+                                             object_pairs_hook=OrderedDict)
 
     # def test_to_int(self):
     #     """ Test pyjstat to_int() """
@@ -375,9 +379,12 @@ class TestPyjstat(unittest.TestCase):
         dataset = pyjstat.Dataset.read(
             'http://json-stat.org/samples/oecd.json')
 
-        query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]  
+        query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]
         self.assertEqual(dataset.get_value(query), 9.627692959)
 
+    def test_to_frame_list(self):
+        collection = pyjstat.Collection.read(self.collection)
+        print(collection.to_frame_list())
 
     # def test_uk_dataset(self):
     #     """ Test pyjstat using a different ONS dataset"""
