@@ -328,16 +328,56 @@ class TestPyjstat(unittest.TestCase):
     def test_galicia_2_dataset(self):
         """ Test pyjstat using class dataset from v1.02"""
 
-        results = pyjstat.Dataset.create(self.galicia_2_dataset)
-        df = pyjstat.DataFrame(results)
-        json_data = df.to_json_stat()
-        print(json.dumps(json_data))
+        dataset1 = pyjstat.Dataset.read(self.galicia_2_dataset)
+        df = dataset1.to_frame()
+        dataset2 = pyjstat.Dataset.read(df)
+        json_data = json.loads(dataset2.to_json_stat())
+        print(json_data)
         self.assertTrue(json_data['class'] == 'dataset')
         self.assertTrue(json_data['version'] == '2.0')
         self.assertTrue(json_data['id'][3] == 'year')
         self.assertTrue(json_data['size'][1] == self.galicia_2_dataset['size'][1])
         self.assertTrue(self.galicia_dataset['value'][547] ==
                         json_data['value'][547])
+
+    def test_get_dimension_index(self):
+        dataset = pyjstat.Dataset.read('http://json-stat.org/samples/oecd.json')
+        self.assertEqual(dataset.get_dimension_index('area', 'US'), 33)
+
+
+    def test_get_dimension_indices(self):
+        dataset = pyjstat.Dataset.read(
+            'http://json-stat.org/samples/oecd.json')
+        query = [{'concept':'UNR'}, {'area':'US'}, {'year':'2010'}]
+        self.assertEqual(dataset.get_dimension_indices(query), [0, 33, 7])
+
+
+    def test_get_value_index(self):
+        dataset = pyjstat.Dataset.read(
+            'http://json-stat.org/samples/oecd.json')
+
+        query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]
+
+        indices = dataset.get_dimension_indices(query)
+        self.assertEqual(dataset.get_value_index(indices), 403)
+
+    def test_get_value_by_index(self):
+        dataset = pyjstat.Dataset.read(
+            'http://json-stat.org/samples/oecd.json')
+
+        query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]
+
+        indices = dataset.get_dimension_indices(query)
+        index = (dataset.get_value_index(indices))
+        self.assertEqual(dataset.get_value_by_index(index), 9.627692959)
+
+    def test_get_value(self):
+        dataset = pyjstat.Dataset.read(
+            'http://json-stat.org/samples/oecd.json')
+
+        query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]  
+        self.assertEqual(dataset.get_value(query), 9.627692959)
+
 
     # def test_uk_dataset(self):
     #     """ Test pyjstat using a different ONS dataset"""

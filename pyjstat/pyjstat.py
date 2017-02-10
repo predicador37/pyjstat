@@ -35,6 +35,7 @@ import abc
 import requests
 import logging
 import inspect
+import warnings
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
@@ -402,6 +403,10 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
 
     """
 
+    warnings.warn(
+        "shouldn't use this function anymore! Now use XYZ.",
+        DeprecationWarning
+    )
     data = []
     if output == 'list':
         result = []
@@ -553,12 +558,18 @@ class BaseEntity(dict):
 class Dataset(BaseEntity):
     """Class mapping """
 
+
+
     @classmethod
-    def create(cls, uri):
-        if (isinstance(uri, OrderedDict)):
-            return cls(uri)
+    def read(cls, data):
+        if (isinstance(data, pd.DataFrame)):
+            return cls(json.loads(to_json_stat(data, output='dict', version='2.0'),object_pairs_hook=OrderedDict))
+        elif (isinstance(data, OrderedDict)):
+            return cls(data)
+        elif (data.startswith("http://")):
+            return cls(request(data))
         else:
-            return cls(request(uri))
+            raise TypeError
 
     def to_frame(self):
         """Convert Json-stat data into pandas.DataFrame object.
@@ -569,13 +580,46 @@ class Dataset(BaseEntity):
 
         return from_json_stat(self)[0]
 
-class DataFrame():
-
-    def __init__(self, dataframe):
-        if (isinstance(dataframe, Dataset)):
-            self.df = dataframe.to_frame()
-        else:
-            raise TypeError
-
     def to_json_stat(self):
-        return json.loads(to_json_stat(self.df, output='dict', version='2.0'),object_pairs_hook=OrderedDict)
+        return (json.dumps(self))
+
+    def get_dimension_index(self, name, value):
+
+        if (not ('index' in self.get('dimension', {}).get(name,{}).get('category', {}))):
+            return 0;
+        ndx = self['dimension'][name]['category']['index']
+
+        if (isinstance(ndx, list)):
+            return ndx.index(value)
+        else:
+            return ndx[value]
+
+    def get_dimension_indices(self, query):
+        ids = self['id'] if self.get('id') else self['dimension']['id']
+        ndims = len(ids)
+        indices = []
+
+        for idx, id in enumerate(ids):
+            indices.append(self.get_dimension_index(id, [d.get(id) for d in query if id in d][0]))
+
+        return indices
+
+    def get_value_index(self, indices):
+
+        size = self['size'] if self.get('size') else self['dimension']['size']
+        ndims = len(size)
+        mult = 1;
+        num = 0;
+        for idx, dim in enumerate(size):
+            mult *= size[ndims - idx] if (idx > 0) else 1
+            num += mult * indices[ndims - idx - 1]
+        return num
+
+    def get_value_by_index(self, index):
+        return self.value[index]
+
+    def get_value(self, query):
+        indices = self.get_dimension_indices(query)
+        index = self.get_value_index(indices)
+        value = self.get_value_by_index(index)
+        return value
