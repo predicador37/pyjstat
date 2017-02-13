@@ -336,7 +336,6 @@ class TestPyjstat(unittest.TestCase):
         df = dataset1.to_frame()
         dataset2 = pyjstat.Dataset.read(df)
         json_data = json.loads(dataset2.to_json_stat())
-        print(json_data)
         self.assertTrue(json_data['class'] == 'dataset')
         self.assertTrue(json_data['version'] == '2.0')
         self.assertTrue(json_data['id'][3] == 'year')
@@ -384,7 +383,13 @@ class TestPyjstat(unittest.TestCase):
 
     def test_to_frame_list(self):
         collection = pyjstat.Collection.read(self.collection)
-        print(collection.to_frame_list())
+        df_list = collection.to_frame_list()
+        self.assertEqual(len(df_list), 7)
+
+    def test_collection_get(self):
+        collection = pyjstat.Collection.read(self.collection)
+        dataset = collection.get(2)
+        self.assertEqual(dataset['value'][0], 2695880)
 
     # def test_uk_dataset(self):
     #     """ Test pyjstat using a different ONS dataset"""

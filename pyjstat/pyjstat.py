@@ -37,6 +37,7 @@ import logging
 import inspect
 import warnings
 
+
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
@@ -341,10 +342,12 @@ def generate_df(js_dict, naming, value="value"):
 
     dimensions, dim_names = get_dimensions(js_dict, naming)
     values = get_values(js_dict, value=value)
-    output = pd.DataFrame(columns=dim_names + [value],
-                          index=range(0, len(values)))
-    for i, category in enumerate(get_df_row(dimensions, naming)):
-        output.loc[i] = category + [values[i]]
+
+    output = pd.DataFrame([category + [values[i]]
+                           for i, category in
+                           enumerate(get_df_row(dimensions, naming))])
+    output.columns = dim_names + [value]
+    output.index=range(0, len(values))
     return output
 
 
@@ -639,7 +642,7 @@ class Collection(BaseEntity):
             raise TypeError
 
     def to_frame_list(self):
-        """Convert Json-stat data into list of pandas.DataFrame object.
+        """Convert Json-stat data into list of pandas.DataFrame objects.
 
             Returns:
             Python Pandas Dataframe.
@@ -647,8 +650,14 @@ class Collection(BaseEntity):
         df_list = []
         for item in self['link']['item']:
             if (item['class'] == 'dataset'):
-                print(item['href'])
-                df_list.append(from_json_stat(Dataset.read(item['href'])))
+                df_list.append(Dataset.read(item['href']).to_frame())
 
         return df_list
+
+    def get(self, i):
+        if (self['link']['item'][i]['class'] == 'dataset'):
+            return Dataset.read(self['link']['item'][i]['href'])
+        else:
+            print ("handle error")
+
 
