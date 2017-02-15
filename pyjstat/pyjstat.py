@@ -474,7 +474,7 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
             result.update(dataset)
         else:
             result = None
-    return json.dumps(result)
+    return pd.io.json.dumps(result)
 
 def request(path):
     """Send a request to a given URL accepting JSON format and return a \
@@ -659,5 +659,6 @@ class Collection(BaseEntity):
             return Dataset.read(self['link']['item'][i]['href'])
         else:
             print ("handle error")
+
 
 
