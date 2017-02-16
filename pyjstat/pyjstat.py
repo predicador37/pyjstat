@@ -28,6 +28,9 @@ Example:
 """
 
 import json
+from operator import itemgetter
+
+import numpy
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
@@ -47,7 +50,7 @@ class NumpyEncoder(json.JSONEncoder):
 
     """
     def default(self, obj):
-        if isinstance(obj, np.integer):
+        if (isinstance(obj, np.integer) or isinstance(obj, np.int64)):
             return int(obj)
         elif isinstance(obj, np.floating):
             return float(obj)
@@ -474,7 +477,7 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
             result.update(dataset)
         else:
             result = None
-    return pd.io.json.dumps(result)
+    return json.dumps(result, cls=NumpyEncoder)
 
 def request(path):
     """Send a request to a given URL accepting JSON format and return a \
@@ -509,64 +512,17 @@ def request(path):
         LOGGER.error('Generic exception: ' + traceback.format_exc())
         raise
     else:
-        response = requested_object.json(object_pairs_hook=OrderedDict)
+        response = requested_object.json()
         return response
 
 
-class BaseEntity(dict):
-    """Abstract class to convert deserialized JSON into a Python object. Basic\
-        skeleton for almost all the module classes.
-
-    Attributes:
-      label_ (str): singular label of the converted entity. Ex: "category"
-      plabel_ (str): plural label of the converted entity. Ex: "categories"
-
-    """
-
-    __metaclass__ = abc.ABCMeta
-
-    def __init__(self, dict_):
-        """Decode JSON to a Python object.
-           See http://peedlecode.com/posts/python-json/
-
-        Args:
-          dict_ (dict): dictionary that results from deserialized JSON object.
-
-        """
-
-        super(BaseEntity, self).__init__(dict_)
-        for key in self:
-            items = self[key]
-            if isinstance(items, list):
-                for idx, item in enumerate(items):
-                    if isinstance(item, dict):
-                        items[idx] = self.__class__(item)
-            elif isinstance(items, dict):
-                self[key] = self.__class__(items)
-
-
-    def __getattr__(self, key):
-        """Get dictionary key as attribute. Overriden method.
-
-        Args:
-          key (string): key of the dictionary.
-
-        Returns:
-          self[key](string): key associated value.
-
-        """
-
-        return self[key]
-
-class Dataset(BaseEntity):
+class Dataset(OrderedDict):
     """Class mapping """
-
-
 
     @classmethod
     def read(cls, data):
         if (isinstance(data, pd.DataFrame)):
-            return cls(json.loads(to_json_stat(data, output='dict', version='2.0'),object_pairs_hook=OrderedDict))
+            return cls((json.loads(to_json_stat(data, output='dict', version='2.0'),object_pairs_hook=OrderedDict)))
         elif (isinstance(data, OrderedDict)):
             return cls(data)
         elif (data.startswith(("http://","https://"))):
@@ -574,17 +530,14 @@ class Dataset(BaseEntity):
         else:
             raise TypeError
 
-    def to_frame(self):
-        """Convert Json-stat data into pandas.DataFrame object.
+    def write(self, output='jsonstat'):
+        if (output == 'jsonstat'):
+            return (json.dumps(self))
+        elif (output == 'dataframe'):
+            return from_json_stat(self)[0]
+        else:
+            raise ValueError("Allowed arguments are 'jsonstat' or 'dataframe'")
 
-            Returns:
-            Python Pandas Dataframe.
-        """
-
-        return from_json_stat(self)[0]
-
-    def to_json_stat(self):
-        return (json.dumps(self))
 
     def get_dimension_index(self, name, value):
 
@@ -619,7 +572,7 @@ class Dataset(BaseEntity):
         return num
 
     def get_value_by_index(self, index):
-        return self.value[index]
+        return self['value'][index]
 
     def get_value(self, query):
         indices = self.get_dimension_indices(query)
@@ -627,7 +580,7 @@ class Dataset(BaseEntity):
         value = self.get_value_by_index(index)
         return value
 
-class Collection(BaseEntity):
+class Collection(OrderedDict):
     """Class mapping """
 
 
@@ -641,18 +594,24 @@ class Collection(BaseEntity):
         else:
             raise TypeError
 
-    def to_frame_list(self):
+    def write(self,output='jsonstat'):
         """Convert Json-stat data into list of pandas.DataFrame objects.
 
             Returns:
             Python Pandas Dataframe.
         """
-        df_list = []
-        for item in self['link']['item']:
-            if (item['class'] == 'dataset'):
-                df_list.append(Dataset.read(item['href']).to_frame())
+        if (output == 'jsonstat'):
+            return (json.dumps(self))
+        elif (output == 'dataframe_list'):
+            df_list = []
+            for item in self['link']['item']:
+                if (item['class'] == 'dataset'):
+                    df_list.append(Dataset.read(item['href']).write('dataframe'))
+            return df_list
+        else:
+            raise ValueError("Allowed arguments are 'jsonstat' or 'dataframe_list'")
 
-        return df_list
+        #TODO collection with items of type collection?? recursive call
 
     def get(self, i):
         if (self['link']['item'][i]['class'] == 'dataset'):
