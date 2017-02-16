@@ -114,6 +114,15 @@ def check_version(dataset, version):
     else:
         return False
 
+def unnest_collection(collection, df_list):
+    #TODO documentation
+    for item in collection['link']['item']:
+        if (item['class'] == 'dataset' ):
+            df_list.append(Dataset.read(item['href']).write('dataframe'))
+        elif (item['class'] == 'collection'):
+            nested_collection = request(item['href'])
+            unnest_collection(nested_collection, df_list)
+
 
 def check_input(naming):
     """Check and validate input params.
@@ -477,7 +486,7 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
             result.update(dataset)
         else:
             result = None
-    return json.dumps(result, cls=NumpyEncoder)
+    return pd.io.json.dumps(result)
 
 def request(path):
     """Send a request to a given URL accepting JSON format and return a \
@@ -604,18 +613,14 @@ class Collection(OrderedDict):
             return (json.dumps(self))
         elif (output == 'dataframe_list'):
             df_list = []
-            for item in self['link']['item']:
-                if (item['class'] == 'dataset'):
-                    df_list.append(Dataset.read(item['href']).write('dataframe'))
+            unnest_collection(self,df_list)
             return df_list
         else:
             raise ValueError("Allowed arguments are 'jsonstat' or 'dataframe_list'")
 
-        #TODO collection with items of type collection?? recursive call
-
-    def get(self, i):
-        if (self['link']['item'][i]['class'] == 'dataset'):
-            return Dataset.read(self['link']['item'][i]['href'])
+    def get(self, element):
+        if (self['link']['item'][element]['class'] == 'dataset'):
+            return Dataset.read(self['link']['item'][element]['href'])
         else:
             print ("handle error")
 
