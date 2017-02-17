@@ -96,7 +96,7 @@ def to_str(variable):
 
 
 def check_version(dataset, version):
-    """Checks json-stat version for a given dataset.
+    """Checks if json-stat version attribute exists for a given dataset.
 
        Args:
          dataset (OrderedDict): data in JSON-stat format, previously \
@@ -104,7 +104,7 @@ def check_version(dataset, version):
                                    json.load() or json.loads(),
 
        Returns:
-         (boolean): True of False.
+         bool: The return value. True for success, False otherwise.
 
        """
 
@@ -115,7 +115,20 @@ def check_version(dataset, version):
         return False
 
 def unnest_collection(collection, df_list):
-    #TODO documentation
+    """Unnest collection structure extracting all its datasets and converting \
+       them to Pandas Dataframes.
+
+          Args:
+            collection (OrderedDict): data in JSON-stat format, previously \
+                                      deserialized to a python object by \
+                                      json.load() or json.loads(),
+            df_list (list): list variable which will contain the converted \
+                            datasets.
+
+          Returns:
+            Nothing.
+
+          """
     for item in collection['link']['item']:
         if (item['class'] == 'dataset' ):
             df_list.append(Dataset.read(item['href']).write('dataframe'))
@@ -526,10 +539,19 @@ def request(path):
 
 
 class Dataset(OrderedDict):
-    """Class mapping """
+    """A class representing a JSONstat dataset.
+    """
 
     @classmethod
     def read(cls, data):
+        """Reads data from URL, Dataframe or OrderedDict.
+        Args:
+            data: can be a Pandas Dataframe, an OrderedDict or a URL.
+
+        Returns:
+            An object of class Dataset populated with data.
+
+        """
         if (isinstance(data, pd.DataFrame)):
             return cls((json.loads(to_json_stat(data, output='dict', version='2.0'),object_pairs_hook=OrderedDict)))
         elif (isinstance(data, OrderedDict)):
@@ -540,6 +562,16 @@ class Dataset(OrderedDict):
             raise TypeError
 
     def write(self, output='jsonstat'):
+        """Writes data from a Dataset object to JSONstat or Pandas Dataframe.
+        Args:
+            output(string): can accept 'jsonstat' or 'dataframe'
+
+        Returns:
+            Serialized JSONstat or a Pandas Dataframe,depending on the \
+            'output' parameter.
+
+        """
+
         if (output == 'jsonstat'):
             return (json.dumps(self))
         elif (output == 'dataframe'):
@@ -549,6 +581,17 @@ class Dataset(OrderedDict):
 
 
     def get_dimension_index(self, name, value):
+        """Converts a dimension ID string and a categody ID string into the \
+           numeric index of that category in that dimension
+        Args:
+           name(string): ID string of the dimension.
+           value(string): ID string of the category.
+
+        Returns:
+           ndx[value](int): index of the category in the dimension.
+
+        """
+
 
         if (not ('index' in self.get('dimension', {}).get(name,{}).get('category', {}))):
             return 0;
@@ -560,6 +603,15 @@ class Dataset(OrderedDict):
             return ndx[value]
 
     def get_dimension_indices(self, query):
+        """Converts a dimension/category list of dicts into a list of \
+           dimensions’ indices.
+        Args:
+           query(list): dimension/category list of dicts.
+
+        Returns:
+           indices(list): list of dimensions' indices.
+
+        """
         ids = self['id'] if self.get('id') else self['dimension']['id']
         ndims = len(ids)
         indices = []
@@ -570,7 +622,15 @@ class Dataset(OrderedDict):
         return indices
 
     def get_value_index(self, indices):
+        """Converts a list of dimensions’ indices into a numeric value index.
 
+        Args:
+            indices(list): list of dimension's indices.
+
+        Returns:
+           num(int): numeric value index.
+
+        """
         size = self['size'] if self.get('size') else self['dimension']['size']
         ndims = len(size)
         mult = 1;
@@ -581,21 +641,47 @@ class Dataset(OrderedDict):
         return num
 
     def get_value_by_index(self, index):
+        """Converts a numeric value index into its data value.
+
+        Args:
+            index(int): numeric value index.
+
+        Returns:
+           Numeric data value.
+
+        """
         return self['value'][index]
 
     def get_value(self, query):
+        """Converts a dimension/category list of dicts into a data value \
+           in three steps.
+
+       Args:
+           query(list): list of dicts with the desired query.
+
+       Returns:
+           value: numeric data value.
+
+       """
         indices = self.get_dimension_indices(query)
         index = self.get_value_index(indices)
         value = self.get_value_by_index(index)
         return value
 
 class Collection(OrderedDict):
-    """Class mapping """
-
-
+    """A class representing a JSONstat collection.
+    """
 
     @classmethod
     def read(cls, data):
+        """Reads data from URL or OrderedDict.
+        Args:
+            data: can be a Pandas Dataframe or an OrderedDict.
+
+        Returns:
+            An object of class Collection populated with data.
+
+        """
         if (isinstance(data, OrderedDict)):
             return cls(data)
         elif (data.startswith(("http://", "https://"))):
@@ -604,11 +690,17 @@ class Collection(OrderedDict):
             raise TypeError
 
     def write(self,output='jsonstat'):
-        """Convert Json-stat data into list of pandas.DataFrame objects.
+        """Writes data from a Collection object to JSONstat or list of \
+           Pandas Dataframes.
+        Args:
+            output(string): can accept 'jsonstat' or 'dataframe_list'
 
-            Returns:
-            Python Pandas Dataframe.
+        Returns:
+            Serialized JSONstat or a list of Pandas Dataframes,depending on \
+            the 'output' parameter.
+
         """
+
         if (output == 'jsonstat'):
             return (json.dumps(self))
         elif (output == 'dataframe_list'):
@@ -619,10 +711,28 @@ class Collection(OrderedDict):
             raise ValueError("Allowed arguments are 'jsonstat' or 'dataframe_list'")
 
     def get(self, element):
+        """Gets ith element of a collection in an object of the corresponding \
+           class.
+        Args:
+            output(string): can accept 'jsonstat' or 'dataframe_list'
+
+        Returns:
+            Serialized JSONstat or a list of Pandas Dataframes,depending on \
+            the 'output' parameter.
+
+        """
+
         if (self['link']['item'][element]['class'] == 'dataset'):
             return Dataset.read(self['link']['item'][element]['href'])
+        elif (self['link']['item'][element]['class'] == 'collection'):
+            return Collection.read(self['link']['item'][element]['href'])
+        elif (self['link']['item'][element]['class'] == 'dimension'):
+            print ("Not supported")
         else:
-            print ("handle error")
+            raise ValueError(
+                "Class not allowed. Please use dataset, collection or "
+                "dimension'")
+
 
 
 

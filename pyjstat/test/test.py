@@ -364,22 +364,22 @@ class TestPyjstat(unittest.TestCase):
 #         indices = dataset.get_dimension_indices(query)
 #         self.assertEqual(dataset.get_value_index(indices), 403)
 #
-#     def test_get_value_by_index(self):
-#         dataset = pyjstat.Dataset.read(
-#             'http://json-stat.org/samples/oecd.json')
-#
-#         query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]
-#
-#         indices = dataset.get_dimension_indices(query)
-#         index = (dataset.get_value_index(indices))
-#         self.assertEqual(dataset.get_value_by_index(index), 9.627692959)
-#
-#     def test_get_value(self):
-#         dataset = pyjstat.Dataset.read(
-#             'http://json-stat.org/samples/oecd.json')
-#
-#         query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]
-#         self.assertEqual(dataset.get_value(query), 9.627692959)
+    def test_get_value_by_index(self):
+        dataset = pyjstat.Dataset.read(
+            'http://json-stat.org/samples/oecd.json')
+
+        query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]
+
+        indices = dataset.get_dimension_indices(query)
+        index = (dataset.get_value_index(indices))
+        self.assertEqual(dataset.get_value_by_index(index), 9.627692959)
+
+    def test_get_value(self):
+        dataset = pyjstat.Dataset.read(
+            'http://json-stat.org/samples/oecd.json')
+
+        query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]
+        self.assertEqual(dataset.get_value(query), 9.627692959)
 
     def test_to_frame_list(self):
         collection = pyjstat.Collection.read(self.collection)
