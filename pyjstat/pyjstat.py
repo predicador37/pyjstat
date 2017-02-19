@@ -499,7 +499,7 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
             result.update(dataset)
         else:
             result = None
-    return pd.io.json.dumps(result)
+    return json.dumps(result,cls=NumpyEncoder)
 
 def request(path):
     """Send a request to a given URL accepting JSON format and return a \
@@ -542,6 +542,9 @@ class Dataset(OrderedDict):
     """A class representing a JSONstat dataset.
     """
 
+    def __init__(self, *args, **kwargs):
+        super(Dataset, self).__init__(*args, **kwargs)
+
     @classmethod
     def read(cls, data):
         """Reads data from URL, Dataframe or OrderedDict.
@@ -573,7 +576,7 @@ class Dataset(OrderedDict):
         """
 
         if (output == 'jsonstat'):
-            return (json.dumps(self))
+            return (json.dumps(OrderedDict(self),cls=NumpyEncoder))
         elif (output == 'dataframe'):
             return from_json_stat(self)[0]
         else:
@@ -613,6 +616,7 @@ class Dataset(OrderedDict):
 
         """
         ids = self['id'] if self.get('id') else self['dimension']['id']
+
         ndims = len(ids)
         indices = []
 

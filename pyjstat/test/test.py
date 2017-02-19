@@ -62,6 +62,10 @@ class TestPyjstat(unittest.TestCase):
                                './data/collection.json')) as data_file:
             self.collection = json.load(data_file,
                                              object_pairs_hook=OrderedDict)
+        with open(os.path.join(os.path.dirname(__file__),
+                               './data/cantabria.json')) as data_file:
+            self.cantabria = json.load(data_file,
+                                        object_pairs_hook=OrderedDict)
 
 #     def test_to_int(self):
 #         """ Test pyjstat to_int() """
@@ -390,6 +394,19 @@ class TestPyjstat(unittest.TestCase):
         collection = pyjstat.Collection.read(self.collection)
         dataset = collection.get(2)
         self.assertEqual(dataset['value'][0], 2695880)
+
+    def test_cantabria_dataset(self):
+        dataset = pyjstat.Dataset.read(self.cantabria)
+
+        query = [{'Sexo': 'Hombres'}, {'Grupo de edad': 'Total'},
+                 {'Trimestre': '2005 - 1'}, {'Variables': 'Activos' }]
+        self.assertEqual(dataset.get_value(query), 154.3)
+        df = dataset.write('dataframe')
+
+        dataset2 = pyjstat.Dataset.read(df)
+
+        print(dataset2.write('jsonstat'))
+        print (dataset.write('jsonstat'))
 
     # def test_uk_dataset(self):
     #     """ Test pyjstat using a different ONS dataset"""
