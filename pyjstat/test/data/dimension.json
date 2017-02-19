@@ -1,0 +1,13 @@
+{
+   "version" : "2.0",
+   "class" : "dimension",
+   "label" : "sex",
+   "category" : {
+      "index" : ["T", "M", "F"],
+      "label" : {
+          "T" : "total",
+          "M" : "male",
+          "F" : "female"
+      }
+   }
+}

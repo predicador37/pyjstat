@@ -66,6 +66,10 @@ class TestPyjstat(unittest.TestCase):
                                './data/cantabria.json')) as data_file:
             self.cantabria = json.load(data_file,
                                         object_pairs_hook=OrderedDict)
+        with open(os.path.join(os.path.dirname(__file__),
+                               './data/dimension.json')) as data_file:
+            self.dimension = json.load(data_file,
+                                       object_pairs_hook=OrderedDict)
 
 #     def test_to_int(self):
 #         """ Test pyjstat to_int() """
@@ -97,14 +101,14 @@ class TestPyjstat(unittest.TestCase):
 #         self.assertTrue(dims_df.iloc[0]['id'] == 'UNR')
 #         self.assertTrue(dims_df.iloc[-1]['index'] == 0)
 #
-#     def test_get_dim_label_with_label(self):
-#         """ Test pyjstat get_dim_label() using label as parameter """
-#
-#         dim = self.oecd_datasets['oecd']['dimension']['id'][0]
-#         dims_df = pyjstat.get_dim_label(self.oecd_datasets['oecd'], dim)
-#         self.assertTrue(dims_df.iloc[0]['id'] == 'UNR')
-#         self.assertTrue(dims_df.iloc[-1]['label'] == 'unemployment rate')
-#
+    def test_get_dim_label_with_label(self):
+        """ Test pyjstat get_dim_label() using label as parameter """
+
+        dim = self.oecd_datasets['oecd']['dimension']['id'][0]
+        dims_df = pyjstat.get_dim_label(self.oecd_datasets['oecd'], dim)
+        self.assertTrue(dims_df.iloc[0]['id'] == 'UNR')
+        self.assertTrue(dims_df.iloc[-1]['label'] == 'unemployment rate')
+
 #     def test_get_dim_label_with_index(self):
 #         """ Test pyjstat get_dim_label() using id as parameter """
 #
@@ -408,7 +412,16 @@ class TestPyjstat(unittest.TestCase):
         print(dataset2.write('jsonstat'))
         print (dataset.write('jsonstat'))
 
-    # def test_uk_dataset(self):
+    def test_get_dimension(self):
+        """ Test pyjstat get_dim_label() using label as parameter """
+        dimension = pyjstat.Dimension.read(self.dimension)
+        print(dimension)
+        print(dimension.write())
+        print (dimension.write('dataframe'))
+        pyjstat.Dimension.read(dimension.write('dataframe'))
+
+
+            # def test_uk_dataset(self):
     #     """ Test pyjstat using a different ONS dataset"""
     #
     #     results = pyjstat.from_json_stat(self.uk_dataset)

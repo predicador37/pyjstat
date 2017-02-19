@@ -190,7 +190,7 @@ def get_dimensions(js_dict, naming):
     return dimensions, dim_names
 
 
-def get_dim_label(js_dict, dim):
+def get_dim_label(js_dict, dim, input="dataset"):
     """Get label from a given dimension.
 
     Args:
@@ -202,8 +202,17 @@ def get_dim_label(js_dict, dim):
 
     """
 
+    if (input == 'dataset'):
+        input = js_dict['dimension'][dim]
+        label_col = 'label'
+    elif (input == 'dimension'):
+        label_col = js_dict['label']
+        input = js_dict
+    else:
+        raise(ValueError)
+
     try:
-        dim_label = js_dict['dimension'][dim]['category']['label']
+        dim_label = input['category']['label']
 
     except KeyError:
         dim_index = get_dim_index(js_dict, dim)
@@ -215,10 +224,10 @@ def get_dim_label(js_dict, dim):
         dim_label = pd.DataFrame(list(zip(dim_label.keys(),
                                           dim_label.values())),
                                  index=dim_label.keys(),
-                                 columns=['id', 'label'])
+                                 columns=['id', label_col])
     # index must be added to dim label so that it can be sorted
     try:
-        dim_index = js_dict['dimension'][dim]['category']['index']
+        dim_index = input['category']['index']
     except KeyError:
         dim_index = pd.DataFrame(list(zip([dim_label['id'][0]], [0])),
                                  index=[0],
@@ -672,9 +681,65 @@ class Dataset(OrderedDict):
         value = self.get_value_by_index(index)
         return value
 
+class Dimension(OrderedDict):
+    """A class representing a JSONstat dimension.
+       """
+
+    def __init__(self, *args, **kwargs):
+        super(Dimension, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def read(cls, data):
+        """Reads data from URL, Dataframe or OrderedDict.
+        Args:
+            data: can be a Pandas Dataframe, an OrderedDict or a URL.
+
+        Returns:
+            An object of class Dimension populated with data.
+
+        """
+        if (isinstance(data, pd.DataFrame)):
+           output = OrderedDict({})
+           output['version']='2.0'
+           output['class']='dimension'
+           [label] = [x for x in list(data.columns.values) if x not in ['id','index']]
+           output['label']= label
+           output['category']=OrderedDict({})
+           output['category']['index']=data.id.tolist()
+           output['category']['label']=OrderedDict(zip(data.id.values,data.sex.values))
+           print(json.dumps(output, cls=NumpyEncoder))
+        elif (isinstance(data, OrderedDict)):
+            return cls(data)
+        elif (data.startswith(("http://", "https://"))):
+            return cls(request(data))
+        else:
+            raise TypeError
+
+    def write(self, output='jsonstat'):
+        """Writes data from a Dataset object to JSONstat or Pandas Dataframe.
+        Args:
+            output(string): can accept 'jsonstat' or 'dataframe'
+
+        Returns:
+            Serialized JSONstat or a Pandas Dataframe,depending on the \
+            'output' parameter.
+
+        """
+
+        if (output == 'jsonstat'):
+            return (json.dumps(OrderedDict(self), cls=NumpyEncoder))
+        elif (output == 'dataframe'):
+            return get_dim_label(self,self['label'],'dimension')
+        else:
+            raise ValueError("Allowed arguments are 'jsonstat' or 'dataframe'")
+
+
 class Collection(OrderedDict):
     """A class representing a JSONstat collection.
     """
+
+    def __init__(self, *args, **kwargs):
+        super(Collection, self).__init__(*args, **kwargs)
 
     @classmethod
     def read(cls, data):
