@@ -42,7 +42,7 @@ Typical usage often looks like this::
     import requests
     from collections import OrderedDict
 
-    EXAMPLE_URL = 'http://json-stat.org/samples/us-labor-ds.json'
+    EXAMPLE_URL = 'http://json-stat.org/samples/us-labor.json'
 
     data = requests.get(EXAMPLE_URL)
     results = pyjstat.from_json_stat(data.json(object_pairs_hook=OrderedDict))
@@ -59,7 +59,7 @@ loss::
     from collections import OrderedDict
     import json
 
-    EXAMPLE_URL = 'http://json-stat.org/samples/us-labor-ds.json'
+    EXAMPLE_URL = 'http://json-stat.org/samples/us-labor.json'
 
     data = requests.get(EXAMPLE_URL)
     results = pyjstat.from_json_stat(data.json(object_pairs_hook=OrderedDict))
