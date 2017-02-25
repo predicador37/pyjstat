@@ -40,6 +40,11 @@
 				"class" : "dataset",
 				"href" : "https://json-stat.org/samples/order.json",
 				"label"  : "Demo of value ordering: what does not change, first"
+			},
+			{
+				"class" : "dataset",
+				"href" : "https://json-stat.org/samples/hierarchy.json",
+				"label" : "Demo of hierarchical dimension"
 			}
 		]
 	}

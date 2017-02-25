@@ -298,10 +298,15 @@ def get_values(js_dict, value='value'):
             return values
     # being not a list of dicts or tuples leaves us with a dict...
     values = {int(key): value for (key, value) in values.items()}
-    max_val = max(values.keys(), key=int) + 1
-    vals = []
-    for i in range(0, max_val):
-        vals.append(values.get(i))
+
+    if (js_dict.get('size')):
+        max_val = np.prod(np.array((js_dict['size'])))
+    else:
+        max_val = np.prod(np.array((js_dict['dimension']['size'])))
+    vals = max_val * [None]
+    for (key, value) in values.items():
+        vals[key] = value
+
     values = vals
     return values
 
@@ -374,10 +379,8 @@ def generate_df(js_dict, naming, value="value"):
     """
 
     values = []
-
     dimensions, dim_names = get_dimensions(js_dict, naming)
     values = get_values(js_dict, value=value)
-
     output = pd.DataFrame([category + [values[i]]
                            for i, category in
                            enumerate(get_df_row(dimensions, naming))])
@@ -465,7 +468,6 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
     else:
         data = input_df
     for row, dataframe in enumerate(data):
-        pd.notnull(dataframe[value])
         dims = data[row].filter([item for item in data[row].columns.values
                                  if item not in value])
         if len(dims.columns.values) != len(set(dims.columns.values)):
@@ -486,7 +488,8 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
         if (float(version) >= 2.0):
 
             dataset = {"dimension": OrderedDict(),
-                       value: [x for x in dataframe[value].values]}
+                       value: [None if np.isnan(x) else x
+                               for x in dataframe[value].values]}
 
             dataset["version"] = version
             dataset["class"] = "dataset"
@@ -500,7 +503,8 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
         else:
             dataset = {"dataset" + str(row + 1):
                            {"dimension": OrderedDict(),
-                            value: [x for x in dataframe[value].values]}}
+                            value: [None if np.isnan(x) else x
+                                    for x in dataframe[value].values]}}
             for category in categories:
                 dataset["dataset" + str(row + 1)][
                     "dimension"].update(category)
@@ -620,8 +624,9 @@ class Dataset(OrderedDict):
         """
 
         if (not (
-            'index' in self.get('dimension', {}).get(name, {}).get('category',
-                                                                   {}))):
+                    'index' in self.get('dimension', {}).get(name, {}).get(
+                    'category',
+                    {}))):
             return 0;
         ndx = self['dimension'][name]['category']['index']
 
@@ -728,7 +733,6 @@ class Dimension(OrderedDict):
             output['category']['index'] = data.id.tolist()
             output['category']['label'] = OrderedDict(
                 zip(data.id.values, data.sex.values))
-            print(json.dumps(output, cls=NumpyEncoder))
         elif (isinstance(data, OrderedDict)):
             return cls(data)
         elif (data.startswith(("http://", "https://", "ftp://", "ftps://"))):

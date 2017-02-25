@@ -66,7 +66,7 @@ Typical usage often looks like this::
 Dataset operation: get_value
 ----------------------------------
 
-This operation mimics
+This operation mimics the Javascript example in the JSON-stat web page:
 
     from pyjstat import pyjstat
 
@@ -76,9 +76,12 @@ This operation mimics
     dataset = pyjstat.Dataset.read(EXAMPLE_URL)
     print(dataset.get_value(query))
 
-Collection operation: read and write
+Collection operations: read and write
 ------------------------------------
 
+    from pyjstat import pyjstat
+
+    EXAMPLE_URL = 'http://json-stat.org/samples/oecd.json'
 
 
 Usage of version 0.3.5 and older

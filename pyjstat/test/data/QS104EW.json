@@ -5,7 +5,7 @@
   "dimension": {"CL_0000137": {"category": {"label": {"CI_0000001": "2011"},
      "index": {"CI_0000001": 0}},
     "label": "Time Dimension"},
-   "size": [8965, 3, 1, 1],
+   "size": [3, 1, 1],
    "CL_0000035": {"category": {"label": {"CI_0000070": "Females",
       "CI_0000071": "Males",
       "CI_0000121": "All categories: Sex"},
