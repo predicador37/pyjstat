@@ -28,8 +28,16 @@ Support for JSON-stat 1.3 and 2.0 is provided. JSON-stat 1.3 methods are
 deprecated now and shouldn't be used in the future, but backwards compatibility
 has been preserved.
 
+Pyjstat 1.0 is aimed for simplicity. JSON-stat classes have been replicated
+(Dataset, Collection and Dimension) and provided with simple read() and write()
+methods. Funcionality covers common use cases as having a URL or dataframe
+as data sources.
+
 Methods for retrieving the value of a particular cube cell are taken from the
 JSON-stat Javascript sample code. Thanks to @badosa for this.
+
+Also, version 1.0 makes use of the requests package internally, which should
+make downloading of datasets easier.
 
 Installation
 ============
@@ -38,8 +46,8 @@ pyjstat requires pandas package. For installation::
 
     pip install pyjstat
 
-Usage of version 1.0 and newer
-==============================
+Usage of version 1.0 and newer (JSON-stat 2.0)
+==============================================
 
 Dataset operations: read and write
 ----------------------------------
@@ -81,7 +89,24 @@ Collection operations: read and write
 
     from pyjstat import pyjstat
 
-    EXAMPLE_URL = 'http://json-stat.org/samples/oecd.json'
+    EXAMPLE_URL = 'http://json-stat.org/samples/collection.json'
+
+    collection = pyjstat.Collection.read(EXAMPLE_URL)
+    df_list = collection.write('dataframe_list')
+    print(df_list)
+
+Example with UK ONS API
+-----------------------
+
+In the following example, apikey parameter must be replaced by a real api key
+from ONS. This dataset corresponds to residence type by sex by age in London.
+
+EXAMPLE_URL = 'http://web.ons.gov.uk/ons/api/data/dataset/DC1104EW.json?'
+              'context=Census&jsontype=json-stat&apikey=yourapikey&'
+              'geog=2011HTWARDH&diff=&totals=false&dm/2011HTWARDH=E12000007'
+dataset = pyjstat.Dataset.read(EXAMPLE_URL)
+df = dataset.write('dataframe')
+print(df)
 
 
 Usage of version 0.3.5 and older
