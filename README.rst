@@ -87,7 +87,7 @@ This operation mimics the Javascript example in the JSON-stat web page::
 Collection operations: read and write
 ------------------------------------
 
-    A collection can be parsed into a list of dataframes::
+A collection can be parsed into a list of dataframes::
 
     from pyjstat import pyjstat
 
@@ -103,12 +103,13 @@ Example with UK ONS API
 In the following example, apikey parameter must be replaced by a real api key
 from ONS. This dataset corresponds to residence type by sex by age in London::
 
-EXAMPLE_URL = 'http://web.ons.gov.uk/ons/api/data/dataset/DC1104EW.json?'
-              'context=Census&jsontype=json-stat&apikey=yourapikey&'
-              'geog=2011HTWARDH&diff=&totals=false&dm/2011HTWARDH=E12000007'
-dataset = pyjstat.Dataset.read(EXAMPLE_URL)
-df = dataset.write('dataframe')
-print(df)
+    EXAMPLE_URL = 'http://web.ons.gov.uk/ons/api/data/dataset/DC1104EW.json?'
+                  'context=Census&jsontype=json-stat&apikey=yourapikey&'
+                  'geog=2011HTWARDH&diff=&totals=false&'
+                  'dm/2011HTWARDH=E12000007'
+    dataset = pyjstat.Dataset.read(EXAMPLE_URL)
+    df = dataset.write('dataframe')
+    print(df)
 
 
 Usage of version 0.3.5 and older
