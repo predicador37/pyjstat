@@ -74,7 +74,7 @@ Typical usage often looks like this::
 Dataset operation: get_value
 ----------------------------------
 
-This operation mimics the Javascript example in the JSON-stat web page:
+This operation mimics the Javascript example in the JSON-stat web page::
 
     from pyjstat import pyjstat
 
@@ -86,6 +86,8 @@ This operation mimics the Javascript example in the JSON-stat web page:
 
 Collection operations: read and write
 ------------------------------------
+
+    A collection can be parsed into a list of dataframes::
 
     from pyjstat import pyjstat
 
@@ -99,7 +101,7 @@ Example with UK ONS API
 -----------------------
 
 In the following example, apikey parameter must be replaced by a real api key
-from ONS. This dataset corresponds to residence type by sex by age in London.
+from ONS. This dataset corresponds to residence type by sex by age in London::
 
 EXAMPLE_URL = 'http://web.ons.gov.uk/ons/api/data/dataset/DC1104EW.json?'
               'context=Census&jsontype=json-stat&apikey=yourapikey&'
