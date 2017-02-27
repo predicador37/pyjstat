@@ -334,11 +334,19 @@ class TestPyjstat(unittest.TestCase):
                         json_data['dataset1']['value'][547])
         self.assertTrue(self.galicia_dataset['value'][-1] ==
                         json_data['dataset1']['value'][-1])
-# #
-# # #TODO check_version test
-# #
-    def test_galicia_2_dataset(self):
-        """ Test pyjstat using class dataset from v1.02"""
+
+    def test_version_check_2_True(self):
+        """ Test version check for 2.0 dataset"""
+        dataset = pyjstat.Dataset.read(self.galicia_2_dataset)
+        self.assertTrue(pyjstat.check_version_2(dataset))
+
+    def test_version_check_2_False(self):
+        """ Test version check for 1.X dataset"""
+        dataset = pyjstat.Dataset.read(self.galicia_dataset)
+        self.assertFalse(pyjstat.check_version_2(dataset))
+
+    def test_galicia_2_dataset_read_and_write(self):
+        """ Test pyjstat using JSON-stat 2.0 dataset"""
 
         dataset1 = pyjstat.Dataset.read(self.galicia_2_dataset)
         df = dataset1.write('dataframe')
@@ -352,11 +360,15 @@ class TestPyjstat(unittest.TestCase):
                         json_data['value'][547])
 
     def test_get_dimension_index(self):
+        """ Test get_dimension with JSON-stat OECD example dataset"""
+
         dataset = pyjstat.Dataset.read('http://json-stat.org/samples/oecd.json')
         self.assertEqual(dataset.get_dimension_index('area', 'US'), 33)
 
 
     def test_get_dimension_indices(self):
+        """ Test get_dimension_indices with JSON-stat OECD example dataset"""
+
         dataset = pyjstat.Dataset.read(
             'http://json-stat.org/samples/oecd.json')
         query = [{'concept':'UNR'}, {'area':'US'}, {'year':'2010'}]
@@ -364,57 +376,94 @@ class TestPyjstat(unittest.TestCase):
 
 
     def test_get_value_index(self):
+        """ Test get_value_index with JSON-stat OECD example dataset"""
+
         dataset = pyjstat.Dataset.read(
             'http://json-stat.org/samples/oecd.json')
-
         query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]
-
         indices = dataset.get_dimension_indices(query)
         self.assertEqual(dataset.get_value_index(indices), 403)
 
     def test_get_value_by_index(self):
+        """ Test get_value_by_index with JSON-stat OECD example dataset"""
+
         dataset = pyjstat.Dataset.read(
             'http://json-stat.org/samples/oecd.json')
-
         query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]
-
         indices = dataset.get_dimension_indices(query)
         index = (dataset.get_value_index(indices))
         self.assertEqual(dataset.get_value_by_index(index), 9.627692959)
 
     def test_get_value(self):
+        """ Test get_value with JSON-stat OECD example dataset"""
+
         dataset = pyjstat.Dataset.read(
             'http://json-stat.org/samples/oecd.json')
-
         query = [{'concept': 'UNR'}, {'area': 'US'}, {'year': '2010'}]
         self.assertEqual(dataset.get_value(query), 9.627692959)
 
-    def test_to_frame_list(self):
+    def test_collection_read(self):
+        """ Test Collection.write() method to obtain dataframe list"""
+
+        collection = pyjstat.Collection.read('http://json-stat.org/samples/' \
+                                             'collection.json')
+        self.assertEqual(collection['link']['item'][0]['href'],
+                         'https://json-stat.org/samples/oecd.json')
+
+    def test_collection_write(self):
+        """ Test Collection.write() method to obtain dataframe list"""
+
         collection = pyjstat.Collection.read(self.collection)
         df_list = collection.write('dataframe_list')
         self.assertEqual(len(df_list), 8)
 
+    def test_collection_write_json_stat(self):
+        """ Test Collection.write() method to obtain dataframe list"""
+
+        collection = pyjstat.Collection.read(self.collection)
+        json_col = collection.write()
+        read_json = json.loads(json_col)
+        self.assertEqual(read_json['link']['item'][1]['label'],
+                         'Population by sex and age group. Canada. 2012')
+
     def test_collection_get(self):
+        """ Test Collection.get() method to obtain a dataframe in the list"""
+
         collection = pyjstat.Collection.read(self.collection)
         dataset = collection.get(2)
         self.assertEqual(dataset['value'][0], 2695880)
 
-    def test_cantabria_dataset(self):
+    def test_cantabria_dataset_read_and_write(self):
         dataset = pyjstat.Dataset.read(self.cantabria)
 
         query = [{'Sexo': 'Hombres'}, {'Grupo de edad': 'Total'},
                  {'Trimestre': '2005 - 1'}, {'Variables': 'Activos' }]
         self.assertEqual(dataset.get_value(query), 154.3)
         df = dataset.write('dataframe')
-        dataset2 = pyjstat.Dataset.read(df)
-
-        #TODO COMPLETE TESTS
+        line_5394 = ['2016 - 4', 'Mujeres', 'De 55 y más años', 'Población',
+                     109.0]
+        self.assertEqual(sorted(df.iloc[5394].values)[0],
+                        sorted(line_5394)[0])
+        df_dataset = pyjstat.Dataset.read(df)
 
     def test_get_dimension(self):
         """ Test pyjstat get_dim_label() using label as parameter """
-        dimension = pyjstat.Dimension.read(self.dimension)
 
+        dimension = pyjstat.Dimension.read(self.dimension)
         pyjstat.Dimension.read(dimension.write('dataframe'))
+
+    def test_get_dimension_from_dataset(self):
+        """ Test pyjstat get_dim_label() using label as parameter """
+
+        dataset = pyjstat.Dataset.read('http://json-stat.org/' \
+                                       'samples/us-gsp.json')
+
+        dimension = pyjstat.Dimension.read(OrderedDict(
+            dataset['dimension']['concept']))
+        df_dim = pyjstat.Dimension.read(dimension.write('dataframe'))
+        self.assertEqual(df_dim['category']['index'][2], 'pop')
+
+        #TODO test for Dimension.write()
 
 
     def test_uk_dataset(self):
@@ -463,6 +512,7 @@ class TestPyjstat(unittest.TestCase):
 
     def test_ons_index_sort_bug(self):
         """ Test pyjstat from_json_stat dimension sorting"""
+
         results = pyjstat.from_json_stat(self.ons_dataset)
         json_data = json.loads(pyjstat.to_json_stat(results, output='dict'),
                                object_pairs_hook=OrderedDict)
@@ -474,6 +524,7 @@ class TestPyjstat(unittest.TestCase):
     def test_ons_index_sort_bug_index(self):
         """ Test pyjstat from_json_stat dimension sorting using indexes
         instead of labels"""
+
         results = pyjstat.from_json_stat(self.ons_dataset, naming='id')
         json_data = json.loads(pyjstat.to_json_stat(results, output='dict'),
                                object_pairs_hook=OrderedDict)

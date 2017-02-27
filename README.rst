@@ -39,6 +39,11 @@ JSON-stat Javascript sample code. Thanks to @badosa for this.
 Also, version 1.0 makes use of the requests package internally, which should
 make downloading of datasets easier.
 
+Finally, note that the new classes and methods are inspired by JSON-stat 2.0,
+and hence, won't work with previous versions of JSON-stat. However, older
+methods are still available incorporating bug fixes and performance
+improvements.
+
 Installation
 ============
 
@@ -103,17 +108,25 @@ Example with UK ONS API
 In the following example, apikey parameter must be replaced by a real api key
 from ONS. This dataset corresponds to residence type by sex by age in London::
 
-    EXAMPLE_URL = 'http://web.ons.gov.uk/ons/api/data/dataset/DC1104EW.json?'
-                  'context=Census&jsontype=json-stat&apikey=yourapikey&'
-                  'geog=2011HTWARDH&diff=&totals=false&'
+    EXAMPLE_URL = 'http://web.ons.gov.uk/ons/api/data/dataset/DC1104EW.json?'\
+                  'context=Census&jsontype=json-stat&apikey=yourapikey&'\
+                  'geog=2011HTWARDH&diff=&totals=false&'\
                   'dm/2011HTWARDH=E12000007'
     dataset = pyjstat.Dataset.read(EXAMPLE_URL)
     df = dataset.write('dataframe')
     print(df)
 
+More examples
+-------------
+
+More examples can be found in the examples directory, both for versions 1.3
+and 2.0.
+
 
 Usage of version 0.3.5 and older
 ================================
+
+This syntax is deprecated and therefore not recommended anymore.
 
 From JSON-stat to pandas DataFrame
 -----------------------------------

@@ -31,7 +31,10 @@ print(df_list)
 # print(df)
 
 
-EXAMPLE_URL = 'http://web.ons.gov.uk/ons/api/data/dataset/DC1104EW.json?context=Census&jsontype=json-stat&apikey=DCOpn8BU2i&geog=2011HTWARDH&diff=&totals=false&dm/2011HTWARDH=E12000007'
+EXAMPLE_URL = 'http://web.ons.gov.uk/ons/api/data/dataset/DC1104EW.json?'\
+              'context=Census&jsontype=json-stat&apikey=DCOpn8BU2i&'\
+              'geog=2011HTWARDH&diff=&totals=false&'\
+              'dm/2011HTWARDH=E12000007'
 dataset = pyjstat.Dataset.read(EXAMPLE_URL)
 df = dataset.write('dataframe')
 print(df)

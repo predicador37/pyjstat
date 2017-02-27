@@ -95,8 +95,9 @@ def to_str(variable):
         return variable
 
 
-def check_version(dataset, version):
-    """Checks if json-stat version attribute exists for a given dataset.
+def check_version_2(dataset):
+    """Checks if json-stat version attribute exists and is equal or greater \
+       than 2.0 for a given dataset.
 
        Args:
          dataset (OrderedDict): data in JSON-stat format, previously \
@@ -104,11 +105,13 @@ def check_version(dataset, version):
                                    json.load() or json.loads(),
 
        Returns:
-         bool: The return value. True for success, False otherwise.
+         bool: True if version exists and is equal or greater than 2.0, \
+               False otherwise. For datasets without the version attribute, \
+               always return False.
 
        """
 
-    if (float(dataset.get('version')) >= float(version)
+    if (float(dataset.get('version')) >= 2.0
         if dataset.get('version') else False):
         return True
     else:
@@ -172,7 +175,7 @@ def get_dimensions(js_dict, naming):
 
     dimensions = []
     dim_names = []
-    if (check_version(js_dict, '2.0')):
+    if (check_version_2(js_dict)):
         dimension_dict = js_dict
     else:
         dimension_dict = js_dict['dimension']
@@ -732,7 +735,8 @@ class Dimension(OrderedDict):
             output['category'] = OrderedDict({})
             output['category']['index'] = data.id.tolist()
             output['category']['label'] = OrderedDict(
-                zip(data.id.values, data.sex.values))
+                zip(data.id.values, data[label].values))
+            return(cls(output))
         elif (isinstance(data, OrderedDict)):
             return cls(data)
         elif (data.startswith(("http://", "https://", "ftp://", "ftps://"))):
@@ -822,7 +826,7 @@ class Collection(OrderedDict):
         elif (self['link']['item'][element]['class'] == 'collection'):
             return Collection.read(self['link']['item'][element]['href'])
         elif (self['link']['item'][element]['class'] == 'dimension'):
-            print("Not supported")
+            return Dimension.read(self['link']['item'][element]['href'])
         else:
             raise ValueError(
                 "Class not allowed. Please use dataset, collection or "
