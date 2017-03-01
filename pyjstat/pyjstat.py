@@ -575,9 +575,10 @@ class Dataset(OrderedDict):
 
     @classmethod
     def read(cls, data):
-        """Reads data from URL, Dataframe or OrderedDict.
+        """Reads data from URL, Dataframe, JSON string or OrderedDict.
         Args:
-            data: can be a Pandas Dataframe, an OrderedDict or a URL.
+            data: can be a Pandas Dataframe, a JSON string, an OrderedDict
+                  or a URL pointing to a JSONstat file.
 
         Returns:
             An object of class Dataset populated with data.
@@ -593,7 +594,11 @@ class Dataset(OrderedDict):
             # requests will do the rest...
             return cls(request(data))
         else:
-            raise TypeError
+            try:
+                json_dict = json.loads(data, object_pairs_hook=OrderedDict)
+                return cls(json_dict)
+            except ValueError:
+                raise
 
     def write(self, output='jsonstat'):
         """Writes data from a Dataset object to JSONstat or Pandas Dataframe.
@@ -717,9 +722,10 @@ class Dimension(OrderedDict):
 
     @classmethod
     def read(cls, data):
-        """Reads data from URL, Dataframe or OrderedDict.
+        """Reads data from URL, Dataframe, JSON string or OrderedDict.
         Args:
-            data: can be a Pandas Dataframe, an OrderedDict or a URL.
+            data: can be a Pandas Dataframe, a JSON string, an OrderedDict
+                  or a URL pointing to a JSONstat file.
 
         Returns:
             An object of class Dimension populated with data.
@@ -742,7 +748,11 @@ class Dimension(OrderedDict):
         elif (data.startswith(("http://", "https://", "ftp://", "ftps://"))):
             return cls(request(data))
         else:
-            raise TypeError
+            try:
+                json_dict = json.loads(data, object_pairs_hook=OrderedDict)
+                return cls(json_dict)
+            except ValueError:
+                raise
 
     def write(self, output='jsonstat'):
         """Writes data from a Dataset object to JSONstat or Pandas Dataframe.
@@ -774,7 +784,8 @@ class Collection(OrderedDict):
     def read(cls, data):
         """Reads data from URL or OrderedDict.
         Args:
-            data: can be a Pandas Dataframe or an OrderedDict.
+            data: can be a URL pointing to a JSONstat file, a JSON string
+                  or an OrderedDict.
 
         Returns:
             An object of class Collection populated with data.
@@ -785,7 +796,11 @@ class Collection(OrderedDict):
         elif (data.startswith(("http://", "https://", "ftp://", "ftps://"))):
             return cls(request(data))
         else:
-            raise TypeError
+            try:
+                json_dict = json.loads(data, object_pairs_hook=OrderedDict)
+                return cls(json_dict)
+            except ValueError:
+                raise
 
     def write(self, output='jsonstat'):
         """Writes data from a Collection object to JSONstat or list of \
