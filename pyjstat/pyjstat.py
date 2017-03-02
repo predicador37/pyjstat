@@ -39,6 +39,11 @@ import warnings
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
+try:
+  basestring
+except NameError:
+  basestring = str
+
 
 class NumpyEncoder(json.JSONEncoder):
     """Custom JSON encoder class for Numpy data types.
@@ -588,12 +593,12 @@ class Dataset(OrderedDict):
                 object_pairs_hook=OrderedDict)))
         elif isinstance(data, OrderedDict):
             return cls(data)
-        elif (isinstance(data, str)
+        elif (isinstance(data, basestring)
               and data.startswith(("http://", "https://",
                                    "ftp://", "ftps://"))):
             # requests will do the rest...
             return cls(request(data))
-        elif isinstance(data, str):
+        elif isinstance(data, basestring):
             try:
                 json_dict = json.loads(data, object_pairs_hook=OrderedDict)
                 return cls(json_dict)
@@ -748,10 +753,12 @@ class Dimension(OrderedDict):
             return cls(output)
         elif isinstance(data, OrderedDict):
             return cls(data)
-        elif isinstance(data, str) and data.startswith(("http://", "https://",
-                                                        "ftp://", "ftps://")):
+        elif isinstance(data, basestring) and data.startswith(("http://",
+                                                               "https://",
+                                                               "ftp://",
+                                                               "ftps://")):
             return cls(request(data))
-        elif isinstance(data, str):
+        elif isinstance(data,basestring):
             try:
                 json_dict = json.loads(data, object_pairs_hook=OrderedDict)
                 return cls(json_dict)
@@ -803,10 +810,10 @@ class Collection(OrderedDict):
         """
         if isinstance(data, OrderedDict):
             return cls(data)
-        elif isinstance(data, str) and data.startswith(("http://", "https://",
-                                                        "ftp://", "ftps://")):
+        elif isinstance(data, basestring)\
+             and data.startswith(("http://", "https://", "ftp://", "ftps://")):
             return cls(request(data))
-        elif isinstance(data, str):
+        elif isinstance(data, basestring):
             try:
                 json_dict = json.loads(data, object_pairs_hook=OrderedDict)
                 return cls(json_dict)
