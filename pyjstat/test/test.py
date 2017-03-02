@@ -454,11 +454,11 @@ class TestPyjstat(unittest.TestCase):
         collection = pyjstat.Collection.read(self.collection)
         self.assertRaises(ValueError, collection.write, 'json')
 
-    def test_wrong_intput_type_in_collection(self):
+    def test_wrong_input_type_in_collection(self):
         """ Test pyjstat Collection read with wrong input format raises
             TypeError"""
 
-        self.assertRaises(TypeError, pyjstat.Collection.read, 'test-string')
+        self.assertRaises(ValueError, pyjstat.Collection.read, 'test-string')
 
     def test_cantabria_dataset_read_and_write(self):
         dataset = pyjstat.Dataset.read(self.cantabria)
@@ -467,11 +467,8 @@ class TestPyjstat(unittest.TestCase):
                  {'Trimestre': '2005 - 1'}, {'Variables': 'Activos'}]
         self.assertEqual(dataset.get_value(query), 154.3)
         df = dataset.write('dataframe')
-        line_5394 = ['2016 - 4', 'Mujeres', 'De 55 y más años', 'Población',
-                     109.0]
-        self.assertEqual(sorted(df.iloc[5394].values)[0],
-                         sorted(line_5394)[0])
-        df_dataset = pyjstat.Dataset.read(df)
+        self.assertEqual(df.iloc[5394,4], 109.0)
+
 
     def test_get_dimension(self):
         """ Test pyjstat get_dim_label() using label as parameter """
@@ -505,7 +502,7 @@ class TestPyjstat(unittest.TestCase):
         """ Test pyjstat Dimension read with wrong input format raises
             TypeError"""
 
-        self.assertRaises(TypeError, pyjstat.Dimension.read,
+        self.assertRaises(ValueError, pyjstat.Dimension.read,
                           'test-string')
 
     def test_dimension_write(self):
