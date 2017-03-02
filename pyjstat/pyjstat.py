@@ -28,13 +28,9 @@ Example:
 """
 
 import json
-from operator import itemgetter
-
-import numpy
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
-import abc
 import requests
 import logging
 import inspect
@@ -50,7 +46,7 @@ class NumpyEncoder(json.JSONEncoder):
     """
 
     def default(self, obj):
-        if (isinstance(obj, np.integer) or isinstance(obj, np.int64)):
+        if isinstance(obj, np.integer) or isinstance(obj, np.int64):
             return int(obj)
         elif isinstance(obj, np.floating):
             return float(obj)
@@ -111,8 +107,8 @@ def check_version_2(dataset):
 
        """
 
-    if (float(dataset.get('version')) >= 2.0
-        if dataset.get('version') else False):
+    if float(dataset.get('version')) >= 2.0 \
+            if dataset.get('version') else False:
         return True
     else:
         return False
@@ -134,9 +130,9 @@ def unnest_collection(collection, df_list):
 
           """
     for item in collection['link']['item']:
-        if (item['class'] == 'dataset'):
+        if item['class'] == 'dataset':
             df_list.append(Dataset.read(item['href']).write('dataframe'))
-        elif (item['class'] == 'collection'):
+        elif item['class'] == 'collection':
             nested_collection = request(item['href'])
             unnest_collection(nested_collection, df_list)
 
@@ -175,7 +171,7 @@ def get_dimensions(js_dict, naming):
 
     dimensions = []
     dim_names = []
-    if (check_version_2(js_dict)):
+    if check_version_2(js_dict):
         dimension_dict = js_dict
     else:
         dimension_dict = js_dict['dimension']
@@ -206,14 +202,14 @@ def get_dim_label(js_dict, dim, input="dataset"):
 
     """
 
-    if (input == 'dataset'):
+    if input == 'dataset':
         input = js_dict['dimension'][dim]
         label_col = 'label'
-    elif (input == 'dimension'):
+    elif input == 'dimension':
         label_col = js_dict['label']
         input = js_dict
     else:
-        raise (ValueError)
+        raise ValueError
 
     try:
         dim_label = input['category']['label']
@@ -302,7 +298,7 @@ def get_values(js_dict, value='value'):
     # being not a list of dicts or tuples leaves us with a dict...
     values = {int(key): value for (key, value) in values.items()}
 
-    if (js_dict.get('size')):
+    if js_dict.get('size'):
         max_val = np.prod(np.array((js_dict['size'])))
     else:
         max_val = np.prod(np.array((js_dict['dimension']['size'])))
@@ -482,13 +478,13 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
                                 {"index":
                                      OrderedDict([(to_str(j), to_int(k))
                                                   for k, j in enumerate(
-                                             uniquify(dims[i]))]),
+                                                      uniquify(dims[i]))]),
                                  "label":
                                      OrderedDict([(to_str(j), to_str(j))
                                                   for k, j in enumerate(
-                                             uniquify(dims[i]))])}}}
+                                                      uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
-        if (float(version) >= 2.0):
+        if float(version) >= 2.0:
 
             dataset = {"dimension": OrderedDict(),
                        value: [None if np.isnan(x) else x
@@ -504,10 +500,11 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
             for category in categories:
                 dataset["dimension"].update(category)
         else:
-            dataset = {"dataset" + str(row + 1):
-                           {"dimension": OrderedDict(),
-                            value: [None if np.isnan(x) else x
-                                    for x in dataframe[value].values]}}
+            dataset = {"dataset" +
+                       str(row + 1):
+                       {"dimension": OrderedDict(),
+                        value: [None if np.isnan(x) else x
+                                for x in dataframe[value].values]}}
             for category in categories:
                 dataset["dataset" + str(row + 1)][
                     "dimension"].update(category)
@@ -575,27 +572,36 @@ class Dataset(OrderedDict):
 
     @classmethod
     def read(cls, data):
-        """Reads data from URL, Dataframe, JSON string or OrderedDict.
+        """Reads data from URL, Dataframe, JSON string, JSON file or
+           OrderedDict.
         Args:
-            data: can be a Pandas Dataframe, a JSON string, an OrderedDict
-                  or a URL pointing to a JSONstat file.
+            data: can be a Pandas Dataframe, a JSON file, a JSON string,
+                  an OrderedDict or a URL pointing to a JSONstat file.
 
         Returns:
             An object of class Dataset populated with data.
 
         """
-        if (isinstance(data, pd.DataFrame)):
+        if isinstance(data, pd.DataFrame):
             return cls((json.loads(
                 to_json_stat(data, output='dict', version='2.0'),
                 object_pairs_hook=OrderedDict)))
-        elif (isinstance(data, OrderedDict)):
+        elif isinstance(data, OrderedDict):
             return cls(data)
-        elif (data.startswith(("http://", "https://", "ftp://", "ftps://"))):
+        elif (isinstance(data, str)
+              and data.startswith(("http://", "https://",
+                                   "ftp://", "ftps://"))):
             # requests will do the rest...
             return cls(request(data))
-        else:
+        elif isinstance(data, str):
             try:
                 json_dict = json.loads(data, object_pairs_hook=OrderedDict)
+                return cls(json_dict)
+            except ValueError:
+                raise
+        else:
+            try:
+                json_dict = json.load(data, object_pairs_hook=OrderedDict)
                 return cls(json_dict)
             except ValueError:
                 raise
@@ -612,9 +618,9 @@ class Dataset(OrderedDict):
 
         """
 
-        if (output == 'jsonstat'):
-            return (json.dumps(OrderedDict(self), cls=NumpyEncoder))
-        elif (output == 'dataframe'):
+        if output == 'jsonstat':
+            return json.dumps(OrderedDict(self), cls=NumpyEncoder)
+        elif output == 'dataframe':
             return from_json_stat(self)[0]
         else:
             raise ValueError("Allowed arguments are 'jsonstat' or 'dataframe'")
@@ -631,14 +637,12 @@ class Dataset(OrderedDict):
 
         """
 
-        if (not (
-                    'index' in self.get('dimension', {}).get(name, {}).get(
-                    'category',
-                    {}))):
-            return 0;
+        if 'index' not in self.get('dimension', {}). \
+                get(name, {}).get('category', {}):
+            return 0
         ndx = self['dimension'][name]['category']['index']
 
-        if (isinstance(ndx, list)):
+        if isinstance(ndx, list):
             return ndx.index(value)
         else:
             return ndx[value]
@@ -654,8 +658,6 @@ class Dataset(OrderedDict):
 
         """
         ids = self['id'] if self.get('id') else self['dimension']['id']
-
-        ndims = len(ids)
         indices = []
 
         for idx, id in enumerate(ids):
@@ -677,8 +679,8 @@ class Dataset(OrderedDict):
         """
         size = self['size'] if self.get('size') else self['dimension']['size']
         ndims = len(size)
-        mult = 1;
-        num = 0;
+        mult = 1
+        num = 0
         for idx, dim in enumerate(size):
             mult *= size[ndims - idx] if (idx > 0) else 1
             num += mult * indices[ndims - idx - 1]
@@ -722,16 +724,17 @@ class Dimension(OrderedDict):
 
     @classmethod
     def read(cls, data):
-        """Reads data from URL, Dataframe, JSON string or OrderedDict.
+        """Reads data from URL, Dataframe, JSON string, JSON file
+           or OrderedDict.
         Args:
-            data: can be a Pandas Dataframe, a JSON string, an OrderedDict
-                  or a URL pointing to a JSONstat file.
+            data: can be a Pandas Dataframe, a JSON string, a JSON file,
+                  an OrderedDict or a URL pointing to a JSONstat file.
 
         Returns:
             An object of class Dimension populated with data.
 
         """
-        if (isinstance(data, pd.DataFrame)):
+        if isinstance(data, pd.DataFrame):
             output = OrderedDict({})
             output['version'] = '2.0'
             output['class'] = 'dimension'
@@ -742,14 +745,21 @@ class Dimension(OrderedDict):
             output['category']['index'] = data.id.tolist()
             output['category']['label'] = OrderedDict(
                 zip(data.id.values, data[label].values))
-            return(cls(output))
-        elif (isinstance(data, OrderedDict)):
+            return cls(output)
+        elif isinstance(data, OrderedDict):
             return cls(data)
-        elif (data.startswith(("http://", "https://", "ftp://", "ftps://"))):
+        elif isinstance(data, str) and data.startswith(("http://", "https://",
+                                                        "ftp://", "ftps://")):
             return cls(request(data))
-        else:
+        elif isinstance(data, str):
             try:
                 json_dict = json.loads(data, object_pairs_hook=OrderedDict)
+                return cls(json_dict)
+            except ValueError:
+                raise
+        else:
+            try:
+                json_dict = json.load(data, object_pairs_hook=OrderedDict)
                 return cls(json_dict)
             except ValueError:
                 raise
@@ -765,9 +775,9 @@ class Dimension(OrderedDict):
 
         """
 
-        if (output == 'jsonstat'):
-            return (json.dumps(OrderedDict(self), cls=NumpyEncoder))
-        elif (output == 'dataframe'):
+        if output == 'jsonstat':
+            return json.dumps(OrderedDict(self), cls=NumpyEncoder)
+        elif output == 'dataframe':
             return get_dim_label(self, self['label'], 'dimension')
         else:
             raise ValueError("Allowed arguments are 'jsonstat' or 'dataframe'")
@@ -791,13 +801,20 @@ class Collection(OrderedDict):
             An object of class Collection populated with data.
 
         """
-        if (isinstance(data, OrderedDict)):
+        if isinstance(data, OrderedDict):
             return cls(data)
-        elif (data.startswith(("http://", "https://", "ftp://", "ftps://"))):
+        elif isinstance(data, str) and data.startswith(("http://", "https://",
+                                                        "ftp://", "ftps://")):
             return cls(request(data))
-        else:
+        elif isinstance(data, str):
             try:
                 json_dict = json.loads(data, object_pairs_hook=OrderedDict)
+                return cls(json_dict)
+            except ValueError:
+                raise
+        else:
+            try:
+                json_dict = json.load(data, object_pairs_hook=OrderedDict)
                 return cls(json_dict)
             except ValueError:
                 raise
@@ -814,9 +831,9 @@ class Collection(OrderedDict):
 
         """
 
-        if (output == 'jsonstat'):
-            return (json.dumps(self))
-        elif (output == 'dataframe_list'):
+        if output == 'jsonstat':
+            return json.dumps(self)
+        elif output == 'dataframe_list':
             df_list = []
             unnest_collection(self, df_list)
             return df_list
@@ -836,11 +853,11 @@ class Collection(OrderedDict):
 
         """
 
-        if (self['link']['item'][element]['class'] == 'dataset'):
+        if self['link']['item'][element]['class'] == 'dataset':
             return Dataset.read(self['link']['item'][element]['href'])
-        elif (self['link']['item'][element]['class'] == 'collection'):
+        elif self['link']['item'][element]['class'] == 'collection':
             return Collection.read(self['link']['item'][element]['href'])
-        elif (self['link']['item'][element]['class'] == 'dimension'):
+        elif self['link']['item'][element]['class'] == 'dimension':
             return Dimension.read(self['link']['item'][element]['href'])
         else:
             raise ValueError(

@@ -15,7 +15,8 @@ class TestPyjstat(unittest.TestCase):
     """ Unit tests for pyjstat """
 
     def setUp(self):
-        """ Test data extracted from json-stat.org site """
+        """ Test data extracted from json-stat.org site and other statistical
+            offices."""
 
         with open(os.path.join(os.path.dirname(__file__),
                                './data/oecd-canada.json')) as data_file:
@@ -72,6 +73,7 @@ class TestPyjstat(unittest.TestCase):
 
     def test_to_int(self):
         """ Test pyjstat to_int() """
+
         self.assertTrue(type(pyjstat.to_int("5") is int))
         self.assertTrue(type(pyjstat.to_int("label") is str))
         # not an integer...
@@ -115,6 +117,14 @@ class TestPyjstat(unittest.TestCase):
         dims_df = pyjstat.get_dim_label(self.oecd_datasets['oecd'], dim)
         self.assertTrue(dims_df.iloc[0]['id'] == '2003')
         self.assertTrue(dims_df.iloc[-1]['label'] == '2014')
+
+    def test_get_dim_label_with_wrong_input(self):
+        """ Test pyjstat get_dim_label() with wrong input parameter """
+
+        js_dict = 'nevermind'
+        dim = 'dim'
+        self.assertRaises(ValueError, pyjstat.get_dim_label, js_dict, dim,
+                          input='wrong')
 
     def test_get_dimensions_by_label(self):
         """ Test pyjstat get_dimensions() using label as parameter """
@@ -364,8 +374,8 @@ class TestPyjstat(unittest.TestCase):
 
         self.assertRaises(ValueError, pyjstat.Dataset.read, 'invalid-json')
 
-    def test_read_dataset_from_json(self):
-        """ Test pyjstat Dataset read from json file"""
+    def test_read_dataset_from_json_dict(self):
+        """ Test pyjstat Dataset read from json OrderedDict"""
 
         with open(os.path.join(os.path.dirname(__file__),
                                './data/galicia-2.0.json')) as data_file:
@@ -373,6 +383,21 @@ class TestPyjstat(unittest.TestCase):
 
         dataset = pyjstat.Dataset.read(json_data)
         self.assertEqual(dataset['source'], 'INE and IGE')
+
+    def test_read_dataset_from_json(self):
+        """ Test pyjstat Dataset read from json file"""
+
+        with open(os.path.join(os.path.dirname(__file__),
+                               './data/galicia-2.0.json')) as data_file:
+            dataset = pyjstat.Dataset.read(data_file)
+        self.assertEqual(dataset['source'], 'INE and IGE')
+
+    def test_wrong_output_type_in_dataset(self):
+        """ Test pyjstat Dataset write with wrong output format raises
+            ValueError"""
+
+        dataset = pyjstat.Dataset.read(self.galicia_2_dataset)
+        self.assertRaises(ValueError, dataset.write, 'json')
 
     def test_get_dimension_index(self):
         """ Test get_dimension with JSON-stat OECD example dataset"""
@@ -460,6 +485,15 @@ class TestPyjstat(unittest.TestCase):
 
         self.assertRaises(ValueError, pyjstat.Collection.read, 'test-string')
 
+    def test_read_collection_from_json(self):
+        """ Test pyjstat Dataset read from json file"""
+
+        with open(os.path.join(os.path.dirname(__file__),
+                               './data/collection.json')) as data_file:
+            collection = pyjstat.Collection.read(data_file)
+            self.assertEqual(collection['label'],
+                             'JSON-stat Dataset Sample Collection')
+
     def test_cantabria_dataset_read_and_write(self):
         dataset = pyjstat.Dataset.read(self.cantabria)
 
@@ -467,8 +501,7 @@ class TestPyjstat(unittest.TestCase):
                  {'Trimestre': '2005 - 1'}, {'Variables': 'Activos'}]
         self.assertEqual(dataset.get_value(query), 154.3)
         df = dataset.write('dataframe')
-        self.assertEqual(df.iloc[5394,4], 109.0)
-
+        self.assertEqual(df.iloc[5394, 4], 109.0)
 
     def test_get_dimension(self):
         """ Test pyjstat get_dim_label() using label as parameter """
