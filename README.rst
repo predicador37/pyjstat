@@ -39,6 +39,8 @@ JSON-stat Javascript sample code. Thanks to @badosa for this.
 Also, version 1.0 makes use of the requests package internally, which should
 make downloading of datasets easier.
 
+Test coverage is 88% and Travis CI is used.
+
 Finally, note that the new classes and methods are inspired by JSON-stat 2.0,
 and hence, won't work with previous versions of JSON-stat. However, older
 methods are still available incorporating bug fixes and performance
@@ -51,8 +53,8 @@ pyjstat requires pandas package. For installation::
 
     pip install pyjstat
 
-Usage of version 1.0 and newer (JSON-stat 2.0)
-==============================================
+Usage of version 1.0 and newer (with JSON-stat 2.0 support)
+===========================================================
 
 Dataset operations: read and write
 ----------------------------------
@@ -123,8 +125,8 @@ More examples can be found in the examples directory, both for versions 1.3
 and 2.0.
 
 
-Usage of version 0.3.5 and older
-================================
+Usage of version 0.3.5 and older (with support for JSON-stat 1.3)
+=================================================================
 
 This syntax is deprecated and therefore not recommended anymore.
 
