@@ -92,7 +92,7 @@ This operation mimics the Javascript example in the JSON-stat web page::
     print(dataset.get_value(query))
 
 Collection operations: read and write
-------------------------------------
+-------------------------------------
 
 A collection can be parsed into a list of dataframes::
 
