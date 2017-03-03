@@ -1,4 +1,5 @@
-v1.0.0, 02-XX-2017 -- Major version release with support for JSON-stat 2.0 datasets, collections and dimensions. Performance improvements. Fixed bug with sparse datasets. Simplified API.
+v1.0.1, 03-03-2017 -- Trying to fix pypi RST parsing problems.
+v1.0.0, 02-03-2017 -- Major version release with support for JSON-stat 2.0 datasets, collections and dimensions. Performance improvements. Fixed bug with sparse datasets. Simplified API.
 v0.3.5, 10-24-2016 -- Fixed problem with missing values. Refactored code.
 v0.3.4, 10-02-2016 -- Had to use pandas 0.18.1 version. Problems building 0.19.0 in travis ci.
 v0.3.3, 10-02-2016 -- Fixes #12. Added dimension elements sorting by index when reading json-stat.Added new test case.
