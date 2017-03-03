@@ -1,5 +1,7 @@
 include *.txt
 include .travis.yml
+include .coveragerc
+recursive-include docs *.puml
 recursive-include examples *.py
 recursive-include docs *.bat
 recursive-include docs *.buildinfo

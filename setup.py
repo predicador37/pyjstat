@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='pyjstat',
-    version='0.3.5',
+    version='1.0.0',
     author='Miguel Expósito Martín',
     author_email='miguel.exposito@gmail.com',
     packages=['pyjstat', 'pyjstat.test'],
@@ -13,7 +13,7 @@ setup(
                 'DataFrames.',
     long_description=open('README.rst').read(),
     install_requires=[
-       'pandas'
+       'pandas', 'requests'
     ],
     test_suite='pyjstat.test',
     keywords=['json-stat', 'json', 'statistics', 'dataframe', 'converter'],

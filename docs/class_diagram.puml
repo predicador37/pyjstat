@@ -1,0 +1,39 @@
+@startuml
+class Dataset {
++ read(data: DataFrame) : Dataset
++ read(data: OrderedDict): Dataset
++ read(data: String): Dataset
++ write(output: String = 'jsonstat'): String
++ write(output: String = 'dataframe'): Dataframe
++ get_dimension_index(name: String, value: String): int
++ get_dimension_indices(query: List): List
++ get_value_index(indices: List): int
++ get_value_by_index(index: int): float
++ get_value(query: list): float
+
+}
+
+class Dimension {
++ read(data: DataFrame) : Dimension
++ read(data: OrderedDict): Dimension
++ read(data: String): Dimension
++ write(output: String = 'jsonstat'): String
++ write(output: String = 'dataframe'): Dataframe
+}
+
+class Collection {
++ read(data: OrderedDict): Collection
++ read(data: String): Collection
++ write(output: String = 'jsonstat'): String
++ write(output: String = 'dataframe_list'): List
++ get(element: int): Collection, Dataset, Dimension
+
+}
+
+Collection  -down-> Dataset
+Collection --> Dimension
+Collection --> Collection
+Dataset -right-> Dimension
+
+@enduml
+

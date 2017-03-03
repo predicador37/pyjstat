@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyjstat &mdash; pyjstat 5 documentation</title>
+    <title>pyjstat &mdash; pyjstat 0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5',
+        VERSION:     '0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="pyjstat 5 documentation" href="index.html" />
+    <link rel="top" title="pyjstat 0 documentation" href="index.html" />
     <link rel="prev" title="Welcome to pyjstat’s documentation!" href="index.html" /> 
   </head>
   <body>
@@ -39,7 +39,7 @@
         <li class="right" >
           <a href="index.html" title="Welcome to pyjstat’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">pyjstat 5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">pyjstat 0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -91,6 +91,232 @@ License (see LICENSE file).</p>
 </pre></div>
 </div>
 <dl class="class">
+<dt id="pyjstat.Collection">
+<em class="property">class </em><tt class="descclassname">pyjstat.</tt><tt class="descname">Collection</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pyjstat.Collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class representing a JSONstat collection.</p>
+<dl class="method">
+<dt id="pyjstat.Collection.get">
+<tt class="descname">get</tt><big>(</big><em>element</em><big>)</big><a class="headerlink" href="#pyjstat.Collection.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets ith element of a collection in an object of the corresponding            class.
+:param output: can accept &#8216;jsonstat&#8217; or &#8216;dataframe_list&#8217;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Serialized JSONstat or a list of Pandas Dataframes,depending on             the &#8216;output&#8217; parameter.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pyjstat.Collection.read">
+<em class="property">classmethod </em><tt class="descname">read</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#pyjstat.Collection.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads data from URL or OrderedDict.
+:param data: can be a URL pointing to a JSONstat file, a JSON string</p>
+<blockquote>
+<div>or an OrderedDict.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An object of class Collection populated with data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyjstat.Collection.write">
+<tt class="descname">write</tt><big>(</big><em>output='jsonstat'</em><big>)</big><a class="headerlink" href="#pyjstat.Collection.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes data from a Collection object to JSONstat or list of            Pandas Dataframes.
+:param output: can accept &#8216;jsonstat&#8217; or &#8216;dataframe_list&#8217;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Serialized JSONstat or a list of Pandas Dataframes,depending on             the &#8216;output&#8217; parameter.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyjstat.Dataset">
+<em class="property">class </em><tt class="descclassname">pyjstat.</tt><tt class="descname">Dataset</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pyjstat.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class representing a JSONstat dataset.</p>
+<dl class="method">
+<dt id="pyjstat.Dataset.get_dimension_index">
+<tt class="descname">get_dimension_index</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="headerlink" href="#pyjstat.Dataset.get_dimension_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a dimension ID string and a categody ID string into the            numeric index of that category in that dimension
+:param name: ID string of the dimension.
+:type name: string
+:param value: ID string of the category.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">ndx[value](int): index of the category in the dimension.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyjstat.Dataset.get_dimension_indices">
+<tt class="descname">get_dimension_indices</tt><big>(</big><em>query</em><big>)</big><a class="headerlink" href="#pyjstat.Dataset.get_dimension_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a dimension/category list of dicts into a list of            dimensions’ indices.
+:param query: dimension/category list of dicts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>indices</strong> &#8211;
+list of dimensions&#8217; indices.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyjstat.Dataset.get_value">
+<tt class="descname">get_value</tt><big>(</big><em>query</em><big>)</big><a class="headerlink" href="#pyjstat.Dataset.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a dimension/category list of dicts into a data value            in three steps.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> (<em>list</em>) &#8211; list of dicts with the desired query.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>value</strong> &#8211;
+numeric data value.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyjstat.Dataset.get_value_by_index">
+<tt class="descname">get_value_by_index</tt><big>(</big><em>index</em><big>)</big><a class="headerlink" href="#pyjstat.Dataset.get_value_by_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a numeric value index into its data value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) &#8211; numeric value index.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">self[&#8216;value&#8217;][index](float): Numeric data value.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyjstat.Dataset.get_value_index">
+<tt class="descname">get_value_index</tt><big>(</big><em>indices</em><big>)</big><a class="headerlink" href="#pyjstat.Dataset.get_value_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a list of dimensions’ indices into a numeric value index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indices</strong> (<em>list</em>) &#8211; list of dimension&#8217;s indices.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>num</strong> &#8211;
+numeric value index.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pyjstat.Dataset.read">
+<em class="property">classmethod </em><tt class="descname">read</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#pyjstat.Dataset.read" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Reads data from URL, Dataframe, JSON string, JSON file or</dt>
+<dd>OrderedDict.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> &#8211; can be a Pandas Dataframe, a JSON file, a JSON string,
+an OrderedDict or a URL pointing to a JSONstat file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An object of class Dataset populated with data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyjstat.Dataset.write">
+<tt class="descname">write</tt><big>(</big><em>output='jsonstat'</em><big>)</big><a class="headerlink" href="#pyjstat.Dataset.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes data from a Dataset object to JSONstat or Pandas Dataframe.
+:param output: can accept &#8216;jsonstat&#8217; or &#8216;dataframe&#8217;. Default to</p>
+<blockquote>
+<div>&#8216;jsonstat&#8217;.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Serialized JSONstat or a Pandas Dataframe,depending on the             &#8216;output&#8217; parameter.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyjstat.Dimension">
+<em class="property">class </em><tt class="descclassname">pyjstat.</tt><tt class="descname">Dimension</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pyjstat.Dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class representing a JSONstat dimension.</p>
+<dl class="classmethod">
+<dt id="pyjstat.Dimension.read">
+<em class="property">classmethod </em><tt class="descname">read</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#pyjstat.Dimension.read" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Reads data from URL, Dataframe, JSON string, JSON file</dt>
+<dd>or OrderedDict.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> &#8211; can be a Pandas Dataframe, a JSON string, a JSON file,
+an OrderedDict or a URL pointing to a JSONstat file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An object of class Dimension populated with data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyjstat.Dimension.write">
+<tt class="descname">write</tt><big>(</big><em>output='jsonstat'</em><big>)</big><a class="headerlink" href="#pyjstat.Dimension.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes data from a Dataset object to JSONstat or Pandas Dataframe.
+:param output: can accept &#8216;jsonstat&#8217; or &#8216;dataframe&#8217;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Serialized JSONstat or a Pandas Dataframe,depending on the             &#8216;output&#8217; parameter.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pyjstat.NumpyEncoder">
 <em class="property">class </em><tt class="descclassname">pyjstat.</tt><tt class="descname">NumpyEncoder</tt><big>(</big><em>skipkeys=False</em>, <em>ensure_ascii=True</em>, <em>check_circular=True</em>, <em>allow_nan=True</em>, <em>sort_keys=False</em>, <em>indent=None</em>, <em>separators=None</em>, <em>encoding='utf-8'</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#pyjstat.NumpyEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom JSON encoder class for Numpy data types.</p>
@@ -110,6 +336,24 @@ License (see LICENSE file).</p>
 </tr>
 <tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">ValueError</span></tt> &#8211; 
 if the parameter is not in the allowed list.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyjstat.check_version_2">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">check_version_2</tt><big>(</big><em>dataset</em><big>)</big><a class="headerlink" href="#pyjstat.check_version_2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if json-stat version attribute exists and is equal or greater        than 2.0 for a given dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dataset</strong> (<em>OrderedDict</em>) &#8211; data in JSON-stat format, previously                                    deserialized to a python object by                                    json.load() or json.loads(),</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if version exists and is equal or greater than 2.0,                False otherwise. For datasets without the version attribute,                always return False.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
 </tr>
 </tbody>
 </table>
@@ -219,7 +463,7 @@ DataFrame with index-based dimension data.</p>
 
 <dl class="function">
 <dt id="pyjstat.get_dim_label">
-<tt class="descclassname">pyjstat.</tt><tt class="descname">get_dim_label</tt><big>(</big><em>js_dict</em>, <em>dim</em><big>)</big><a class="headerlink" href="#pyjstat.get_dim_label" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyjstat.</tt><tt class="descname">get_dim_label</tt><big>(</big><em>js_dict</em>, <em>dim</em>, <em>input='dataset'</em><big>)</big><a class="headerlink" href="#pyjstat.get_dim_label" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get label from a given dimension.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -294,6 +538,37 @@ list of dataset values.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pyjstat.request">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">request</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#pyjstat.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a request to a given URL accepting JSON format and return a        deserialized Python object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>path</strong> (<em>str</em>) &#8211; The URI to be requested.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Deserialized JSON Python object.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">response</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><tt class="xref py py-exc docutils literal"><span class="pre">HTTPError</span></tt> &#8211; 
+the HTTP error returned by the requested server.</li>
+<li><tt class="xref py py-exc docutils literal"><span class="pre">InvalidURL</span></tt> &#8211; 
+an invalid URL has been requested.</li>
+<li><tt class="xref py py-exc docutils literal"><span class="pre">Exception</span></tt> &#8211; 
+generic exception.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pyjstat.to_int">
 <tt class="descclassname">pyjstat.</tt><tt class="descname">to_int</tt><big>(</big><em>variable</em><big>)</big><a class="headerlink" href="#pyjstat.to_int" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert variable to integer or string depending on the case.</p>
@@ -314,7 +589,7 @@ an integer or a string, depending on the content                             of 
 
 <dl class="function">
 <dt id="pyjstat.to_json_stat">
-<tt class="descclassname">pyjstat.</tt><tt class="descname">to_json_stat</tt><big>(</big><em>input_df</em>, <em>value='value'</em>, <em>output='list'</em><big>)</big><a class="headerlink" href="#pyjstat.to_json_stat" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">pyjstat.</tt><tt class="descname">to_json_stat</tt><big>(</big><em>input_df</em>, <em>value='value'</em>, <em>output='list'</em>, <em>version='1.3'</em><big>)</big><a class="headerlink" href="#pyjstat.to_json_stat" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Encode pandas.DataFrame object into JSON-stat format. The DataFrames</dt>
 <dd>must have exactly one value column.</dd>
@@ -324,8 +599,12 @@ an integer or a string, depending on the content                             of 
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>df</strong> &#8211; pandas data frame (or list of data frames) to</li>
+<li><strong>df</strong> (<em>pandas.DataFrame</em>) &#8211; pandas data frame (or list of data frames) to</li>
+<li><strong>value</strong> (<em>string, optional</em>) &#8211; name of the value column. Defaults to &#8216;value&#8217;.</li>
 <li><strong>output</strong> (<em>string</em>) &#8211; accepts two values: &#8216;list&#8217; or &#8216;dict&#8217;. Produce list of                      dicts or dict of dicts as output.</li>
+<li><strong>version</strong> (<em>string</em>) &#8211; desired json-stat version. 2.0 is preferred now.                       Apart from this, only older 1.3 format is accepted,
+which is the default parameter in order to preserve
+backwards compatibility.</li>
 </ul>
 </td>
 </tr>
@@ -377,6 +656,27 @@ an integer or a string, depending on the content                             of 
 </table>
 </dd></dl>
 
+<dl class="function">
+<dt id="pyjstat.unnest_collection">
+<tt class="descclassname">pyjstat.</tt><tt class="descname">unnest_collection</tt><big>(</big><em>collection</em>, <em>df_list</em><big>)</big><a class="headerlink" href="#pyjstat.unnest_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unnest collection structure extracting all its datasets and converting        them to Pandas Dataframes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>collection</strong> (<em>OrderedDict</em>) &#8211; data in JSON-stat format, previously                                       deserialized to a python object by                                       json.load() or json.loads(),</li>
+<li><strong>df_list</strong> (<em>list</em>) &#8211; list variable which will contain the converted                             datasets.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Nothing.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -422,11 +722,11 @@ an integer or a string, depending on the content                             of 
         <li class="right" >
           <a href="index.html" title="Welcome to pyjstat’s documentation!"
              >previous</a> |</li>
-        <li><a href="index.html">pyjstat 5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">pyjstat 0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2016, Miguel Expósito Martín.
+        &copy; Copyright 2017, Miguel Expósito Martín.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
