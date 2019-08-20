@@ -247,7 +247,7 @@ def get_dim_label(js_dict, dim, input="dataset"):
                                               dim_index.values())),
                                      index=dim_index.keys(),
                                      columns=['id', 'index'])
-    dim_label = pd.merge(dim_label, dim_index, on='id').sort_values(by='index')
+    dim_label = pd.merge(dim_label, dim_index, on='id').sort_index(by='index')
     return dim_label
 
 
@@ -280,7 +280,7 @@ def get_dim_index(js_dict, dim):
                                               dim_index.values())),
                                      index=dim_index.keys(),
                                      columns=['id', 'index'])
-    dim_index = dim_index.sort_values(by='index')
+    dim_index = dim_index.sort_index(by='index')
     return dim_index
 
 
@@ -611,11 +611,16 @@ class Dataset(OrderedDict):
             except ValueError:
                 raise
 
-    def write(self, output='jsonstat'):
+    def write(self, output='jsonstat', naming="label", value='value'):
         """Writes data from a Dataset object to JSONstat or Pandas Dataframe.
         Args:
             output(string): can accept 'jsonstat' or 'dataframe'. Default to
                             'jsonstat'.
+            naming (string, optional, ingored if output = 'jsonstat'): dimension naming. \
+                Possible values: 'label' or 'id'. Defaults to 'label'.
+            value (string, optional, ignored if output = 'jsonstat'): name of value column. \
+                Defaults to 'value'.
+                
 
         Returns:
             Serialized JSONstat or a Pandas Dataframe,depending on the \
@@ -626,7 +631,7 @@ class Dataset(OrderedDict):
         if output == 'jsonstat':
             return json.dumps(OrderedDict(self), cls=NumpyEncoder)
         elif output == 'dataframe':
-            return from_json_stat(self)[0]
+            return from_json_stat(self, naming=naming, value=value)[0]
         else:
             raise ValueError("Allowed arguments are 'jsonstat' or 'dataframe'")
 
