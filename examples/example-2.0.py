@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """ pyjstat 1.X example for JSON-stat 2.0"""
 
-from pyjstat import pyjstat
 import time
+from pyjstat import pyjstat
 
 EXAMPLE_URL = 'http://www.cso.ie/StatbankServices/StatbankServices.svc/' \
               'jsonservice/responseinstance/TSM01'

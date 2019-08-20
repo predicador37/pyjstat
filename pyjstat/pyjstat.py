@@ -28,21 +28,21 @@ Example:
 """
 
 import json
-import pandas as pd
-import numpy as np
 from collections import OrderedDict
-import requests
 import logging
 import inspect
 import warnings
+import numpy as np
+import pandas as pd
+import requests
 
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
 
 try:
-  basestring
+    basestring
 except NameError:
-  basestring = str
+    basestring = str
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -481,9 +481,9 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
                            {"label": to_str(i),
                             "category":
                                 {"index":
-                                     OrderedDict([(to_str(j), to_int(k))
-                                                  for k, j in enumerate(
-                                                      uniquify(dims[i]))]),
+                                 OrderedDict([(to_str(j), to_int(k))
+                                              for k, j in enumerate(
+                                     uniquify(dims[i]))]),
                                  "label":
                                      OrderedDict([(to_str(j), to_str(j))
                                                   for k, j in enumerate(
@@ -616,11 +616,12 @@ class Dataset(OrderedDict):
         Args:
             output(string): can accept 'jsonstat' or 'dataframe'. Default to
                             'jsonstat'.
-            naming (string, optional, ingored if output = 'jsonstat'): dimension naming. \
+            naming (string): optional, ingored if output = 'jsonstat'.
+                             Dimension naming.
                 Possible values: 'label' or 'id'. Defaults to 'label'.
-            value (string, optional, ignored if output = 'jsonstat'): name of value column. \
+            value (string): optional, ignored if output = 'jsonstat'.
+                            Name of value column.
                 Defaults to 'value'.
-                
 
         Returns:
             Serialized JSONstat or a Pandas Dataframe,depending on the \
@@ -763,7 +764,7 @@ class Dimension(OrderedDict):
                                                                "ftp://",
                                                                "ftps://")):
             return cls(request(data))
-        elif isinstance(data,basestring):
+        elif isinstance(data, basestring):
             try:
                 json_dict = json.loads(data, object_pairs_hook=OrderedDict)
                 return cls(json_dict)
@@ -815,8 +816,10 @@ class Collection(OrderedDict):
         """
         if isinstance(data, OrderedDict):
             return cls(data)
-        elif isinstance(data, basestring)\
-             and data.startswith(("http://", "https://", "ftp://", "ftps://")):
+        elif isinstance(data, basestring) and data.startswith(("http://",
+                                                               "https://",
+                                                               "ftp://",
+                                                               "ftps://")):
             return cls(request(data))
         elif isinstance(data, basestring):
             try:
