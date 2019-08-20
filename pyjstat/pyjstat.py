@@ -247,7 +247,7 @@ def get_dim_label(js_dict, dim, input="dataset"):
                                               dim_index.values())),
                                      index=dim_index.keys(),
                                      columns=['id', 'index'])
-    dim_label = pd.merge(dim_label, dim_index, on='id').sort_values(by='index')
+    dim_label = pd.merge(dim_label, dim_index, on='id').sort_index(by='index')
     return dim_label
 
 
@@ -280,7 +280,7 @@ def get_dim_index(js_dict, dim):
                                               dim_index.values())),
                                      index=dim_index.keys(),
                                      columns=['id', 'index'])
-    dim_index = dim_index.sort_values(by='index')
+    dim_index = dim_index.sort_index(by='index')
     return dim_index
 
 
@@ -492,7 +492,7 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
         if float(version) >= 2.0:
 
             dataset = {"dimension": OrderedDict(),
-                       value: [None if np.isnan(x) else x
+                       value: [None if pd.isnull(x) else x
                                for x in dataframe[value].values]}
 
             dataset["version"] = version
@@ -508,7 +508,7 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
             dataset = {"dataset" +
                        str(row + 1):
                        {"dimension": OrderedDict(),
-                        value: [None if np.isnan(x) else x
+                        value: [None if pd.isnull(x) else x
                                 for x in dataframe[value].values]}}
             for category in categories:
                 dataset["dataset" + str(row + 1)][
