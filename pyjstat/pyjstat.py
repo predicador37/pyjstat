@@ -27,13 +27,16 @@ Example:
 
 """
 
-import json
-from collections import OrderedDict
-import logging
 import inspect
+import json
+import logging
 import warnings
+from collections import OrderedDict
+
 import numpy as np
+
 import pandas as pd
+
 import requests
 
 logging.basicConfig(level=logging.INFO)
@@ -46,11 +49,10 @@ except NameError:
 
 
 class NumpyEncoder(json.JSONEncoder):
-    """Custom JSON encoder class for Numpy data types.
-
-    """
+    """Custom JSON encoder class for Numpy data types."""
 
     def default(self, obj):
+        """Encode by default."""
         if isinstance(obj, np.integer) or isinstance(obj, np.int64):
             return int(obj)
         elif isinstance(obj, np.floating):
@@ -68,7 +70,7 @@ def to_int(variable):
       variable (string): a string containing a real string or an integer.
 
     Returns:
-      variable(int, string): an integer or a string, depending on the content\
+      variable(int, string): an integer or a string, depending on the content
                              of variable.
 
     """
@@ -85,7 +87,7 @@ def to_str(variable):
       variable (string): a string containing a real string or an integer.
 
     Returns:
-      variable(int, string): an integer or a string, depending on the content\
+      variable(int, string): an integer or a string, depending on the content
                              of variable.
 
     """
@@ -97,21 +99,22 @@ def to_str(variable):
 
 
 def check_version_2(dataset):
-    """Checks if json-stat version attribute exists and is equal or greater \
-       than 2.0 for a given dataset.
+    """Check for json-stat version.
 
-       Args:
-         dataset (OrderedDict): data in JSON-stat format, previously \
-                                   deserialized to a python object by \
+    Check if json-stat version attribute exists and is equal or greater
+    than 2.0 for a given dataset.
+
+    Args:
+        dataset (OrderedDict): data in JSON-stat format, previously
+                                   deserialized to a python object by
                                    json.load() or json.loads(),
 
-       Returns:
-         bool: True if version exists and is equal or greater than 2.0, \
-               False otherwise. For datasets without the version attribute, \
+    Returns:
+        bool: True if version exists and is equal or greater than 2.0,
+               False otherwise. For datasets without the version attribute,
                always return False.
 
-       """
-
+    """
     if float(dataset.get('version')) >= 2.0 \
             if dataset.get('version') else False:
         return True
@@ -120,20 +123,19 @@ def check_version_2(dataset):
 
 
 def unnest_collection(collection, df_list):
-    """Unnest collection structure extracting all its datasets and converting \
-       them to Pandas Dataframes.
+    """Unnest collection extracting its datasets and converting them to df.
 
-          Args:
-            collection (OrderedDict): data in JSON-stat format, previously \
-                                      deserialized to a python object by \
-                                      json.load() or json.loads(),
-            df_list (list): list variable which will contain the converted \
-                            datasets.
+    Args:
+        collection (OrderedDict): data in JSON-stat format, previously
+                                  deserialized to a python object by
+                                  json.load() or json.loads(),
+        df_list (list): list variable which will contain the converted
+                        datasets.
 
-          Returns:
-            Nothing.
+    Returns:
+        Nothing.
 
-          """
+    """
     for item in collection['link']['item']:
         if item['class'] == 'dataset':
             df_list.append(Dataset.read(item['href']).write('dataframe'))
@@ -155,7 +157,6 @@ def check_input(naming):
       ValueError: if the parameter is not in the allowed list.
 
     """
-
     if naming not in ['label', 'id']:
         raise ValueError('naming must be "label" or "id"')
 
@@ -165,15 +166,15 @@ def get_dimensions(js_dict, naming):
 
     Args:
       js_dict (dict): dictionary containing dataset data and metadata.
-      naming (string, optional): dimension naming. Possible values: 'label' \
+      naming (string, optional): dimension naming. Possible values: 'label'
                                  or 'id'.
 
     Returns:
-      dimensions (list): list of pandas data frames with dimension \
+      dimensions (list): list of pandas data frames with dimension
                          category data.
       dim_names (list): list of strings with dimension names.
-    """
 
+    """
     dimensions = []
     dim_names = []
     if check_version_2(js_dict):
@@ -195,7 +196,7 @@ def get_dimensions(js_dict, naming):
     return dimensions, dim_names
 
 
-def get_dim_label(js_dict, dim, input="dataset"):
+def get_dim_label(js_dict, dim, dim_input="dataset"):
     """Get label from a given dimension.
 
     Args:
@@ -206,18 +207,17 @@ def get_dim_label(js_dict, dim, input="dataset"):
       dim_label(pandas.DataFrame): DataFrame with label-based dimension data.
 
     """
-
-    if input == 'dataset':
-        input = js_dict['dimension'][dim]
+    if dim_input == 'dataset':
+        dim_input = js_dict['dimension'][dim]
         label_col = 'label'
-    elif input == 'dimension':
+    elif dim_input == 'dimension':
         label_col = js_dict['label']
-        input = js_dict
+        dim_input = js_dict
     else:
         raise ValueError
 
     try:
-        dim_label = input['category']['label']
+        dim_label = dim_input['category']['label']
 
     except KeyError:
         dim_index = get_dim_index(js_dict, dim)
@@ -232,7 +232,7 @@ def get_dim_label(js_dict, dim, input="dataset"):
                                  columns=['id', label_col])
     # index must be added to dim label so that it can be sorted
     try:
-        dim_index = input['category']['index']
+        dim_index = dim_input['category']['index']
     except KeyError:
         dim_index = pd.DataFrame(list(zip([dim_label['id'][0]], [0])),
                                  index=[0],
@@ -262,7 +262,6 @@ def get_dim_index(js_dict, dim):
       dim_index (pandas.DataFrame): DataFrame with index-based dimension data.
 
     """
-
     try:
         dim_index = js_dict['dimension'][dim]['category']['index']
     except KeyError:
@@ -295,7 +294,6 @@ def get_values(js_dict, value='value'):
       values (list): list of dataset values.
 
     """
-
     values = js_dict[value]
     if type(values) is list:
         if type(values[0]) is not dict or tuple:
@@ -319,21 +317,20 @@ def get_df_row(dimensions, naming='label', i=0, record=None):
     """Generate row dimension values for a pandas dataframe.
 
     Args:
-      dimensions (list): list of pandas dataframes with dimension labels \
+      dimensions (list): list of pandas dataframes with dimension labels
                          generated by get_dim_label or get_dim_index methods.
-      naming (string, optional): dimension naming. Possible values: 'label' \
+      naming (string, optional): dimension naming. Possible values: 'label'
                                  or 'id'.
-      i (int): dimension list iteration index. Default is 0, it's used in the \
+      i (int): dimension list iteration index. Default is 0, it's used in the
                          recursive calls to the method.
-      record (list): list of values representing a pandas dataframe row, \
-                     except for the value column. Default is empty, it's used \
+      record (list): list of values representing a pandas dataframe row,
+                     except for the value column. Default is empty, it's used
                      in the recursive calls to the method.
 
     Yields:
       list: list with pandas dataframe column values except for value column
 
     """
-
     check_input(naming)
     if i == 0 or record is None:
         record = []
@@ -350,8 +347,9 @@ def get_df_row(dimensions, naming='label', i=0, record=None):
 
 
 def uniquify(seq):
-    """Return unique values in a list in the original order. See:  \
-        http://www.peterbe.com/plog/uniqifiers-benchmark
+    """Return unique values in a list in the original order.
+
+    See: http://www.peterbe.com/plog/uniqifiers-benchmark
 
     Args:
       seq (list): original list.
@@ -360,19 +358,19 @@ def uniquify(seq):
       list: list without duplicates preserving original order.
 
     """
-
     seen = set()
     seen_add = seen.add
     return [x for x in seq if x not in seen and not seen_add(x)]
 
 
 def generate_df(js_dict, naming, value="value"):
-    """Decode JSON-stat dict into pandas.DataFrame object. Helper method \
-       that should be called inside from_json_stat().
+    """Decode JSON-stat dict into pandas.DataFrame object.
+
+    Helper method that should be called inside from_json_stat().
 
     Args:
-      js_dict(OrderedDict): OrderedDict with data in JSON-stat format, \
-                            previously deserialized into a python object by \
+      js_dict(OrderedDict): OrderedDict with data in JSON-stat format,
+                            previously deserialized into a python object by
                             json.load() or json.loads(), for example.
       naming(string): dimension naming. Possible values: 'label' or 'id.'
       value (string, optional): name of the value column. Defaults to 'value'.
@@ -381,7 +379,6 @@ def generate_df(js_dict, naming, value="value"):
       output(DataFrame): pandas.DataFrame with converted data.
 
     """
-
     values = []
     dimensions, dim_names = get_dimensions(js_dict, naming)
     values = get_values(js_dict, value=value)
@@ -397,10 +394,10 @@ def from_json_stat(datasets, naming='label', value='value'):
     """Decode JSON-stat formatted data into pandas.DataFrame object.
 
     Args:
-      datasets(OrderedDict, list): data in JSON-stat format, previously \
-                                   deserialized to a python object by \
-                                   json.load() or json.loads(), for example.\
-                                   Both List and OrderedDict are accepted \
+      datasets(OrderedDict, list): data in JSON-stat format, previously
+                                   deserialized to a python object by
+                                   json.load() or json.loads(), for example.
+                                   Both List and OrderedDict are accepted
                                    as inputs.
       naming(string, optional): dimension naming. Possible values: 'label'
                                 or 'id'.Defaults to 'label'.
@@ -410,7 +407,6 @@ def from_json_stat(datasets, naming='label', value='value'):
       results(list): list of pandas.DataFrame with imported data.
 
     """
-
     warnings.warn(
         "Shouldn't use this function anymore! Now use read() methods of"
         "Dataset, Collection or Dimension.",
@@ -438,16 +434,17 @@ def from_json_stat(datasets, naming='label', value='value'):
 
 
 def to_json_stat(input_df, value='value', output='list', version='1.3'):
-    """Encode pandas.DataFrame object into JSON-stat format. The DataFrames
-       must have exactly one value column.
+    """Encode pandas.DataFrame object into JSON-stat format.
+
+    The DataFrames must have exactly one value column.
 
     Args:
       df(pandas.DataFrame): pandas data frame (or list of data frames) to
       encode.
       value (string, optional): name of the value column. Defaults to 'value'.
-      output(string): accepts two values: 'list' or 'dict'. Produce list of\
+      output(string): accepts two values: 'list' or 'dict'. Produce list of
                       dicts or dict of dicts as output.
-      version(string): desired json-stat version. 2.0 is preferred now.\
+      version(string): desired json-stat version. 2.0 is preferred now.
                        Apart from this, only older 1.3 format is accepted,
                        which is the default parameter in order to preserve
                        backwards compatibility.
@@ -456,7 +453,6 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
       output(string): String with JSON-stat object.
 
     """
-
     warnings.warn(
         "Shouldn't use this function anymore! Now use write() methods of"
         "Dataset, Collection or Dimension.",
@@ -478,16 +474,16 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
             raise ValueError('Non-value columns must constitute a unique ID')
         dim_names = list(dims)
         categories = [{to_int(i):
-                           {"label": to_str(i),
-                            "category":
-                                {"index":
-                                 OrderedDict([(to_str(j), to_int(k))
-                                              for k, j in enumerate(
+                       {"label": to_str(i),
+                        "category":
+                        {"index":
+                         OrderedDict([(to_str(j), to_int(k))
+                                      for k, j in enumerate(
                                      uniquify(dims[i]))]),
-                                 "label":
-                                     OrderedDict([(to_str(j), to_str(j))
-                                                  for k, j in enumerate(
-                                                      uniquify(dims[i]))])}}}
+                         "label":
+                         OrderedDict([(to_str(j), to_str(j))
+                                      for k, j in enumerate(
+                             uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
         if float(version) >= 2.0:
 
@@ -532,8 +528,9 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
 
 
 def request(path):
-    """Send a request to a given URL accepting JSON format and return a \
-       deserialized Python object.
+    """Send a request to a given URL accepting JSON format.
+
+    Return a deserialized Python object.
 
     Args:
       path (str): The URI to be requested.
@@ -569,16 +566,16 @@ def request(path):
 
 
 class Dataset(OrderedDict):
-    """A class representing a JSONstat dataset.
-    """
+    """A class representing a JSONstat dataset."""
 
     def __init__(self, *args, **kwargs):
+        """Initialize object."""
         super(Dataset, self).__init__(*args, **kwargs)
 
     @classmethod
     def read(cls, data):
-        """Reads data from URL, Dataframe, JSON string, JSON file or
-           OrderedDict.
+        """Read data from URL, Dataframe, JSON string/file or OrderedDict.
+
         Args:
             data: can be a Pandas Dataframe, a JSON file, a JSON string,
                   an OrderedDict or a URL pointing to a JSONstat file.
@@ -612,7 +609,8 @@ class Dataset(OrderedDict):
                 raise
 
     def write(self, output='jsonstat', naming="label", value='value'):
-        """Writes data from a Dataset object to JSONstat or Pandas Dataframe.
+        """Write data from a Dataset object to JSONstat or Pandas Dataframe.
+
         Args:
             output(string): can accept 'jsonstat' or 'dataframe'. Default to
                             'jsonstat'.
@@ -624,11 +622,10 @@ class Dataset(OrderedDict):
                 Defaults to 'value'.
 
         Returns:
-            Serialized JSONstat or a Pandas Dataframe,depending on the \
+            Serialized JSONstat or a Pandas Dataframe,depending on the
             'output' parameter.
 
         """
-
         if output == 'jsonstat':
             return json.dumps(OrderedDict(self), cls=NumpyEncoder)
         elif output == 'dataframe':
@@ -637,8 +634,11 @@ class Dataset(OrderedDict):
             raise ValueError("Allowed arguments are 'jsonstat' or 'dataframe'")
 
     def get_dimension_index(self, name, value):
-        """Converts a dimension ID string and a categody ID string into the \
-           numeric index of that category in that dimension
+        """Get a dimension index from its name.
+
+        Convert a dimension ID string and a category ID string into the
+        numeric index of that category in that dimension
+
         Args:
            name(string): ID string of the dimension.
            value(string): ID string of the category.
@@ -647,7 +647,6 @@ class Dataset(OrderedDict):
            ndx[value](int): index of the category in the dimension.
 
         """
-
         if 'index' not in self.get('dimension', {}). \
                 get(name, {}).get('category', {}):
             return 0
@@ -659,8 +658,11 @@ class Dataset(OrderedDict):
             return ndx[value]
 
     def get_dimension_indices(self, query):
-        """Converts a dimension/category list of dicts into a list of \
-           dimensions’ indices.
+        """Get dimension indices.
+
+        Converts a dimension/category list of dicts into a list of
+        dimension indices.
+
         Args:
            query(list): dimension/category list of dicts.
 
@@ -671,15 +673,14 @@ class Dataset(OrderedDict):
         ids = self['id'] if self.get('id') else self['dimension']['id']
         indices = []
 
-        for idx, id in enumerate(ids):
-            indices.append(self.get_dimension_index(id,
-                                                    [d.get(id) for d in query
-                                                     if id in d][0]))
+        for idx, ident in enumerate(ids):
+            indices.append(self.get_dimension_index(
+                ident, [d.get(ident) for d in query if ident in d][0]))
 
         return indices
 
     def get_value_index(self, indices):
-        """Converts a list of dimensions’ indices into a numeric value index.
+        """Convert a list of dimension indices into a numeric value index.
 
         Args:
             indices(list): list of dimension's indices.
@@ -698,7 +699,7 @@ class Dataset(OrderedDict):
         return num
 
     def get_value_by_index(self, index):
-        """Converts a numeric value index into its data value.
+        """Convert a numeric value index into its data value.
 
         Args:
             index(int): numeric value index.
@@ -710,16 +711,18 @@ class Dataset(OrderedDict):
         return self['value'][index]
 
     def get_value(self, query):
-        """Converts a dimension/category list of dicts into a data value \
-           in three steps.
+        """Get data value.
 
-       Args:
+        Convert a dimension/category list of dicts into a data value
+        in three steps.
+
+        Args:
            query(list): list of dicts with the desired query.
 
-       Returns:
+        Returns:
            value(float): numeric data value.
 
-       """
+        """
         indices = self.get_dimension_indices(query)
         index = self.get_value_index(indices)
         value = self.get_value_by_index(index)
@@ -727,16 +730,16 @@ class Dataset(OrderedDict):
 
 
 class Dimension(OrderedDict):
-    """A class representing a JSONstat dimension.
-       """
+    """A class representing a JSONstat dimension."""
 
     def __init__(self, *args, **kwargs):
+        """Initialize object."""
         super(Dimension, self).__init__(*args, **kwargs)
 
     @classmethod
     def read(cls, data):
-        """Reads data from URL, Dataframe, JSON string, JSON file
-           or OrderedDict.
+        """Read data from URL, Dataframe, JSON string/file or OrderedDict.
+
         Args:
             data: can be a Pandas Dataframe, a JSON string, a JSON file,
                   an OrderedDict or a URL pointing to a JSONstat file.
@@ -778,16 +781,16 @@ class Dimension(OrderedDict):
                 raise
 
     def write(self, output='jsonstat'):
-        """Writes data from a Dataset object to JSONstat or Pandas Dataframe.
+        """Write data from a Dataset object to JSONstat or Pandas Dataframe.
+
         Args:
             output(string): can accept 'jsonstat' or 'dataframe'
 
         Returns:
-            Serialized JSONstat or a Pandas Dataframe,depending on the \
+            Serialized JSONstat or a Pandas Dataframe,depending on the
             'output' parameter.
 
         """
-
         if output == 'jsonstat':
             return json.dumps(OrderedDict(self), cls=NumpyEncoder)
         elif output == 'dataframe':
@@ -797,15 +800,16 @@ class Dimension(OrderedDict):
 
 
 class Collection(OrderedDict):
-    """A class representing a JSONstat collection.
-    """
+    """A class representing a JSONstat collection."""
 
     def __init__(self, *args, **kwargs):
+        """Initialize object."""
         super(Collection, self).__init__(*args, **kwargs)
 
     @classmethod
     def read(cls, data):
-        """Reads data from URL or OrderedDict.
+        """Read data from URL or OrderedDict.
+
         Args:
             data: can be a URL pointing to a JSONstat file, a JSON string
                   or an OrderedDict.
@@ -835,17 +839,19 @@ class Collection(OrderedDict):
                 raise
 
     def write(self, output='jsonstat'):
-        """Writes data from a Collection object to JSONstat or list of \
-           Pandas Dataframes.
+        """Write to JSON-stat or list of df.
+
+        Writes data from a Collection object to JSONstat or list of Pandas
+        Dataframes.
+
         Args:
             output(string): can accept 'jsonstat' or 'dataframe_list'
 
         Returns:
-            Serialized JSONstat or a list of Pandas Dataframes,depending on \
+            Serialized JSONstat or a list of Pandas Dataframes,depending on
             the 'output' parameter.
 
         """
-
         if output == 'jsonstat':
             return json.dumps(self)
         elif output == 'dataframe_list':
@@ -857,17 +863,19 @@ class Collection(OrderedDict):
                 "Allowed arguments are 'jsonstat' or 'dataframe_list'")
 
     def get(self, element):
-        """Gets ith element of a collection in an object of the corresponding \
-           class.
+        """Get element from collection.
+
+        Get ith element from a collection in an object of the corresponding
+        class.
+
         Args:
             output(string): can accept 'jsonstat' or 'dataframe_list'
 
         Returns:
-            Serialized JSONstat or a list of Pandas Dataframes,depending on \
+            Serialized JSONstat or a list of Pandas Dataframes,depending on
             the 'output' parameter.
 
         """
-
         if self['link']['item'][element]['class'] == 'dataset':
             return Dataset.read(self['link']['item'][element]['href'])
         elif self['link']['item'][element]['class'] == 'collection':
