@@ -478,12 +478,12 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
                         "category":
                         {"index":
                          OrderedDict([(to_str(j), to_int(k))
-                                      for k, j in enumerate(
-                                     uniquify(dims[i]))]),
+                                      for k, j in
+                                      enumerate(uniquify(dims[i]))]),
                          "label":
                          OrderedDict([(to_str(j), to_str(j))
-                                      for k, j in enumerate(
-                             uniquify(dims[i]))])}}}
+                                      for k, j in
+                                      enumerate(uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
         if float(version) >= 2.0:
 
