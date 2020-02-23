@@ -16,6 +16,7 @@ flake8-bandit = {version = "*",index = "pypi"}
 doc8 = {version = "*",index = "pypi"}
 sphinx = {version = "*",index = "pypi"}
 sphinxcontrib-napoleon = {version = "*",index = "pypi"}
+twine = {version = "*",index = "pypi"}
 pytest = "*"
 
 [packages]
