@@ -265,3 +265,9 @@ venv/
 
 # test directories
 **/test/data/output/*
+.spyderfile
+.spyderproject
+
+.pytest_cache/
+.venv/
+.vscode/

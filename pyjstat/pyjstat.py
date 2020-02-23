@@ -527,10 +527,8 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
     return json.dumps(result, cls=NumpyEncoder)
 
 
-def request(path):
+def request(path, verify=True):
     """Send a request to a given URL accepting JSON format.
-
-    Return a deserialized Python object.
 
     Args:
       path (str): The URI to be requested.
@@ -546,7 +544,7 @@ def request(path):
     """
     headers = {'Accept': 'application/json'}
     try:
-        requested_object = requests.get(path, headers=headers)
+        requested_object = requests.get(path, headers=headers, verify=verify)
         requested_object.raise_for_status()
     except requests.exceptions.HTTPError as exception:
         LOGGER.error((inspect.stack()[0][3]) + ': HTTPError = ' +
@@ -573,13 +571,13 @@ class Dataset(OrderedDict):
         super(Dataset, self).__init__(*args, **kwargs)
 
     @classmethod
-    def read(cls, data):
+    def read(cls, data, verify=True):
         """Read data from URL, Dataframe, JSON string/file or OrderedDict.
 
         Args:
             data: can be a Pandas Dataframe, a JSON file, a JSON string,
                   an OrderedDict or a URL pointing to a JSONstat file.
-
+            verify: whether to host's SSL certificate
         Returns:
             An object of class Dataset populated with data.
 
@@ -594,7 +592,7 @@ class Dataset(OrderedDict):
               and data.startswith(("http://", "https://",
                                    "ftp://", "ftps://"))):
             # requests will do the rest...
-            return cls(request(data))
+            return cls(request(data, verify=verify))
         elif isinstance(data, basestring):
             try:
                 json_dict = json.loads(data, object_pairs_hook=OrderedDict)
