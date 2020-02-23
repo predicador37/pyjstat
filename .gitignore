@@ -46,3 +46,7 @@ docs/_build/
 .idea/
 .spyderfile
 .spyderproject
+
+.pytest_cache/
+.venv/
+.vscode/
