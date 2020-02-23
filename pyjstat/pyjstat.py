@@ -247,7 +247,7 @@ def get_dim_label(js_dict, dim, dim_input="dataset"):
                                               dim_index.values())),
                                      index=dim_index.keys(),
                                      columns=['id', 'index'])
-    dim_label = pd.merge(dim_label, dim_index, on='id').sort_index(by='index')
+    dim_label = pd.merge(dim_label, dim_index, on='id').sort_values(by='index')
     return dim_label
 
 
@@ -279,7 +279,7 @@ def get_dim_index(js_dict, dim):
                                               dim_index.values())),
                                      index=dim_index.keys(),
                                      columns=['id', 'index'])
-    dim_index = dim_index.sort_index(by='index')
+    dim_index = dim_index.sort_values(by='index')
     return dim_index
 
 

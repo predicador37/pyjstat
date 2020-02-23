@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+"""pyjstat package setup."""
 from setuptools import setup
 
 setup(
     name='pyjstat',
-    version='1.1.0',
+    version='2.0.0',
     author='Miguel Expósito Martín',
     author_email='miguel.exposito@gmail.com',
     packages=['pyjstat', 'pyjstat.test'],

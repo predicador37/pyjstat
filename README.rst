@@ -1,4 +1,6 @@
-**LAST RELEASE 1.0**: update to 1.0 version is highly recommended, since it supports JSON-stat 2.0 and brings other improvements.
+**LAST RELEASE 2.0**: update to 2.0 version is highly recommended, since it 
+supports JSON-stat 2.0 and brings other improvements. Also, Version 2.X starts 
+to **support Pandas 1.X, and won't have backwards compatibility**.
 
 =======
 pyjstat

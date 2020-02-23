@@ -1,3 +1,4 @@
+v2.0.0  02-23-2020 -- Use Pandas 1.X, not backwards compatible. Changed to pytest and pipenv. Accepted PR to potentially disable SSL checks when requesting URLs.
 v1.1.0, 03-03-2017 -- Fixes issues #20 and #22.
 v1.0.1, 03-03-2017 -- Trying to fix pypi RST parsing problems.
 v1.0.0, 02-03-2017 -- Major version release with support for JSON-stat 2.0 datasets, collections and dimensions. Performance improvements. Fixed bug with sparse datasets. Simplified API.
