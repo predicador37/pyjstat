@@ -4,20 +4,20 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-autopep8 = {index = "pypi",version = "*"}
-bandit = {index = "pypi",version = "*"}
-flake8 = {index = "pypi",version = "*"}
-flake8-import-order = {index = "pypi",version = "*"}
-flake8-blind-except = {index = "pypi",version = "*"}
-flake8-builtins = {index = "pypi",version = "*"}
-flake8-logging-format = {index = "pypi",version = "*"}
-flake8-docstrings = {index = "pypi",version = "*"}
-flake8-bandit = {index = "pypi",version = "*"}
+autopep8 = {version = "*",index = "pypi"}
+bandit = {version = "*",index = "pypi"}
+flake8 = {version = "*",index = "pypi"}
+flake8-import-order = {version = "*",index = "pypi"}
+flake8-blind-except = {version = "*",index = "pypi"}
+flake8-builtins = {version = "*",index = "pypi"}
+flake8-logging-format = {version = "*",index = "pypi"}
+flake8-docstrings = {version = "*",index = "pypi"}
+flake8-bandit = {version = "*",index = "pypi"}
+pytest = "*"
 
 [packages]
-
-pandas = {index = "pypi",version = "*"}
-requests = {index = "pypi",version = "*"}
+pandas = {version = "*",index = "pypi"}
+requests = {version = "*",index = "pypi"}
 
 [requires]
 python_version = "3.7.2"
