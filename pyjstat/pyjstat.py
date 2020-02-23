@@ -357,13 +357,11 @@ def uniquify(seq):
       seq (list): original list.
 
     Returns:
-      list: list without duplicates preserving original order.
+      ndarray: list without duplicates preserving original order.
 
     """
-
-    seen = set()
-    seen_add = seen.add
-    return [x for x in seq if x not in seen and not seen_add(x)]
+    _, idx = np.unique(seq, return_index=True)
+    return seq[idx]
 
 
 def generate_df(js_dict, naming, value="value"):
