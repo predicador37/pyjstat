@@ -571,20 +571,21 @@ class Dataset(OrderedDict):
         super(Dataset, self).__init__(*args, **kwargs)
 
     @classmethod
-    def read(cls, data, verify=True):
+    def read(cls, data, verify=True, **kwargs):
         """Read data from URL, Dataframe, JSON string/file or OrderedDict.
 
         Args:
             data: can be a Pandas Dataframe, a JSON file, a JSON string,
                   an OrderedDict or a URL pointing to a JSONstat file.
-            verify: whether to host's SSL certificate
+            verify: whether to host's SSL certificate.
+            kwargs: optional arguments for to_json_stat().
         Returns:
             An object of class Dataset populated with data.
 
         """
         if isinstance(data, pd.DataFrame):
             return cls((json.loads(
-                to_json_stat(data, output='dict', version='2.0'),
+                to_json_stat(data, output='dict', version='2.0', **kwargs),
                 object_pairs_hook=OrderedDict)))
         elif isinstance(data, OrderedDict):
             return cls(data)

@@ -555,6 +555,16 @@ class TestPyjstat(unittest.TestCase):
                         json_data['dataset1']['dimension']['CL_0000667']
                         ['category']['index']['CI_0018938'])
 
+    def test_dataset_with_different_value_column_name(self):
+        """Test Dataset.read() with dataframes with no value column."""
+        dataset1 = pyjstat.Dataset.read(self.galicia_2_dataset)
+        dataframe = dataset1.write('dataframe')
+        dataframe = dataframe.rename(columns={'value': 'valores'})
+        dataset2 = pyjstat.Dataset.read(dataframe, value='valores')
+        json_data = json.loads(dataset2.write())
+        self.assertTrue(self.galicia_dataset['value'][547] ==
+                        json_data['valores'][547])
+
 
 if __name__ == '__main__':
     unittest.main()
