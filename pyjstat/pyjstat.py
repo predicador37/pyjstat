@@ -32,6 +32,7 @@ import json
 import logging
 import warnings
 from collections import OrderedDict
+from datetime import datetime
 
 import numpy as np
 
@@ -433,7 +434,9 @@ def from_json_stat(datasets, naming='label', value='value'):
     return results
 
 
-def to_json_stat(input_df, value='value', output='list', version='1.3'):
+def to_json_stat(input_df, value='value',
+                 output='list', version='1.3',
+                 updated=datetime.today(), source='Self-elaboration'):
     """Encode pandas.DataFrame object into JSON-stat format.
 
     The DataFrames must have exactly one value column.
@@ -448,6 +451,9 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
                        Apart from this, only older 1.3 format is accepted,
                        which is the default parameter in order to preserve
                        backwards compatibility.
+      updated(datetime): updated metadata in JSON-stat standard. Must be a
+                         datetime in ISO format.
+      source(string): data source in JSON-stat standard.
 
     Returns:
       output(string): String with JSON-stat object.
@@ -493,6 +499,8 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
 
             dataset["version"] = version
             dataset["class"] = "dataset"
+            dataset["updated"] = updated.isoformat()
+            dataset["source"] = source
             for category in categories:
                 dataset["dimension"].update(category)
             dataset.update({"id": dim_names})
@@ -517,7 +525,6 @@ def to_json_stat(input_df, value='value', output='list', version='1.3'):
             for category in categories:
                 dataset["dataset" + str(row + 1)][
                     "dimension"].update(category)
-
         if output == 'list':
             result.append(dataset)
         elif output == 'dict':

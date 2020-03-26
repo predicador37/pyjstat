@@ -5,6 +5,7 @@ import json
 import os
 import unittest
 from collections import OrderedDict
+from datetime import datetime
 
 from pyjstat import pyjstat
 
@@ -564,6 +565,27 @@ class TestPyjstat(unittest.TestCase):
         json_data = json.loads(dataset2.write())
         self.assertTrue(self.galicia_dataset['value'][547] ==
                         json_data['valores'][547])
+
+    def test_dataset_with_source(self):
+        """Test Dataset.read() with dataframes with source metadata."""
+        dataset1 = pyjstat.Dataset.read(self.galicia_2_dataset)
+        dataframe = dataset1.write('dataframe')
+        dataset2 = pyjstat.Dataset.read(dataframe, source='INE and IGE')
+        json_data = json.loads(dataset2.write())
+        self.assertTrue(self.galicia_dataset['source'] ==
+                        json_data['source'])
+
+    def test_dataset_with_updated(self):
+        """Test Dataset.read() with dataframes with updated metadata."""
+        dataset1 = pyjstat.Dataset.read(self.galicia_2_dataset)
+        dataframe = dataset1.write('dataframe')
+        dataset2 = pyjstat.Dataset.read(dataframe, updated=datetime.strptime(
+            '2012-12-27T12:25:09Z', '%Y-%m-%dT%H:%M:%SZ'))
+        json_data = json.loads(dataset2.write())
+        print(self.galicia_dataset['updated'])
+        print(json_data['updated'])
+        self.assertTrue(self.galicia_dataset['updated'].rstrip('Z') ==
+                        json_data['updated'])
 
 
 if __name__ == '__main__':
