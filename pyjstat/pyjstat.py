@@ -40,8 +40,8 @@ import pandas as pd
 
 import requests
 
-logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.INFO)
 
 try:
     basestring
