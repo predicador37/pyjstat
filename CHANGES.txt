@@ -1,3 +1,4 @@
+v2.2.1  11-08-2021 -- Fixes #30. Solved import behavior.
 v2.2.0  03-22-2020 -- to_json_stat() accepts now source and updated JSON-stat metadata.
 v2.1.0  03-22-2020 -- Dataset.read() accepts now to_json_stat() optional arguments, to pass a different value column name.
 v2.0.0  02-23-2020 -- Use Pandas 1.X, not backwards compatible. Changed to pytest and pipenv. Accepted PR to potentially disable SSL checks when requesting URLs.
