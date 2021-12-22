@@ -118,6 +118,9 @@ def check_version_2(dataset):
     """
     if float(dataset.get('version')) >= 2.0 \
             if dataset.get('version') else False:
+        if 'id' not in dataset:
+            # Some datasets claim to be 2.0, but don't have version 2 structure.
+            return False
         return True
     else:
         return False
@@ -183,7 +186,11 @@ def get_dimensions(js_dict, naming):
     else:
         dimension_dict = js_dict['dimension']
     for dim in dimension_dict['id']:
-        dim_name = js_dict['dimension'][dim]['label']
+        if 'label' in js_dict['dimension'][dim]:
+            dim_name = js_dict['dimension'][dim]['label']
+        else:
+            # All datasets don't have labels for dimensions
+            dim_name = dim
         if not dim_name:
             dim_name = dim
         if naming == 'label':
