@@ -477,6 +477,14 @@ def to_json_stat(input_df, value='value',
     elif output == 'dict':
         result = OrderedDict({})
     if isinstance(input_df, pd.DataFrame):
+        first_column = input_df.iloc[:, 0]
+        if first_column.duplicated().any():
+            warnings.warn(
+                "Row duplicated in the first column of the DataFrame."
+                " (The number of values will be different from number of "
+                "elements in the first dimension in json-stat output).",
+                UserWarning
+            )
         data.append(input_df)
     else:
         data = input_df

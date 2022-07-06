@@ -7,6 +7,8 @@ import unittest
 from collections import OrderedDict
 from datetime import datetime
 
+import pandas as pd
+
 from pyjstat import pyjstat
 
 
@@ -582,10 +584,29 @@ class TestPyjstat(unittest.TestCase):
         dataset2 = pyjstat.Dataset.read(dataframe, updated=datetime.strptime(
             '2012-12-27T12:25:09Z', '%Y-%m-%dT%H:%M:%SZ'))
         json_data = json.loads(dataset2.write())
-        print(self.galicia_dataset['updated'])
-        print(json_data['updated'])
         self.assertTrue(self.galicia_dataset['updated'].rstrip('Z') ==
                         json_data['updated'])
+
+    def test_to_json_stat_warning_when_input_is_dataframe(self):
+        """Test warning when the input is a dataframe."""
+        df = pd.DataFrame(
+            [
+                {'Date': '2007-01-01',
+                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.555},
+                {'Date': '2007-01-01',
+                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.681},
+                {'Date': '2007-01-03',
+                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.991},
+            ])
+
+        with self.assertWarns(UserWarning) as w:
+            pyjstat.Dataset.read(df)
+            expected = 'Row duplicated in the first column of the DataFrame.'
+            warnings_list = w.warnings
+
+            self.assertTrue(
+                any((str(i.message)).startswith(expected)
+                    for i in warnings_list))
 
 
 if __name__ == '__main__':
