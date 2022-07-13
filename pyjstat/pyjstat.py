@@ -441,9 +441,73 @@ def from_json_stat(datasets, naming='label', value='value'):
     return results
 
 
+def _round_decimals(dataframe, units, roles, value):
+    """Round values according to units definition."""
+    if not isinstance(dataframe, pd.DataFrame):
+        return dataframe
+    if not isinstance(units, dict):
+        return dataframe
+    if not isinstance(roles, dict):
+        return dataframe
+    if not isinstance(value, str):
+        return dataframe
+
+    df = dataframe.copy(deep=True)
+    for unit in units.keys():
+        if unit in roles['metric']:
+            if '*' in units[unit].keys():
+                decimals = units[unit]['*'].get('decimals')
+                if decimals is not None:
+                    df[value] = df[value].round(decimals)
+            else:
+                for label in units[unit].keys():
+                    decimals = units[unit][label].get('decimals')
+                    if decimals is not None:
+                        for idx, row in df.iterrows():
+                            if row[unit] == label:
+                                df.at[
+                                    idx, value] = df.at[
+                                        idx, value].round(decimals)
+
+    return df
+
+
+def _add_units_to_categories(categories, units, roles):
+    """Add units to categories according to units definition."""
+    if not isinstance(categories, list):
+        return categories
+    if not isinstance(units, dict):
+        return categories
+    if not isinstance(roles, dict):
+        return categories
+
+    for unit in units.keys():
+        if unit in roles['metric']:
+            for idx, category in enumerate(categories):
+                if unit == list(category)[0]:
+                    if '*' in units[unit].keys():
+                        units_updated = {}
+                        for c in categories[idx][unit]['category']['label']:
+                            units_updated.update(
+                                {c: {
+                                    'label': c,
+                                    'decimals': units[
+                                        unit]['*'].get('decimals')
+                                }}
+                            )
+                        categories[idx][unit]['category'].update(
+                            {"unit": units_updated})
+                    else:
+                        categories[idx][unit]['category'].update(
+                            {"unit": units[unit]})
+
+    return categories
+
+
 def to_json_stat(input_df, value='value',
                  output='list', version='1.3',
-                 updated=datetime.today(), source='Self-elaboration'):
+                 updated=datetime.today(), source='Self-elaboration',
+                 note=None, role=None, unit=None):
     """Encode pandas.DataFrame object into JSON-stat format.
 
     The DataFrames must have exactly one value column.
@@ -460,7 +524,11 @@ def to_json_stat(input_df, value='value',
                        backwards compatibility.
       updated(datetime): updated metadata in JSON-stat standard. Must be a
                          datetime in ISO format.
-      source(string): data source in JSON-stat standard.
+      source(string, optional): data source in JSON-stat standard.
+      note(string, optional): information for metadata.
+      role(dict, optional): roles for dimensions.
+      unit(dict, optional): unit for variables, if there is only one
+                             element named '*' it will repeated for all.
 
     Returns:
       output(string): String with JSON-stat object.
@@ -485,7 +553,12 @@ def to_json_stat(input_df, value='value',
                 "elements in the first dimension in json-stat output).",
                 UserWarning
             )
-        data.append(input_df)
+        if isinstance(unit, dict) and isinstance(role, dict):
+            rounded = _round_decimals(input_df, unit, role, value)
+            data.append(rounded)
+        else:
+            data.append(input_df)
+
     else:
         data = input_df
     for row, dataframe in enumerate(data):
@@ -494,18 +567,34 @@ def to_json_stat(input_df, value='value',
         if len(dims.columns.values) != len(set(dims.columns.values)):
             raise ValueError('Non-value columns must constitute a unique ID')
         dim_names = list(dims)
-        categories = [{to_int(i):
-                       {"label": to_str(i),
-                        "category":
-                        {"index":
-                         OrderedDict([(to_str(j), to_int(k))
-                                      for k, j in
-                                      enumerate(uniquify(dims[i]))]),
-                         "label":
-                         OrderedDict([(to_str(j), to_str(j))
-                                      for k, j in
-                                      enumerate(uniquify(dims[i]))])}}}
-                      for i in dims.columns.values]
+        if isinstance(unit, dict) and isinstance(role, dict):
+            categories = [{to_int(i):
+                           {"label": to_str(i),
+                          "category":
+                            {"index":
+                             OrderedDict([(to_str(j), to_int(k))
+                                          for k, j in
+                                          enumerate(uniquify(dims[i]))]),
+                             "label":
+                             OrderedDict([(to_str(j), to_str(j))
+                                          for k, j in
+                                          enumerate(uniquify(dims[i]))])
+                             }}}
+                          for i in dims.columns.values]
+            categories = _add_units_to_categories(categories, unit, role)
+        else:
+            categories = [{to_int(i):
+                           {"label": to_str(i),
+                          "category":
+                            {"index":
+                             OrderedDict([(to_str(j), to_int(k))
+                                          for k, j in
+                                          enumerate(uniquify(dims[i]))]),
+                             "label":
+                             OrderedDict([(to_str(j), to_str(j))
+                                          for k, j in
+                                          enumerate(uniquify(dims[i]))])}}}
+                          for i in dims.columns.values]
         if float(version) >= 2.0:
 
             dataset = {"dimension": OrderedDict(),
@@ -516,6 +605,10 @@ def to_json_stat(input_df, value='value',
             dataset["class"] = "dataset"
             dataset["updated"] = updated.isoformat()
             dataset["source"] = source
+            if isinstance(role, dict):
+                dataset["role"] = role
+            if isinstance(note, str):
+                dataset["note"] = [note]
             for category in categories:
                 dataset["dimension"].update(category)
             dataset.update({"id": dim_names})
@@ -592,7 +685,7 @@ class Dataset(OrderedDict):
         """Initialize object."""
         super(Dataset, self).__init__(*args, **kwargs)
 
-    @classmethod
+    @ classmethod
     def read(cls, data, verify=True, **kwargs):
         """Read data from URL, Dataframe, JSON string/file or OrderedDict.
 
@@ -757,7 +850,7 @@ class Dimension(OrderedDict):
         """Initialize object."""
         super(Dimension, self).__init__(*args, **kwargs)
 
-    @classmethod
+    @ classmethod
     def read(cls, data):
         """Read data from URL, Dataframe, JSON string/file or OrderedDict.
 
@@ -827,7 +920,7 @@ class Collection(OrderedDict):
         """Initialize object."""
         super(Collection, self).__init__(*args, **kwargs)
 
-    @classmethod
+    @ classmethod
     def read(cls, data):
         """Read data from URL or OrderedDict.
 

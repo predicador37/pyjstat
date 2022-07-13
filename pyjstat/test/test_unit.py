@@ -608,6 +608,159 @@ class TestPyjstat(unittest.TestCase):
                 any((str(i.message)).startswith(expected)
                     for i in warnings_list))
 
+    def test_round_decimals_function(self):
+        """Test function _round_decimals."""
+        df = pd.DataFrame(
+            [
+                {'Date': '2007-01-01',
+                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.587895},
+                {'Date': '2007-01-02',
+                    'Variables': 'Gasolina 98 E5 Premium', 'value': 1.685558},
+                {'Date': '2007-01-03',
+                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.991575},
+            ]
+        )
+        df2 = df
+        df3 = df
+
+        role = dict({'time': ['Date'], 'metric': ['Variables']})
+        unit = dict({
+            'Variables': {
+                'Gasolina 95 E5 Premium':
+                {
+                    'label': 'Gasolina 95 E5 Premium', 'decimals': 2
+                },
+                'Gasolina 98 E5 Premium':
+                {
+                    'label': 'Gasolina 98 E5 Premium', 'decimals': 1
+                }
+            },
+        })
+        df = pyjstat._round_decimals(df, unit, role, value='value')
+        self.assertEqual(df.iloc[1, 2], 1.7)
+        self.assertEqual(df.iloc[0, 2], 1.59)
+        unit2 = dict({
+            'Variables': {
+                'Gasolina 95 E5 Premium':
+                {
+                    'label': 'Gasolina 95 E5 Premium', 'decimals': 3
+                },
+            },
+        })
+        df2 = pyjstat._round_decimals(df2, unit2, role, value='value')
+        self.assertEqual(df2.iloc[1, 2], 1.685558)
+        self.assertEqual(df2.iloc[0, 2], 1.588)
+        unit3 = dict({'Variables': {
+            '*':
+                {
+                    'label': 'Gasolina 95 E5 Premium', 'decimals': 2
+                },
+        },
+        })
+        df3 = pyjstat._round_decimals(df3, unit3, role, value='value')
+        self.assertEqual(df3.iloc[1, 2], 1.69)
+        self.assertEqual(df3.iloc[0, 2], 1.59)
+
+    def test_add_units_to_categories_function(self):
+        """Test function _add_units_to_categories."""
+        categories = [
+            {'Date': {'label': 'Date',
+                      'category': {
+                          'index': OrderedDict([('2007-01-01', 0),
+                                                ('2007-01-02', 1),
+                                                ('2007-01-03', 2)]),
+                          'label': OrderedDict([('2007-01-01', '2007-01-01'),
+                                                ('2007-01-02', '2007-01-02'),
+                                                ('2007-01-03', '2007-01-03')])
+                      }}},
+            {'Variables': {
+                'label': 'Variables',
+                'category': {
+                    'index': OrderedDict([('Gasolina 95 E5 Premium', 0),
+                                          ('Gasolina 98 E5 Premium', 1)]),
+                    'label': OrderedDict(
+                        [('Gasolina 95 E5 Premium', 'Gasolina 95 E5 Premium'),
+                         ('Gasolina 98 E5 Premium', 'Gasolina 98 E5 Premium')])
+                }}}]
+        role = dict({'time': ['Date'], 'metric': ['Variables']})
+        unit = dict({
+            'Variables': {
+                'Gasolina 95 E5 Premium':
+                {
+                    'label': 'Gasolina 95 E5 Premium', 'decimals': 2
+                },
+                'Gasolina 98 E5 Premium':
+                {
+                    'label': 'Gasolina 98 E5 Premium', 'decimals': 1
+                }
+            },
+        })
+        categories_added = pyjstat._add_units_to_categories(
+            categories, unit, role)
+        result = categories_added[1]
+        self.assertEqual(result['Variables']['category']
+                         ['unit']['Gasolina 95 E5 Premium']['decimals'], 2)
+        unit2 = dict({
+            'Variables': {
+                '*':
+                {
+                    'label': 'Gasolina 95 E5 Premium', 'decimals': 3
+                }
+            },
+        })
+        categories_added = pyjstat._add_units_to_categories(
+            categories, unit2, role)
+        result = categories_added[1]
+        self.assertEqual(result['Variables']['category']
+                         ['unit']['Gasolina 95 E5 Premium']['decimals'], 3)
+        self.assertEqual(result['Variables']['category']
+                         ['unit']['Gasolina 98 E5 Premium']['decimals'], 3)
+
+    def test_add_note_to_json_stat(self):
+        """Test add note to json-stat."""
+        df = pd.DataFrame(
+            [
+                {'Date': '2007-01-01',
+                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.587895},
+                {'Date': '2007-01-02',
+                    'Variables': 'Gasolina 98 E5 Premium', 'value': 1.685558},
+                {'Date': '2007-01-03',
+                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.991575},
+            ]
+        )
+        json_stat = pyjstat.Dataset.read(df, note='Test note')
+        self.assertEqual(json_stat['note'], ['Test note'])
+
+    def test_to_json_stat_decimals_when_input_is_dataframe(self):
+        """Test round values when input is a dataframe."""
+        df = pd.DataFrame(
+            [
+                {'Date': '2007-01-01',
+                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.587895},
+                {'Date': '2007-01-02',
+                    'Variables': 'Gasolina 98 E5 Premium', 'value': 1.685558},
+                {'Date': '2007-01-03',
+                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.991575},
+            ]
+        )
+        role = dict({'time': ['Date'], 'metric': ['Variables']})
+        unit = dict({
+            'Variables': {
+                'Gasolina 95 E5 Premium':
+                {
+                    'label': 'Gasolina 95 E5 Premium', 'decimals': 2
+                },
+                'Gasolina 98 E5 Premium':
+                {
+                    'label': 'Gasolina 98 E5 Premium', 'decimals': 1
+                }
+            },
+        })
+        json_stat = pyjstat.Dataset.read(
+            df, role=role, unit=unit)
+        self.assertEqual(json_stat['dimension']['Variables']['category']
+                         ['unit']['Gasolina 95 E5 Premium']['decimals'], 2)
+
 
 if __name__ == '__main__':
     unittest.main()
