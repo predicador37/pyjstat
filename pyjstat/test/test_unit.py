@@ -704,7 +704,7 @@ class TestPyjstat(unittest.TestCase):
             'Variables': {
                 '*':
                 {
-                    'label': 'Gasolina 95 E5 Premium', 'decimals': 3
+                    'label': 'Same label for all', 'decimals': 3
                 }
             },
         })
@@ -715,6 +715,12 @@ class TestPyjstat(unittest.TestCase):
                          ['unit']['Gasolina 95 E5 Premium']['decimals'], 3)
         self.assertEqual(result['Variables']['category']
                          ['unit']['Gasolina 98 E5 Premium']['decimals'], 3)
+        self.assertEqual(result['Variables']['category']
+                         ['unit']['Gasolina 98 E5 Premium']
+                         ['label'], 'Same label for all')
+        self.assertEqual(result['Variables']['category']
+                         ['unit']['Gasolina 98 E5 Premium']
+                         ['label'], 'Same label for all')
 
     def test_add_note_to_json_stat(self):
         """Test add note to json-stat."""

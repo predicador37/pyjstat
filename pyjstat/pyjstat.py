@@ -490,7 +490,8 @@ def _add_units_to_categories(categories, units, roles):
                         for c in categories[idx][unit]['category']['label']:
                             units_updated.update(
                                 {c: {
-                                    'label': c,
+                                    'label': units[
+                                        unit]['*'].get('label'),
                                     'decimals': units[
                                         unit]['*'].get('decimals')
                                 }}
