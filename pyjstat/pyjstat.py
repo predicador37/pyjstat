@@ -546,20 +546,7 @@ def to_json_stat(input_df, value='value',
     elif output == 'dict':
         result = OrderedDict({})
     if isinstance(input_df, pd.DataFrame):
-        first_column = input_df.iloc[:, 0]
-        if first_column.duplicated().any():
-            warnings.warn(
-                "Row duplicated in the first column of the DataFrame."
-                " (The number of values will be different from number of "
-                "elements in the first dimension in json-stat output).",
-                UserWarning
-            )
-        if isinstance(unit, dict) and isinstance(role, dict):
-            rounded = _round_decimals(input_df, unit, role, value)
-            data.append(rounded)
-        else:
-            data.append(input_df)
-
+        data.append(input_df)
     else:
         data = input_df
     for row, dataframe in enumerate(data):
@@ -568,21 +555,36 @@ def to_json_stat(input_df, value='value',
         if len(dims.columns.values) != len(set(dims.columns.values)):
             raise ValueError('Non-value columns must constitute a unique ID')
         dim_names = list(dims)
+        if isinstance(role, dict):
+            for metric in role.get('metric'):
+                uniques_dimensions = dataframe[metric].unique()
+                for dimension in uniques_dimensions:
+                    tmp_df = dataframe.query(metric+" == '"+dimension+"'")
+                    time_column = tmp_df.loc[:, role.get('time')[0]]
+                    if time_column.duplicated().any():
+                        warnings.warn(
+                            "Data duplicated in time dimension."
+                            "Doesn't exist unique values for each dimension. ",
+                            UserWarning
+                        )
         if isinstance(unit, dict) and isinstance(role, dict):
-            categories = [{to_int(i):
-                           {"label": to_str(i),
-                          "category":
-                            {"index":
-                             OrderedDict([(to_str(j), to_int(k))
-                                          for k, j in
-                                          enumerate(uniquify(dims[i]))]),
-                             "label":
-                             OrderedDict([(to_str(j), to_str(j))
-                                          for k, j in
-                                          enumerate(uniquify(dims[i]))])
-                             }}}
-                          for i in dims.columns.values]
-            categories = _add_units_to_categories(categories, unit, role)
+            data = _round_decimals(data, unit, role, value)
+            categories_without_units = [
+                {to_int(i):
+                 {"label": to_str(i),
+                  "category":
+                  {"index":
+                   OrderedDict([(to_str(j), to_int(k))
+                                for k, j in
+                                enumerate(uniquify(dims[i]))]),
+                   "label":
+                   OrderedDict([(to_str(j), to_str(j))
+                                for k, j in
+                                enumerate(uniquify(dims[i]))])
+                   }}}
+                for i in dims.columns.values]
+            categories = _add_units_to_categories(
+                categories_without_units, unit, role)
         else:
             categories = [{to_int(i):
                            {"label": to_str(i),

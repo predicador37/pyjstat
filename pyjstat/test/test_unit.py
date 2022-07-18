@@ -594,14 +594,18 @@ class TestPyjstat(unittest.TestCase):
                 {'Date': '2007-01-01',
                     'Variables': 'Gasolina 95 E5 Premium', 'value': 1.555},
                 {'Date': '2007-01-01',
-                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.681},
+                    'Variables': 'Gasolina 98 E5 Premium', 'value': 1.681},
                 {'Date': '2007-01-03',
                     'Variables': 'Gasolina 95 E5 Premium', 'value': 1.991},
+                {'Date': '2007-01-03',
+                    'Variables': 'Gasolina 98 E5 Premium', 'value': 1.991},
+                {'Date': '2007-01-03',
+                    'Variables': 'Gasolina 98 E5 Premium', 'value': 1.991},
             ])
-
+        role = dict({'time': ['Date'], 'metric': ['Variables']})
         with self.assertWarns(UserWarning) as w:
-            pyjstat.Dataset.read(df)
-            expected = 'Row duplicated in the first column of the DataFrame.'
+            pyjstat.Dataset.read(df, role=role)
+            expected = 'Data duplicated in time dimension.'
             warnings_list = w.warnings
 
             self.assertTrue(
