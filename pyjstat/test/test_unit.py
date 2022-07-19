@@ -771,6 +771,120 @@ class TestPyjstat(unittest.TestCase):
         self.assertEqual(json_stat['dimension']['Variables']['category']
                          ['unit']['Gasolina 95 E5 Premium']['decimals'], 2)
 
+    def test_get_categories_function(self):
+        """Test _get categories function when units are included or not."""
+        df = pd.DataFrame(
+            [
+                {'Date': '2007-01-01',
+                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.587895},
+                {'Date': '2007-01-02',
+                    'Variables': 'Gasolina 98 E5 Premium', 'value': 1.685558},
+                {'Date': '2007-01-03',
+                    'Variables': 'Gasolina 95 E5 Premium', 'value': 1.991575},
+            ]
+        )
+        unit = dict({
+            'Variables': {
+                'Gasolina 95 E5 Premium':
+                {
+                    'label': 'Gasolina 95 E5 Premium', 'decimals': 2
+                },
+                'Gasolina 98 E5 Premium':
+                {
+                    'label': 'Gasolina 98 E5 Premium', 'decimals': 1
+                }
+            },
+        })
+        role = dict({'time': ['Date'], 'metric': ['Variables']})
+        categories = pyjstat._get_categories(df, unit, role)
+        expected_with_units = [
+            {'Date': {
+                'label': 'Date',
+                'category': {
+                    'index': OrderedDict(
+                        [
+                            ('2007-01-01', 0),
+                            ('2007-01-02', 1),
+                            ('2007-01-03', 2)
+                        ]),
+                    'label': OrderedDict(
+                        [
+                            ('2007-01-01', '2007-01-01'),
+                            ('2007-01-02', '2007-01-02'),
+                            ('2007-01-03', '2007-01-03')
+                        ]
+                    )
+                }
+            }
+            },
+            {'Variables':
+                {'label': 'Variables', 'category': {
+                    'index': OrderedDict(
+                        [
+                            ('Gasolina 95 E5 Premium', 0),
+                            ('Gasolina 98 E5 Premium', 1)
+                        ]),
+                    'label': OrderedDict(
+                        [
+                            ('Gasolina 95 E5 Premium',
+                             'Gasolina 95 E5 Premium'),
+                            ('Gasolina 98 E5 Premium',
+                             'Gasolina 98 E5 Premium')
+                        ]),
+                    'unit': {
+                        'Gasolina 95 E5 Premium': {
+                            'label': 'Gasolina 95 E5 Premium',
+                            'decimals': 2
+                        },
+                        'Gasolina 98 E5 Premium': {
+                            'label': 'Gasolina 98 E5 Premium',
+                            'decimals': 1
+                        }
+                    }
+                }
+                }
+             }]
+        self.assertEqual(expected_with_units, categories)
+        categories = pyjstat._get_categories(df)
+        expected_without_units = [
+            {'Date': {
+                'label': 'Date',
+                'category': {
+                    'index': OrderedDict(
+                        [
+                            ('2007-01-01', 0),
+                            ('2007-01-02', 1),
+                            ('2007-01-03', 2)
+                        ]),
+                    'label': OrderedDict(
+                        [
+                            ('2007-01-01', '2007-01-01'),
+                            ('2007-01-02', '2007-01-02'),
+                            ('2007-01-03', '2007-01-03')
+                        ])
+                }
+            }
+            },
+            {'Variables': {
+                'label': 'Variables',
+                'category': {
+                    'index': OrderedDict(
+                        [
+                            ('Gasolina 95 E5 Premium', 0),
+                            ('Gasolina 98 E5 Premium', 1)
+                        ]),
+                    'label': OrderedDict(
+                        [
+                            ('Gasolina 95 E5 Premium',
+                             'Gasolina 95 E5 Premium'),
+                            ('Gasolina 98 E5 Premium',
+                             'Gasolina 98 E5 Premium')
+                        ])
+                }}
+             }
+        ]
+        self.assertEqual(expected_without_units, categories)
+
 
 if __name__ == '__main__':
     unittest.main()

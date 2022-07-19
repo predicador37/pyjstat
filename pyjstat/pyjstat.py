@@ -505,6 +505,56 @@ def _add_units_to_categories(categories, units, roles):
     return categories
 
 
+def _get_categories(data, unit=None, role=None, value='value'):
+    """Return a list of categories according to dimensions.
+
+    When unit, role and value are included in parameters,
+    decimals are rounded, also adds units dictionary to result.
+
+    Args:
+      data(pandas.Dataframe): must have exactly one value column.
+      value (string, optional): name of the value column. Defaults to 'value'.
+      role(dict, optional): roles for dimensions.
+      unit(dict, optional): unit for variables, if there is only one
+                            element named '*' it will repeated for all.
+    """
+    dims = data.filter([item for item in data.columns.values
+                        if item not in value])
+    if isinstance(unit, dict) and isinstance(role, dict):
+        data = _round_decimals(data, unit, role, value)
+        categories_without_units = [
+            {to_int(i):
+                {"label": to_str(i),
+                 "category":
+                 {"index":
+                  OrderedDict([(to_str(j), to_int(k))
+                              for k, j in
+                              enumerate(uniquify(dims[i]))]),
+                  "label":
+                  OrderedDict([(to_str(j), to_str(j))
+                              for k, j in
+                              enumerate(uniquify(dims[i]))])
+                  }}}
+            for i in dims.columns.values]
+        categories = _add_units_to_categories(
+            categories_without_units, unit, role)
+    else:
+        categories = [{to_int(i):
+                       {"label": to_str(i),
+                        "category":
+                        {"index":
+                         OrderedDict([(to_str(j), to_int(k))
+                                      for k, j in
+                                      enumerate(uniquify(dims[i]))]),
+                         "label":
+                         OrderedDict([(to_str(j), to_str(j))
+                                      for k, j in
+                                      enumerate(uniquify(dims[i]))])}}}
+                      for i in dims.columns.values]
+
+    return categories
+
+
 def to_json_stat(input_df, value='value',
                  output='list', version='1.3',
                  updated=datetime.today(), source='Self-elaboration',
@@ -555,6 +605,7 @@ def to_json_stat(input_df, value='value',
         if len(dims.columns.values) != len(set(dims.columns.values)):
             raise ValueError('Non-value columns must constitute a unique ID')
         dim_names = list(dims)
+
         if isinstance(role, dict):
             for metric in role.get('metric'):
                 uniques_dimensions = dataframe[metric].unique()
@@ -567,37 +618,8 @@ def to_json_stat(input_df, value='value',
                             "Doesn't exist unique values for each dimension. ",
                             UserWarning
                         )
-        if isinstance(unit, dict) and isinstance(role, dict):
-            data = _round_decimals(data, unit, role, value)
-            categories_without_units = [
-                {to_int(i):
-                 {"label": to_str(i),
-                  "category":
-                  {"index":
-                   OrderedDict([(to_str(j), to_int(k))
-                                for k, j in
-                                enumerate(uniquify(dims[i]))]),
-                   "label":
-                   OrderedDict([(to_str(j), to_str(j))
-                                for k, j in
-                                enumerate(uniquify(dims[i]))])
-                   }}}
-                for i in dims.columns.values]
-            categories = _add_units_to_categories(
-                categories_without_units, unit, role)
-        else:
-            categories = [{to_int(i):
-                           {"label": to_str(i),
-                          "category":
-                            {"index":
-                             OrderedDict([(to_str(j), to_int(k))
-                                          for k, j in
-                                          enumerate(uniquify(dims[i]))]),
-                             "label":
-                             OrderedDict([(to_str(j), to_str(j))
-                                          for k, j in
-                                          enumerate(uniquify(dims[i]))])}}}
-                          for i in dims.columns.values]
+
+        categories = _get_categories(dataframe, unit, role, value)
         if float(version) >= 2.0:
 
             dataset = {"dimension": OrderedDict(),
