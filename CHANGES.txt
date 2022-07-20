@@ -1,3 +1,4 @@
+v2.3.0  20-07-2022 -- to_json_stat() accepts note, role and unit.
 v2.2.1  11-08-2021 -- Fixes #30. Solved import behavior.
 v2.2.0  03-22-2020 -- to_json_stat() accepts now source and updated JSON-stat metadata.
 v2.1.0  03-22-2020 -- Dataset.read() accepts now to_json_stat() optional arguments, to pass a different value column name.
