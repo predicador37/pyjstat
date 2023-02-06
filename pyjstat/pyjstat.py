@@ -555,10 +555,61 @@ def _get_categories(data, unit=None, role=None, value='value'):
     return categories
 
 
+def _check_exits_all_categories(dataframe, naming='label', value='value'):
+    """Check and transform dataframe to ensure
+    that all categories are in it."""
+
+    df = dataframe
+    columns = df.columns.to_list()
+    columns.remove(value)
+    columns.remove(naming)
+    if len(columns) != 1:
+        warnings.warn(
+            "This DataFrame is not adequate to be transformed into json-stat. ",
+            UserWarning)
+
+    col = columns[0]
+
+    # get unique values for columns
+    must_contain = []
+    categories = df[col].unique()
+    must_contain.extend(categories)
+
+    # order df and set what must contain
+    order = ['label'] + columns
+    df.sort_values(order, inplace=True)
+    must_contain.sort()
+
+    # create list of labels and new df for non existing data
+    labels = df['label'].unique()
+    df_with_filled_data = pd.DataFrame()
+
+    # iterate over unique labels querying about categories
+    for item in labels:
+        for category in must_contain:
+            checking_df = df.query(
+                f"{naming} == '{item}' and {col} == '{category}'")
+            if checking_df.empty:
+                new_row = {
+                    naming: item,
+                    col: category,
+                    value: None}
+                df_with_filled_data = df_with_filled_data.append(
+                    new_row, ignore_index=True)
+
+    # concat and reorder dataframes
+    if df_with_filled_data.empty is False:
+        frame = [df, df_with_filled_data]
+        result = pd.concat(frame)
+        df = result.sort_values(order)
+
+    return df
+
+
 def to_json_stat(input_df, value='value',
                  output='list', version='1.3',
                  updated=datetime.today(), source='Self-elaboration',
-                 note=None, role=None, unit=None):
+                 note=None, role=None, unit=None, naming='label'):
     """Encode pandas.DataFrame object into JSON-stat format.
 
     The DataFrames must have exactly one value column.
@@ -580,6 +631,8 @@ def to_json_stat(input_df, value='value',
       role(dict, optional): roles for dimensions.
       unit(dict, optional): unit for variables, if there is only one
                              element named '*' it will repeated for all.
+      naming(string, optional): dimension naming. Possible values: 'label'
+                                 or 'id'.Defaults to 'label'.
 
     Returns:
       output(string): String with JSON-stat object.
@@ -724,6 +777,9 @@ class Dataset(OrderedDict):
 
         """
         if isinstance(data, pd.DataFrame):
+            if kwargs.get('naming') != None and kwargs.get('value') != None:
+                data = _check_exits_all_categories(data)
+
             return cls((json.loads(
                 to_json_stat(data, output='dict', version='2.0', **kwargs),
                 object_pairs_hook=OrderedDict)))

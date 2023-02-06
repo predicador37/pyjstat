@@ -885,6 +885,28 @@ class TestPyjstat(unittest.TestCase):
         ]
         self.assertEqual(expected_without_units, categories)
 
+    def test_check_exits_all_categories(self):
+        """Test behavior when not all categories are in the source."""
+
+        df = pd.DataFrame(
+            [
+                {'label': 'Name1',
+                    'category': 'Experience', 'value': 30},
+                {'label': 'Name1',
+                    'category': 'Age', 'value': 12},
+                {'label': 'Name3',
+                    'category': 'Age', 'value': 33},
+                {'label': 'Name3',
+                    'category': 'Experience', 'value': 5},
+                {'label': 'Name2',
+                 'category': 'Age', 'value': 28},
+            ]
+        )
+        obj = pyjstat.Dataset.read(df, naming='label', value='value')
+        result = obj.write('dataframe')
+        count_nan = result['value'].isnull().sum()
+        self.assertEqual(count_nan, 1)
+
 
 if __name__ == '__main__':
     unittest.main()
