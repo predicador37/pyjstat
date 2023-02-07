@@ -891,20 +891,21 @@ class TestPyjstat(unittest.TestCase):
         df = pd.DataFrame(
             [
                 {'label': 'Name1',
-                    'category': 'Experience', 'value': 30},
+                    'category': 'Experience', 'my-value': 30},
                 {'label': 'Name1',
-                    'category': 'Age', 'value': 12},
+                    'category': 'Age', 'my-value': 12},
                 {'label': 'Name3',
-                    'category': 'Age', 'value': 33},
+                    'category': 'Age', 'my-value': 33},
                 {'label': 'Name3',
-                    'category': 'Experience', 'value': 5},
+                    'category': 'Experience', 'my-value': 5},
                 {'label': 'Name2',
-                 'category': 'Age', 'value': 28},
+                 'category': 'Age', 'my-value': 28},
             ]
         )
-        obj = pyjstat.Dataset.read(df, naming='label', value='value')
-        result = obj.write('dataframe')
-        count_nan = result['value'].isnull().sum()
+        obj = pyjstat.Dataset.read(
+            df, category_col='category', value='my-value')
+        result = obj.write('dataframe', value='my-value')
+        count_nan = result['my-value'].isnull().sum()
         self.assertEqual(count_nan, 1)
 
 

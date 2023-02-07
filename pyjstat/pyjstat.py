@@ -30,6 +30,7 @@ Example:
 import inspect
 import json
 import logging
+import sys
 import warnings
 from collections import OrderedDict
 from datetime import datetime
@@ -555,24 +556,33 @@ def _get_categories(data, unit=None, role=None, value='value'):
     return categories
 
 
-def _check_exits_all_categories(dataframe, naming='label', value='value'):
+def _check_exits_all_categories(dataframe, category_col, value='value'):
     """Check and transform dataframe to ensure
     that all categories are in it."""
 
     df = dataframe
     columns = df.columns.to_list()
-    columns.remove(value)
-    columns.remove(naming)
-    if len(columns) != 1:
-        warnings.warn(
-            "This DataFrame is not adequate to be transformed into json-stat. ",
-            UserWarning)
 
-    col = columns[0]
+    if len(columns) != 3:
+        warnings.warn(
+            "This DataFrame is not adequate to be transformed into json-stat.",
+            UserWarning)
+        sys.exit()
+
+    if category_col not in columns:
+        warnings.warn(
+            f"{category_col} column doesn't exist in DataFrame.",
+            UserWarning)
+        sys.exit()
+
+    # col = columns[0]
+    columns.remove(value)
+    columns.remove(category_col)
+    naming = columns[0]
 
     # get unique values for columns
     must_contain = []
-    categories = df[col].unique()
+    categories = df[category_col].unique()
     must_contain.extend(categories)
 
     # order df and set what must contain
@@ -588,11 +598,11 @@ def _check_exits_all_categories(dataframe, naming='label', value='value'):
     for item in labels:
         for category in must_contain:
             checking_df = df.query(
-                f"{naming} == '{item}' and {col} == '{category}'")
+                f"{naming} == '{item}' and {category_col} == '{category}'")
             if checking_df.empty:
                 new_row = {
                     naming: item,
-                    col: category,
+                    category_col: category,
                     value: None}
                 df_with_filled_data = df_with_filled_data.append(
                     new_row, ignore_index=True)
@@ -609,7 +619,7 @@ def _check_exits_all_categories(dataframe, naming='label', value='value'):
 def to_json_stat(input_df, value='value',
                  output='list', version='1.3',
                  updated=datetime.today(), source='Self-elaboration',
-                 note=None, role=None, unit=None, naming='label'):
+                 note=None, role=None, unit=None):
     """Encode pandas.DataFrame object into JSON-stat format.
 
     The DataFrames must have exactly one value column.
@@ -631,8 +641,6 @@ def to_json_stat(input_df, value='value',
       role(dict, optional): roles for dimensions.
       unit(dict, optional): unit for variables, if there is only one
                              element named '*' it will repeated for all.
-      naming(string, optional): dimension naming. Possible values: 'label'
-                                 or 'id'.Defaults to 'label'.
 
     Returns:
       output(string): String with JSON-stat object.
@@ -764,21 +772,25 @@ class Dataset(OrderedDict):
         super(Dataset, self).__init__(*args, **kwargs)
 
     @ classmethod
-    def read(cls, data, verify=True, **kwargs):
+    def read(cls, data, verify=True,
+             category_col=None, **kwargs):
         """Read data from URL, Dataframe, JSON string/file or OrderedDict.
 
         Args:
             data: can be a Pandas Dataframe, a JSON file, a JSON string,
                   an OrderedDict or a URL pointing to a JSONstat file.
-            verify: whether to host's SSL certificate.
+            verify (boolean): whether to host's SSL certificate.
+            category_col (string): column name to check if exists
+                all categories for all values in DataFrame.
             kwargs: optional arguments for to_json_stat().
         Returns:
             An object of class Dataset populated with data.
 
         """
         if isinstance(data, pd.DataFrame):
-            if kwargs.get('naming') != None and kwargs.get('value') != None:
-                data = _check_exits_all_categories(data)
+            if category_col is not None:
+                data = _check_exits_all_categories(
+                    data, category_col=category_col, value=kwargs.get('value'))
 
             return cls((json.loads(
                 to_json_stat(data, output='dict', version='2.0', **kwargs),
