@@ -562,7 +562,7 @@ def _check_exits_all_categories(dataframe, category_col, value='value'):
 
     df = dataframe
     columns = df.columns.to_list()
-
+    print('HOLA', columns, value)
     if len(columns) != 3:
         warnings.warn(
             "This DataFrame is not adequate to be transformed into json-stat.",
@@ -790,7 +790,7 @@ class Dataset(OrderedDict):
         if isinstance(data, pd.DataFrame):
             if category_col is not None:
                 data = _check_exits_all_categories(
-                    data, category_col=category_col, value=kwargs.get('value'))
+                    data, category_col=category_col, value=kwargs.get('value', 'value'))
 
             return cls((json.loads(
                 to_json_stat(data, output='dict', version='2.0', **kwargs),
