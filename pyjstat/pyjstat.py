@@ -562,7 +562,15 @@ def _check_exits_all_categories(dataframe, category_col, value='value'):
 
     df = dataframe
     columns = df.columns.to_list()
-    print('HOLA', columns, value)
+
+    if isinstance(category_col, int):
+        category_col = columns[category_col]
+    elif not isinstance(category_col, str):
+        warnings.warn(
+            "Parameter category_col contains an incorrect type.",
+            UserWarning)
+        sys.exit()
+
     if len(columns) != 3:
         warnings.warn(
             "This DataFrame is not adequate to be transformed into json-stat.",
@@ -780,8 +788,8 @@ class Dataset(OrderedDict):
             data: can be a Pandas Dataframe, a JSON file, a JSON string,
                   an OrderedDict or a URL pointing to a JSONstat file.
             verify (boolean): whether to host's SSL certificate.
-            category_col (string): column name to check if exists
-                all categories for all values in DataFrame.
+            category_col (string|int): column name or index in column list
+                to check if exists all categories for all values in DataFrame.
             kwargs: optional arguments for to_json_stat().
         Returns:
             An object of class Dataset populated with data.

@@ -908,6 +908,12 @@ class TestPyjstat(unittest.TestCase):
         count_nan = result['my-value'].isnull().sum()
         self.assertEqual(count_nan, 1)
 
+        obj = pyjstat.Dataset.read(
+            df, category_col=1, value='my-value')
+        result = obj.write('dataframe', value='my-value')
+        count_nan = result['my-value'].isnull().sum()
+        self.assertEqual(count_nan, 1)
+
 
 if __name__ == '__main__':
     unittest.main()
