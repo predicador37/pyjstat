@@ -1,4 +1,4 @@
-v2.4.0  07-02-2023 -- Dataset.read() Add parameter 'fill_category' when it uses a DataFrame which will be checked if its complete and if is possible it will fix it to build the output.
+v2.4.0  07-02-2023 -- Dataset.read() Add parameter 'fill_category' when it uses a DataFrame, which will be checked if its complete and, if is possible, it will fix it to build the output.
 v2.3.0  20-07-2022 -- to_json_stat() accepts note, role and unit.
 v2.2.1  11-08-2021 -- Fixes #30. Solved import behavior.
 v2.2.0  03-22-2020 -- to_json_stat() accepts now source and updated JSON-stat metadata.
