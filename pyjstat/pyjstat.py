@@ -556,18 +556,18 @@ def _get_categories(data, unit=None, role=None, value='value'):
     return categories
 
 
-def _check_exits_all_categories(dataframe, category_col, value='value'):
+def _check_exits_all_categories(dataframe, fill_category, value='value'):
     """Check and transform dataframe to ensure
     that all categories are in it."""
 
     df = dataframe
     columns = df.columns.to_list()
 
-    if isinstance(category_col, int):
-        category_col = columns[category_col]
-    elif not isinstance(category_col, str):
+    if isinstance(fill_category, int):
+        fill_category = columns[fill_category]
+    elif not isinstance(fill_category, str):
         warnings.warn(
-            "Parameter category_col contains an incorrect type.",
+            "Parameter fill_category contains an incorrect type.",
             UserWarning)
         sys.exit()
 
@@ -577,20 +577,20 @@ def _check_exits_all_categories(dataframe, category_col, value='value'):
             UserWarning)
         sys.exit()
 
-    if category_col not in columns:
+    if fill_category not in columns:
         warnings.warn(
-            f"{category_col} column doesn't exist in DataFrame.",
+            f"{fill_category} column doesn't exist in DataFrame.",
             UserWarning)
         sys.exit()
 
     # col = columns[0]
     columns.remove(value)
-    columns.remove(category_col)
+    columns.remove(fill_category)
     naming = columns[0]
 
     # get unique values for columns
     must_contain = []
-    categories = df[category_col].unique()
+    categories = df[fill_category].unique()
     must_contain.extend(categories)
 
     # order df and set what must contain
@@ -606,11 +606,11 @@ def _check_exits_all_categories(dataframe, category_col, value='value'):
     for item in labels:
         for category in must_contain:
             checking_df = df.query(
-                f"{naming} == '{item}' and {category_col} == '{category}'")
+                f"{naming} == '{item}' and {fill_category} == '{category}'")
             if checking_df.empty:
                 new_row = {
                     naming: item,
-                    category_col: category,
+                    fill_category: category,
                     value: None}
                 df_with_filled_data = df_with_filled_data.append(
                     new_row, ignore_index=True)
@@ -781,14 +781,14 @@ class Dataset(OrderedDict):
 
     @ classmethod
     def read(cls, data, verify=True,
-             category_col=None, **kwargs):
+             fill_category=None, **kwargs):
         """Read data from URL, Dataframe, JSON string/file or OrderedDict.
 
         Args:
             data: can be a Pandas Dataframe, a JSON file, a JSON string,
                   an OrderedDict or a URL pointing to a JSONstat file.
             verify (boolean): whether to host's SSL certificate.
-            category_col (string|int): column name or index in column list
+            fill_category (string|int): column name or index in column list
                 to check if exists all categories for all values in DataFrame.
             kwargs: optional arguments for to_json_stat().
         Returns:
@@ -796,9 +796,9 @@ class Dataset(OrderedDict):
 
         """
         if isinstance(data, pd.DataFrame):
-            if category_col is not None:
+            if fill_category is not None:
                 data = _check_exits_all_categories(
-                    data, category_col=category_col, value=kwargs.get('value', 'value'))
+                    data, fill_category=fill_category, value=kwargs.get('value', 'value'))
 
             return cls((json.loads(
                 to_json_stat(data, output='dict', version='2.0', **kwargs),
