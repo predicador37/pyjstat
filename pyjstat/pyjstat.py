@@ -571,12 +571,6 @@ def _check_exits_all_categories(dataframe, fill_category, value='value'):
             UserWarning)
         sys.exit()
 
-    if len(columns) != 3:
-        warnings.warn(
-            "This DataFrame is not adequate to be transformed into json-stat.",
-            UserWarning)
-        sys.exit()
-
     if fill_category not in columns:
         warnings.warn(
             f"{fill_category} column doesn't exist in DataFrame.",
