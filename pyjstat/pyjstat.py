@@ -577,45 +577,68 @@ def _check_exits_all_categories(dataframe, fill_category, value='value'):
             UserWarning)
         sys.exit()
 
-    # col = columns[0]
-    columns.remove(value)
-    columns.remove(fill_category)
-    naming = columns[0]
+    # order df
+    df.sort_values(columns, ignore_index=True, inplace=True)
 
-    # get unique values for columns
+    # get unique values for columns for must_contain
     must_contain = []
     categories = df[fill_category].unique()
     must_contain.extend(categories)
-
-    # order df and set what must contain
-    order = ['label'] + columns
-    df.sort_values(order, inplace=True)
     must_contain.sort()
 
     # create list of labels and new df for non existing data
-    labels = df['label'].unique()
+    labels = df[fill_category].unique()
     df_with_filled_data = pd.DataFrame()
 
-    # iterate over unique labels querying about categories
-    for item in labels:
-        for category in must_contain:
-            checking_df = df.query(
-                f"{naming} == '{item}' and {fill_category} == '{category}'")
-            if checking_df.empty:
-                new_row = {
-                    naming: item,
-                    fill_category: category,
-                    value: None}
-                df_with_filled_data = df_with_filled_data.append(
-                    new_row, ignore_index=True)
+    # get the first and last ids in df
+    _ = df.index.values
+    first_index = _[0]
+    last_index = _[-1]
+
+    # initialize values before to enter into loop
+    last_ok = 0
+    last_pos_must_contain = len(labels)-1
+    pos_to_compare = 0
+    i = first_index
+
+    # iterate over df.
+    while i < last_index:
+        row = df.iloc[i]
+
+        if must_contain[pos_to_compare] == row[fill_category]:
+            # case category exists in df and set the correct
+            # value for position_to_compare and store the last ok id.
+            last_ok = i
+            if pos_to_compare < last_pos_must_contain:
+                pos_to_compare += 1
+            else:
+                pos_to_compare = 0
+        else:
+            # case the row needs to be created from the last ok row
+            # but with the addecuate category from must_contain
+            #  and None in value.
+            row_to_append = df.iloc[last_ok]
+            row_to_append[fill_category] = must_contain[pos_to_compare]
+            row_to_append[value] = None
+            df_with_filled_data = df_with_filled_data.append(
+                row_to_append, ignore_index=True)
+
+            if pos_to_compare < last_pos_must_contain:
+                pos_to_compare += 1
+            else:
+                pos_to_compare = 0
+            i += 1
+
+        i += 1
 
     # concat and reorder dataframes
     if df_with_filled_data.empty is False:
         frame = [df, df_with_filled_data]
         result = pd.concat(frame)
-        df = result.sort_values(order)
+        result.sort_values(result.columns.to_list(),
+                           ignore_index=True, inplace=True)
 
-    return df
+    return result
 
 
 def to_json_stat(input_df, value='value',
@@ -791,8 +814,10 @@ class Dataset(OrderedDict):
         """
         if isinstance(data, pd.DataFrame):
             if fill_category is not None:
+                # check it and fill it if it is necessary
                 data = _check_exits_all_categories(
-                    data, fill_category=fill_category, value=kwargs.get('value', 'value'))
+                    data, fill_category,
+                    value=kwargs.get('value', 'value'))
 
             return cls((json.loads(
                 to_json_stat(data, output='dict', version='2.0', **kwargs),

@@ -914,6 +914,22 @@ class TestPyjstat(unittest.TestCase):
         count_nan = result['my-value'].isnull().sum()
         self.assertEqual(count_nan, 1)
 
+    def test_fill_category(self):
+        """Test fill_category parameter."""
+        df = pd.read_csv(os.path.join(os.path.dirname(__file__),
+                                      './data/fill_category.csv'),
+                         sep=',')
+        obj = pyjstat.Dataset.read(df, fill_category='estado_version')
+        result = obj.write('dataframe')
+
+        self.assertEqual(24, len(result))
+        self.assertEqual(
+            result.iloc[6]['estado_version'], 'BORRADOR')
+        self.assertEqual(result.iloc[6]['label'],
+                         '424-Procedimiento de sugerencias y quejas.')
+        self.assertEqual(
+            result.iloc[6]['codigo_ipsc'], 'GOB')
+
 
 if __name__ == '__main__':
     unittest.main()
