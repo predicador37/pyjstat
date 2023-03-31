@@ -1,0 +1,22 @@
+label,codigo_ipsc,estado_version,Variables,value
+424-Procedimiento de sugerencias y quejas.,ESPECIFICO,ACTIVO CON EXPEDIENTES,num_expedientes,
+424-Procedimiento de sugerencias y quejas.,ESPECIFICO,ACTIVO SIN EXPEDIENTES,num_expedientes,
+424-Procedimiento de sugerencias y quejas.,ESPECIFICO,BORRADOR,num_expedientes,
+424-Procedimiento de sugerencias y quejas.,ESPECIFICO,NO CONFIGURADO,num_expedientes,
+424-Procedimiento de sugerencias y quejas.,GOB,ACTIVO CON EXPEDIENTES,num_expedientes,
+424-Procedimiento de sugerencias y quejas.,GOB,ACTIVO SIN EXPEDIENTES,num_expedientes,0.0
+5006-Contratos menores.,ESPECIFICO,ACTIVO CON EXPEDIENTES,num_expedientes,
+5006-Contratos menores.,ESPECIFICO,ACTIVO SIN EXPEDIENTES,num_expedientes,
+5006-Contratos menores.,ESPECIFICO,BORRADOR,num_expedientes,
+5006-Contratos menores.,ESPECIFICO,NO CONFIGURADO,num_expedientes,
+5006-Contratos menores.,GOB,ACTIVO CON EXPEDIENTES,num_expedientes,6.0
+5006-Contratos menores.,GOB,ACTIVO SIN EXPEDIENTES,num_expedientes,
+5006-Contratos menores.,GOB,BORRADOR,num_expedientes,
+5006-Contratos menores.,GOB,NO CONFIGURADO,num_expedientes,16
+5066-Solicitudes de acceso a la información pública al amparo de la Ley de Cantabria de Transparencia de ,ESPECIFICO,ACTIVO CON EXPEDIENTES,num_expedientes,
+5066-Solicitudes de acceso a la información pública al amparo de la Ley de Cantabria de Transparencia de ,ESPECIFICO,ACTIVO SIN EXPEDIENTES,num_expedientes,
+5066-Solicitudes de acceso a la información pública al amparo de la Ley de Cantabria de Transparencia de ,ESPECIFICO,BORRADOR,num_expedientes,
+5066-Solicitudes de acceso a la información pública al amparo de la Ley de Cantabria de Transparencia de ,ESPECIFICO,NO CONFIGURADO,num_expedientes,
+5066-Solicitudes de acceso a la información pública al amparo de la Ley de Cantabria de Transparencia de ,GOB,ACTIVO CON EXPEDIENTES,num_expedientes,6.0
+5066-Solicitudes de acceso a la información pública al amparo de la Ley de Cantabria de Transparencia de ,GOB,BORRADOR,num_expedientes,
+5066-Solicitudes de acceso a la información pública al amparo de la Ley de Cantabria de Transparencia de ,GOB,NO CONFIGURADO,num_expedientes,

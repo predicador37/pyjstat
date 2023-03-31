@@ -30,6 +30,7 @@ Example:
 import inspect
 import json
 import logging
+import sys
 import warnings
 from collections import OrderedDict
 from datetime import datetime
@@ -555,6 +556,91 @@ def _get_categories(data, unit=None, role=None, value='value'):
     return categories
 
 
+def _check_exits_all_categories(dataframe, fill_category, value='value'):
+    """Check and transform dataframe to ensure
+    that all categories are in it."""
+
+    df = dataframe
+    columns = df.columns.to_list()
+
+    if isinstance(fill_category, int):
+        fill_category = columns[fill_category]
+    elif not isinstance(fill_category, str):
+        warnings.warn(
+            "Parameter fill_category contains an incorrect type.",
+            UserWarning)
+        sys.exit()
+
+    if fill_category not in columns:
+        warnings.warn(
+            f"{fill_category} column doesn't exist in DataFrame.",
+            UserWarning)
+        sys.exit()
+
+    # order df
+    df.sort_values(columns, ignore_index=True, inplace=True)
+
+    # get unique values for columns for must_contain
+    must_contain = []
+    categories = df[fill_category].unique()
+    must_contain.extend(categories)
+    must_contain.sort()
+
+    # create list of labels and new df for non existing data
+    labels = df[fill_category].unique()
+    df_with_filled_data = pd.DataFrame()
+
+    # get the first and last ids in df
+    _ = df.index.values
+    first_index = _[0]
+    last_index = _[-1]
+
+    # initialize values before to enter into loop
+    last_ok = 0
+    last_pos_must_contain = len(labels)-1
+    pos_to_compare = 0
+    i = first_index
+
+    # iterate over df.
+    while i < last_index:
+        row = df.iloc[i]
+
+        if must_contain[pos_to_compare] == row[fill_category]:
+            # case category exists in df and set the correct
+            # value for position_to_compare and store the last ok id.
+            last_ok = i
+            if pos_to_compare < last_pos_must_contain:
+                pos_to_compare += 1
+            else:
+                pos_to_compare = 0
+        else:
+            # case the row needs to be created from the last ok row
+            # but with the addecuate category from must_contain
+            #  and None in value.
+            row_to_append = df.iloc[last_ok]
+            row_to_append[fill_category] = must_contain[pos_to_compare]
+            row_to_append[value] = None
+            df_with_filled_data = df_with_filled_data.append(
+                row_to_append, ignore_index=True)
+
+            if pos_to_compare < last_pos_must_contain:
+                pos_to_compare += 1
+            else:
+                pos_to_compare = 0
+            i += 1
+
+        i += 1
+
+    # concat and reorder dataframes
+    if df_with_filled_data.empty is False:
+        frame = [df, df_with_filled_data]
+        result = pd.concat(frame)
+        result.sort_values(result.columns.to_list(),
+                           ignore_index=True, inplace=True)
+
+    return result
+
+
 def to_json_stat(input_df, value='value',
                  output='list', version='1.3',
                  updated=datetime.today(), source='Self-elaboration',
@@ -711,19 +797,28 @@ class Dataset(OrderedDict):
         super(Dataset, self).__init__(*args, **kwargs)
 
     @ classmethod
-    def read(cls, data, verify=True, **kwargs):
+    def read(cls, data, verify=True,
+             fill_category=None, **kwargs):
         """Read data from URL, Dataframe, JSON string/file or OrderedDict.
 
         Args:
             data: can be a Pandas Dataframe, a JSON file, a JSON string,
                   an OrderedDict or a URL pointing to a JSONstat file.
-            verify: whether to host's SSL certificate.
+            verify (boolean): whether to host's SSL certificate.
+            fill_category (string|int): column name or index in column list
+                to check if exists all categories for all values in DataFrame.
             kwargs: optional arguments for to_json_stat().
         Returns:
             An object of class Dataset populated with data.
 
         """
         if isinstance(data, pd.DataFrame):
+            if fill_category is not None:
+                # check it and fill it if it is necessary
+                data = _check_exits_all_categories(
+                    data, fill_category,
+                    value=kwargs.get('value', 'value'))
+
             return cls((json.loads(
                 to_json_stat(data, output='dict', version='2.0', **kwargs),
                 object_pairs_hook=OrderedDict)))

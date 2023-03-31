@@ -885,6 +885,51 @@ class TestPyjstat(unittest.TestCase):
         ]
         self.assertEqual(expected_without_units, categories)
 
+    def test_check_exits_all_categories(self):
+        """Test behavior when not all categories are in the source."""
+
+        df = pd.DataFrame(
+            [
+                {'label': 'Name1',
+                    'category': 'Experience', 'my-value': 30},
+                {'label': 'Name1',
+                    'category': 'Age', 'my-value': 12},
+                {'label': 'Name3',
+                    'category': 'Age', 'my-value': 33},
+                {'label': 'Name3',
+                    'category': 'Experience', 'my-value': 5},
+                {'label': 'Name2',
+                 'category': 'Age', 'my-value': 28},
+            ]
+        )
+        obj = pyjstat.Dataset.read(
+            df, fill_category='category', value='my-value')
+        result = obj.write('dataframe', value='my-value')
+        count_nan = result['my-value'].isnull().sum()
+        self.assertEqual(count_nan, 1)
+
+        obj = pyjstat.Dataset.read(
+            df, fill_category=1, value='my-value')
+        result = obj.write('dataframe', value='my-value')
+        count_nan = result['my-value'].isnull().sum()
+        self.assertEqual(count_nan, 1)
+
+    def test_fill_category(self):
+        """Test fill_category parameter."""
+        df = pd.read_csv(os.path.join(os.path.dirname(__file__),
+                                      './data/fill_category.csv'),
+                         sep=',')
+        obj = pyjstat.Dataset.read(df, fill_category='estado_version')
+        result = obj.write('dataframe')
+
+        self.assertEqual(24, len(result))
+        self.assertEqual(
+            result.iloc[6]['estado_version'], 'BORRADOR')
+        self.assertEqual(result.iloc[6]['label'],
+                         '424-Procedimiento de sugerencias y quejas.')
+        self.assertEqual(
+            result.iloc[6]['codigo_ipsc'], 'GOB')
+
 
 if __name__ == '__main__':
     unittest.main()

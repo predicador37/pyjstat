@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='pyjstat',
-    version='2.3.0',
+    version='2.4.0',
     author='Miguel Expósito Martín',
     author_email='miguel.exposito@gmail.com',
     packages=['pyjstat', 'pyjstat.test'],
